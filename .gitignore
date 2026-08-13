@@ -3,3 +3,6 @@ dist/
 .superpowers/
 .DS_Store
 *.log
+
+# 误提交备份文件
+superpowers.zip
