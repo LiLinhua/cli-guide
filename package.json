@@ -1,0 +1,16 @@
+{
+  "name": "cli-guide",
+  "version": "0.1.0",
+  "description": "黑客风终端脸桌宠命令行手册",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node test/commands.test.js && node test/search.test.js && node test/layout.test.js && node test/panel.test.js && node test/smoke.test.js"
+  },
+  "devDependencies": {
+    "electron": "^43.4.0"
+  },
+  "dependencies": {
+    "three": "^0.185.1"
+  }
+}
