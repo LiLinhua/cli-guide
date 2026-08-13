@@ -49,21 +49,44 @@
     this.camera.position.set(0, 0.4, 5.2);
     this.camera.lookAt(0, 0, 0);
 
+    // 灯光: 让主体有立体层次 + 绿/蓝冷色氛围
+    this.scene.add(new THREE.AmbientLight(0x8899aa, 0.55));
+    const key = new THREE.PointLight(0x00ff88, 1.1, 12);
+    key.position.set(1.6, 2.0, 3.2);
+    this.scene.add(key);
+    const rim = new THREE.PointLight(0x00aaff, 0.35, 10);
+    rim.position.set(-2.0, -1.0, 2.5);
+    this.scene.add(rim);
+
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
-    // 主体: 终端窗口盒子
+    // 主体: 终端窗口盒子 (标准材质 + 灯光 → 立体感)
     const body = new THREE.Mesh(
       new THREE.BoxGeometry(2.1, 1.5, 0.35),
-      new THREE.MeshBasicMaterial({ color: 0x0a0f14 })
+      new THREE.MeshStandardMaterial({ color: 0x0d1620, roughness: 0.6, metalness: 0.35 })
     );
     this.group.add(body);
-    // 边框线
+    // 主边缘线 (绿色)
     const edges = new THREE.LineSegments(
       new THREE.EdgesGeometry(body.geometry),
       new THREE.LineBasicMaterial({ color: 0x00ff88 })
     );
     this.group.add(edges);
+    // 半透明外框线: 营造外发光层次
+    const outer = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(2.16, 1.56, 0.4)),
+      new THREE.LineBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.25 })
+    );
+    this.group.add(outer);
+
+    // 屏幕凹槽内衬 (深色, 让屏幕有嵌入感)
+    const bezel = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.96, 1.26),
+      new THREE.MeshBasicMaterial({ color: 0x060d13 })
+    );
+    bezel.position.z = 0.18;
+    this.group.add(bezel);
 
     // 屏幕: 字符流贴图
     const sCanvas = document.createElement('canvas');
@@ -72,29 +95,17 @@
     this._initStream();
     this.screenTex = new THREE.CanvasTexture(sCanvas);
     const screen = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.9, 1.2),
+      new THREE.PlaneGeometry(1.86, 1.16),
       new THREE.MeshBasicMaterial({ map: this.screenTex, transparent: true })
     );
-    screen.position.z = 0.19;
+    screen.position.z = 0.185;
     this.group.add(screen);
 
-    // 眼睛
-    const eyeMat = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
-    this.eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.34, 0.06), eyeMat);
-    this.eyeL.position.set(-0.5, 0.05, 0.2);
-    this.eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.34, 0.06), eyeMat);
-    this.eyeR.position.set(0.5, 0.05, 0.2);
-    this.group.add(this.eyeL, this.eyeR);
+    // 眼睛 (拟人化: 深色眼白框 + 发光瞳孔 + 高光点)
+    this._buildEyes();
 
-    // traffic lights
-    const dotMat = new THREE.MeshBasicMaterial({ color: 0x27c93f });
-    const dotGeo = new THREE.SphereGeometry(0.07, 8, 8);
-    const dots = [0xff5f56, 0xffbd2e, 0x27c93f];
-    dots.forEach((c, i) => {
-      const m = new THREE.Mesh(dotGeo, new THREE.MeshBasicMaterial({ color: c }));
-      m.position.set(-0.72 + i * 0.18, 0.72, 0.2);
-      this.group.add(m);
-    });
+    // traffic lights (放大 + 呼吸闪烁)
+    this._buildTrafficLights();
 
     // 辉光 sprite
     const gCanvas = document.createElement('canvas');
@@ -108,11 +119,66 @@
     const glow = new THREE.Sprite(new THREE.SpriteMaterial({
       map: new THREE.CanvasTexture(gCanvas), transparent: true, depthWrite: false
     }));
-    glow.scale.set(3.4, 2.6, 1);
+    glow.scale.set(3.6, 2.8, 1);
     this.group.add(glow);
 
     // 点击惊吓
     this._shock = 0;
+  };
+
+  /* ---------- 眼睛: 眼白框 + 发光瞳孔 + 高光 ---------- */
+  Pet.prototype._buildEyes = function () {
+    this.eyeL = this._makeEye(-0.52);
+    this.eyeR = this._makeEye(0.52);
+    this.group.add(this.eyeL, this.eyeR);
+  };
+
+  Pet.prototype._makeEye = function (x) {
+    const g = new THREE.Group();
+    // 眼白: 深色圆角感边框 (略大, 微绿)
+    const white = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.46, 0.56),
+      new THREE.MeshBasicMaterial({ color: 0x0a2a1c })
+    );
+    // 瞳孔: 亮绿发光方块
+    const pupil = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.3, 0.38),
+      new THREE.MeshBasicMaterial({ color: 0x00ff88 })
+    );
+    // 瞳孔外光晕
+    const halo = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.34, 0.42),
+      new THREE.MeshBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.3 })
+    );
+    // 高光点: 亮白绿, 左上
+    const glint = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.1, 0.13),
+      new THREE.MeshBasicMaterial({ color: 0xd8ffe8 })
+    );
+    glint.position.set(0.05, 0.07, 0.01);
+    halo.add(pupil);
+    pupil.add(glint);
+    white.add(halo);
+    g.add(white);
+    g.position.set(x, 0.05, 0.2);
+    g.userData.pupil = pupil;
+    g.userData.glint = glint;
+    return g;
+  };
+
+  /* ---------- traffic lights: 红黄绿圆点 ---------- */
+  Pet.prototype._buildTrafficLights = function () {
+    this.traffic = [];
+    const colors = [0xff5f56, 0xffbd2e, 0x27c93f];
+    colors.forEach((c, i) => {
+      const mat = new THREE.MeshStandardMaterial({
+        color: c, emissive: c, emissiveIntensity: 0.5, roughness: 0.3
+      });
+      const m = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 12), mat);
+      m.position.set(-0.72 + i * 0.21, 0.72, 0.2);
+      this.group.add(m);
+      this.traffic.push({ mesh: m, mat });
+    });
   };
 
   /* ---------- Matrix 字符流 ---------- */
@@ -126,6 +192,9 @@
   Pet.prototype._drawStream = function () {
     const c = this.sCtx, w = 96, h = 64;
     c.clearRect(0, 0, w, h);
+    // 屏幕底色 (深绿黑, 让字符更有层次)
+    c.fillStyle = 'rgba(3,10,7,0.92)';
+    c.fillRect(0, 0, w, h);
     c.font = '7px monospace';
     for (let i = 0; i < this.cols.length; i++) {
       const col = this.cols[i];
@@ -138,6 +207,12 @@
         c.fillText(this._chars[(Math.random() * this._chars.length) | 0], x, y);
       }
     }
+    // CRT 扫描线
+    c.fillStyle = 'rgba(0,0,0,0.28)';
+    for (let y = 0; y < h; y += 3) c.fillRect(0, y, w, 1);
+    // 顶部高光条
+    c.fillStyle = 'rgba(0,255,136,0.1)';
+    c.fillRect(0, 0, w, 3);
     if (this.screenTex) this.screenTex.needsUpdate = true;
   };
 
@@ -149,8 +224,20 @@
     this.group.position.y = Math.sin(t * 1.2) * 0.12;          // 悬浮
     const breathe = 1 + Math.sin(t * 1.6) * 0.02;
     this.group.scale.setScalar(breathe);                        // 呼吸
-    const blink = (t % 2.7) > 2.62 ? 0.12 : 1;                  // 眨眼
+    const blink = (t % 2.7) > 2.62 ? 0.12 : 1;                  // 眨眼(整只眼睛)
     this.eyeL.scale.y = blink; this.eyeR.scale.y = blink;
+    // 瞳孔高光微浮动 (灵动感)
+    if (this.eyeL.userData.pupil) {
+      this.eyeL.userData.pupil.position.x = Math.sin(t * 2.3) * 0.03;
+      this.eyeL.userData.pupil.position.y = 0.07 + Math.sin(t * 3.1) * 0.02;
+      this.eyeR.userData.pupil.position.x = Math.sin(t * 2.3 + 1) * 0.03;
+      this.eyeR.userData.pupil.position.y = 0.07 + Math.sin(t * 3.1 + 1) * 0.02;
+    }
+    // traffic lights 呼吸: 每 2.4s 轮换一盏灯脉动
+    const lightIdx = Math.floor(t / 2.4) % 3;
+    this.traffic.forEach((tl, i) => {
+      tl.mat.emissiveIntensity = i === lightIdx ? 0.9 + Math.sin(t * 6) * 0.5 : 0.45;
+    });
     if (this._shock > 0) {                                      // 点击惊吓
       this._shock -= 0.06;
       this.group.scale.setScalar(breathe * (1 + this._shock * 0.5));

@@ -37,17 +37,63 @@ body {
   position: relative;
   animation: pet-bob 3s ease-in-out infinite;
 }
+.fb-eyes {
+  position: absolute; left: 50%; top: 37%;
+  transform: translateX(-50%);
+  display: flex; justify-content: center; gap: 22px;
+}
+.fb-eye {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 34px;
+  border: 2px solid #0a2a1c; border-radius: 6px;
+  background: #060f16;
+  box-shadow: 0 0 8px rgba(0,255,136,.15);
+  position: relative;
+  animation: pet-blink 2.7s step-end infinite;
+}
+.fb-eye i {
+  display: block;
+  width: 18px; height: 22px;
+  background: var(--green);
+  border-radius: 4px;
+  position: relative;
+  box-shadow: 0 0 6px rgba(0,255,136,.6);
+  animation: pet-pupil 3.5s ease-in-out infinite;
+}
+.fb-eye i::after {
+  content: ''; display: block;
+  width: 6px; height: 8px;
+  background: #d8ffe8; border-radius: 2px;
+  position: absolute; left: 4px; top: 3px;
+}
+@keyframes pet-blink {
+  0%, 96% { transform: scaleY(1); }
+  97%, 100% { transform: scaleY(0.08); }
+}
+@keyframes pet-pupil {
+  0%, 100% { margin-left: 0; margin-top: 0; }
+  25% { margin-left: 2px; margin-top: -1px; }
+  75% { margin-left: -2px; margin-top: 1px; }
+}
 #pet-fallback::before {           /* traffic lights */
   content: '● ● ●';
-  position: absolute; top: 8px; left: 10px;
-  color: #3a6; font-size: 6px; letter-spacing: 3px;
+  position: absolute; top: 10px; left: 11px;
+  color: #3a6; font-size: 8px; letter-spacing: 5px;
+  line-height: 1;
+  animation: pet-traffic 2.4s ease-in-out infinite;
+}
+@keyframes pet-traffic {
+  0%, 100% { opacity: .6; }
+  50% { opacity: 1; }
 }
 #pet-fallback::after {            /* 字符流 */
   content: '0101 1010 1100';
-  position: absolute; left: 10px; top: 38px;
+  position: absolute; left: 10px; bottom: 28px;
   color: var(--green); font-size: 9px; letter-spacing: 1px;
+  white-space: pre; font-family: var(--font-mono);
   opacity: .7; animation: pet-stream 2s steps(8) infinite;
 }
+
 @keyframes pet-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes pet-stream { 0% { opacity: .2; } 50% { opacity: .9; } 100% { opacity: .2; } }
 
