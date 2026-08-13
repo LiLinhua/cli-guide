@@ -52,6 +52,20 @@ Web 版与客户端版的差异：
 
 > ⚠️ Web 版复制命令依赖浏览器剪贴板权限；若被拦截会自动降级为传统复制方式。
 
+## 📦 打包 macOS 安装包
+
+```bash
+npm run dist
+# 产物: release/CLI-GUIDE-<版本>-arm64.dmg (推荐) + release/CLI-GUIDE-<版本>-arm64-mac.zip
+```
+
+- **dmg**: 双击挂载后把 CLI-GUIDE 拖入 Applications 即可（自动打开安装目录视图）
+- **zip**: 解压即得 CLI-GUIDE.app，同样拖入 Applications
+- 应用未做代码签名（个人开发者证书），首次打开若被 Gatekeeper 拦截：**右键 → 打开**，或终端执行 `xattr -cr /Applications/CLI-GUIDE.app` 解除隔离
+- 默认打 **arm64**（Apple Silicon M 系列）；Intel Mac 需指定 `npx electron-builder --mac --x64`
+- 构建配置在 `package.json` 的 `build` 字段；应用图标由 `scripts/gen-app-icon.js` 生成（终端脸风格，可自定义后重新生成 icns）
+- **受限网络友好**: 已配置 `electronDist` 复用本地 Electron 二进制，打包全程不下载网络依赖
+
 ## 🧪 测试
 
 ```bash

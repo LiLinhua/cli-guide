@@ -83,15 +83,9 @@ body {
 #search-input {
   flex: 1; background: transparent; border: none; outline: none;
   color: var(--green); font-family: var(--font-mono); font-size: 14px;
-  caret-color: transparent;
+  caret-color: var(--green); /* 系统光标跟随输入, 绿色主题 */
 }
 #search-input::placeholder { color: var(--text-dim); }
-.cursor {
-  width: 8px; height: 16px; background: var(--green);
-  box-shadow: 0 0 8px var(--green);
-  animation: cursor-blink 1s step-end infinite;
-}
-@keyframes cursor-blink { 50% { opacity: 0; } }
 
 .cat-bar {
   display: flex; gap: 6px; flex-wrap: wrap;
