@@ -51,9 +51,7 @@
       return Promise.resolve();
     },
     hidePanel: () => {
-      expanded = false;
-      syncPanel();
-      stateCbs.forEach(cb => cb('compact'));
+      // Web 版面板常驻: 禁用 Esc 收起 (仅 Cmd/Ctrl+Shift+C 可切换)
       return Promise.resolve();
     },
     dragMove: () => Promise.resolve(), // 无桌宠, 无拖拽
