@@ -9,9 +9,9 @@ const WEB_CSS = `
 /* ===== Web 版覆盖样式: 桌宠固定视口右下角, 展开为 760x560 面板(与客户端窗口动画同语义) ===== */
 html, body { background: #05070a; }
 #app {
-  position: fixed; right: 16px; bottom: 16px;
+  position: fixed; left: auto; top: auto; right: 16px; bottom: 16px;
   width: 150px; height: 150px; z-index: 9999;
-  transition: width .22s ease-out, height .22s ease-out;
+  transition: left .22s ease-out, top .22s ease-out, width .22s ease-out, height .22s ease-out;
 }
 #app.expanded { width: 760px; height: 560px; }
 #web-badge {
