@@ -38,7 +38,8 @@
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
         if (self.h.onArrow) self.h.onArrow(e.key === 'ArrowDown' ? 1 : -1);
-      } else if (e.key === 'Enter') {
+      } else if (e.key === 'Enter' && !e.isComposing) {
+        // 中文输入法确认候选词时 isComposing=true, 不触发复制
         if (self.h.onEnter) self.h.onEnter();
       }
     });

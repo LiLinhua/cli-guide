@@ -113,6 +113,7 @@ ipcMain.handle('panel:toggle', () => toggle());
 ipcMain.handle('panel:hide', () => collapse());
 ipcMain.handle('window:drag-move', (_e, dx, dy) => {
   if (!win) return;
+  if (animTimer) { clearInterval(animTimer); animTimer = null; } // 拖拽中断展开/收起动画, 避免位置被拉回
   const b = win.getBounds();
   win.setPosition(Math.round(b.x + dx), Math.round(b.y + dy));
 });
@@ -169,5 +170,9 @@ if (!gotLock) {
     setupTray();
   });
   app.on('window-all-closed', () => { /* 常驻, 不退出 */ });
-  app.on('will-quit', () => globalShortcut.unregisterAll());
+  app.on('will-quit', () => {
+    // 拖拽后未展开过直接退出时, 保存当前 compact 位置
+    if (win && state === 'compact') saveConfig({ ...loadConfig(), x: win.getBounds().x, y: win.getBounds().y });
+    globalShortcut.unregisterAll();
+  });
 }

@@ -51,7 +51,7 @@ window.cliGuide = {
   quit()                    // → Promise<void>
 }
 // 主进程 → 渲染进程广播：
-// 'window-state' {state: 'compact'|'expanded'}
+// 'window:state' {state: 'compact'|'expanded'}
 ```
 
 **命令数据格式（所有 JSON 统一遵循）:**
