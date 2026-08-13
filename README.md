@@ -45,13 +45,64 @@ Web 版与客户端版的差异：
 
 | 能力 | 客户端版 | Web 版 |
 | --- | --- | --- |
-| 3D 桌宠 / 面板 / 搜索 / 复制 | ✅ | ✅ |
+| 3D 桌宠 / 面板 / 搜索 / 复制 | ✅ | ✅ (面板常驻居中, 无桌宠) |
 | 全局快捷键 Cmd+Shift+C | ✅ (任意焦点) | ✅ (页面内焦点) |
-| 开机自启动 / 托盘 | ✅ | ❌ (浏览器无此能力) |
-| 窗口拖动 / 位置记忆 | ✅ (系统级) | ✅ (页面内拖动, 刷新复位) |
+| 开机自启动 / 托盘 | ✅ | ✅ 自启动 (Chrome 应用模式, 见下方) / ❌ 托盘 |
+| 窗口拖动 / 位置记忆 | ✅ (系统级) | ❌ (固定居中) |
 | 自定义命令库 | ✅ `~/.cli-guide/commands/` | ❌ (内置库, 与客户端一致) |
 
 > ⚠️ Web 版复制命令依赖浏览器剪贴板权限；若被拦截会自动降级为传统复制方式。
+
+### Web 版桌面常驻 (Chrome 应用模式 + 开机自启动)
+
+> **适用场景**: 公司电脑被终端管控软件(如云壳)拦截自研 Electron 应用时, 客户端版无法运行。
+> 此方案用 Chrome 的"应用窗口模式"把 Web 版包装成独立桌面窗口——走 Chrome 进程不受管控,
+> 面板常驻屏幕居中, 且支持开机自启动。
+
+**1. 构建 Web 版**
+
+```bash
+npm run build:web
+# 生成 dist/cli-guide-web.html
+```
+
+**2. 创建启动器**(一次性, 生成 `~/Applications/CLI-GUIDE.app`)
+
+```bash
+mkdir -p ~/Applications
+osacompile -o ~/Applications/CLI-GUIDE.app -e 'do shell script "open -na \"/Applications/Google Chrome.app\" --args --app=\"file://<项目绝对路径>/dist/cli-guide-web.html\" --user-data-dir=\"$HOME/.cli-guide/chrome-profile\" --window-size=900,700"'
+```
+
+把 `<项目绝对路径>` 替换为实际路径(如 `/Users/xxx/Documents/study/k8s/cli-guide`)。
+
+**3. 手动启动**(任选其一)
+
+| 方式 | 操作 |
+| --- | --- |
+| Spotlight | `Cmd+Space` → 输入 `CLI-GUIDE` → 回车 |
+| 双击 | Finder 前往 `~/Applications` → 双击 `CLI-GUIDE` |
+| 终端别名 | `cli-guide`(可自行写入 `~/.zshrc`) |
+| 终端命令 | 见下方完整命令 |
+
+**4. 开机自启动**(登录项)
+
+- **GUI**: 系统设置 → 通用 → 登录项 → "登录时打开" → `+` → 选择 `~/Applications/CLI-GUIDE.app`
+- **命令行**: `osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Users/<用户名>/Applications/CLI-GUIDE.app", hidden:false}'`
+
+**5. 完整启动命令与参数说明**
+
+```bash
+open -na "/Applications/Google Chrome.app" --args \
+  --app="file://<项目绝对路径>/dist/cli-guide-web.html" \
+  --user-data-dir="$HOME/.cli-guide/chrome-profile" \
+  --window-size=900,700
+```
+
+- `--app=file://...` → 无地址栏独立窗口(Web 版面板常驻居中, 无桌宠)
+- `--user-data-dir=...` → 独立 Chrome profile, 与日常浏览器互不影响(**必带**, 否则会合并进已运行的 Chrome 导致 `--app` 失效)
+- `--window-size=900,700` → 窗口尺寸, 面板最大 880×640 自适应居中
+
+**常驻模式交互**: 面板常驻屏幕居中, 无桌宠; `Esc` 不收起; `Cmd/Ctrl+Shift+C` 切换面板显示/隐藏。
 
 ## 📦 打包 macOS 安装包
 
