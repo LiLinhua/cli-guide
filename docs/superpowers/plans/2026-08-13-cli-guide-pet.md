@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 构建一个 macOS 常驻桌面的 3D 终端脸桌宠（Electron + Three.js），点击唤起命令搜索面板，快速检索 6 大分类约 350 条命令行用法，支持一键复制、全局快捷键、开机自启动。
+**Goal:** 构建一个 macOS 常驻桌面的 3D 终端脸桌宠（Electron + Three.js），点击唤起命令搜索面板，快速检索 13 大分类约 550 条命令行用法，支持一键复制、全局快捷键、开机自启动。
 
 **Architecture:** 单 BrowserWindow 状态机（compact 150×150 ↔ expanded 760×560）。主进程负责窗口/快捷键/自启动/托盘/文件 IO；渲染进程负责 Three.js 桌宠 + DOM 面板。纯逻辑（命令校验合并、搜索、窗口布局）抽为可无头测试的模块。
 
@@ -23,7 +23,7 @@
 | `preload.js` | contextBridge 暴露 `window.cliGuide` API |
 | `lib/commands.js` | 纯 Node：命令校验、内置库读取、用户目录合并（可测） |
 | `lib/layout.js` | 纯函数：窗口布局计算与动画插值（可测） |
-| `resources/commands/*.json` | 内置命令库 ×6 分类 |
+| `resources/commands/*.json` | 内置命令库 ×13 分类（linux/k8s/helm/vim/terminal/office/docker/kafka/mysql/postgres/redis/vscode/idea） |
 | `renderer/index.html` | 渲染层页面骨架 |
 | `renderer/css/style.css` | 黑客神秘科技风样式 |
 | `renderer/js/commands.js` | 渲染层命令存储：分组、分类、索引 |
@@ -69,7 +69,7 @@ window.cliGuide = {
 }
 ```
 
-必需字段：`id`(string, 全局唯一)、`cmd`(string)、`cat`(string, 六分类之一)、`desc`(string)、`syntax`(string)、`args`(数组)、`examples`(数组, 至少 1 条)、`tags`(数组)。
+必需字段：`id`(string, 全局唯一)、`cmd`(string)、`cat`(string, 十三分类之一)、`desc`(string)、`syntax`(string)、`args`(数组)、`examples`(数组, 至少 1 条)、`tags`(数组)。
 
 ---
 
@@ -166,8 +166,8 @@ check('合法条目零错误', validateCommand({
 /* ---- 内置库完整性 ---- */
 const { loadBuiltinCommands } = require('../lib/commands');
 const all = loadBuiltinCommands(ROOT);
-check('六个分类文件都存在', ['linux','k8s','helm','vim','terminal','office'].every(c => all.some(x => x.cat === c)));
-check('命令总数 >= 300', all.length >= 300);
+check('十三个分类文件都存在', ['linux','k8s','helm','vim','terminal','office','docker','kafka','mysql','postgres','redis','vscode','idea'].every(c => all.some(x => x.cat === c)));
+check('命令总数 >= 500', all.length >= 500);
 const ids = new Set();
 let dup = 0;
 for (const c of all) { if (ids.has(c.id)) dup++; ids.add(c.id); }
@@ -198,7 +198,7 @@ Expected: `Cannot find module '../lib/commands'` → 失败（测试先行）。
 const fs = require('fs');
 const path = require('path');
 
-const CATS = ['linux', 'k8s', 'helm', 'vim', 'terminal', 'office'];
+const CATS = ['linux', 'k8s', 'helm', 'vim', 'terminal', 'office', 'docker', 'kafka', 'mysql', 'postgres', 'redis', 'vscode', 'idea'];
 
 function validateCommand(c) {
   const errs = [];
@@ -386,7 +386,7 @@ git commit -m "feat: 命令校验器 + linux 命令库(60条)"
 
 `Ctrl+D` 退出 shell、`Ctrl+K` 删到行尾、`Ctrl+Y` 粘贴删除区、`Ctrl+P/N` 上/下历史、`Alt+←/→` 按词移动、`Cmd+Shift+I` 全屏、`Cmd+;` 自动补全历史、`Cmd+Shift+H` 历史面板、`Cmd+Shift+E` 时间戳、`Cmd+Opt+E` 全屏所有标签、`Cmd+Opt+←/→` 切换窗口、`Cmd+Shift+F` 全屏查找、`Cmd+K` 清屏(iTerm)、`Cmd+Opt+D` 打开新窗口、`Cmd+Shift+W` 关闭窗口、`clear` 清屏命令、`Ctrl+Opt+Cmd+V` 粘贴历史(iTerm)、`Cmd+Shift+Enter` 最大化当前标签(iTerm)、`Opt+Cmd+1/2` 切分屏窗格、`Cmd+Shift+J` 分割窗格焦点(iTerm)
 
-- [ ] **Step 2: 创建 office.json（git + docker + macOS 快捷键 + tmux，50 条左右）**
+- [ ] **Step 2: 创建 office.json（git + macOS 快捷键 + tmux，50 条左右；docker 相关条目在 Task 14 迁出为独立 docker 分类）**
 
 先写完整条目（`cat` 一律 `"office"`）：
 
@@ -1740,7 +1740,10 @@ Expected: `Cannot find module '../renderer/js/panel.js'` → FAIL。
 (function () {
   const CAT_LABELS = {
     linux: 'linux 命令', k8s: 'k8s 命令', helm: 'helm 命令',
-    vim: 'vim 命令', terminal: '终端快捷键', office: '办公常用'
+    vim: 'vim 命令', terminal: '终端快捷键', office: '办公常用',
+    docker: 'docker 命令', kafka: 'kafka 命令', mysql: 'mysql 命令',
+    postgres: 'postgres 命令', redis: 'redis 命令',
+    vscode: 'VSCode 快捷键', idea: 'IDEA 快捷键'
   };
 
   function esc(s) {
@@ -2369,9 +2372,9 @@ const { Main } = require(path.join(ROOT, 'renderer/js/main.js'));
 (async () => {
   await Main.init();
 
-  check('命令库加载(>=300 条)', Main.allCommands.length >= 300);
-  check('CommandStore 数据入口可用', window.CommandStore.getAll().length >= 300);
-  check('六个分类入口渲染', els['cat-bar'].children.length === 6);
+  check('命令库加载(>=500 条)', Main.allCommands.length >= 500);
+  check('CommandStore 数据入口可用', window.CommandStore.getAll().length >= 500);
+  check('十三个分类入口渲染', els['cat-bar'].children.length === 13);
   check('初始列表非空', Main.results.length === Main.allCommands.length);
   check('默认选中第一条', Main.activeIndex === 0 && Main.results[0] !== undefined);
 
@@ -2542,13 +2545,100 @@ git commit -m "docs: README + 使用说明"
 git log --oneline
 ```
 
-Expected: 13 个提交（Task 1~13 各一个）。
+Expected: 14 个提交（Task 1~13 各一个 + Task 14 一个）。
 
 - [ ] **Step 4: 收尾自检**
 
 ```bash
 npm test
 node --check main.js && node --check preload.js
+```
+
+---
+
+### Task 14: 新增工具分类命令库（docker/kafka/mysql/postgres/redis/vscode/idea）
+
+> 背景：用户追加需求——补充 Docker、Docker Compose、Kafka、MySQL、PostgreSQL、Redis、VSCode 快捷键、IntelliJ IDEA 快捷键。分类由 6 个扩展为 **13 个**；`office.json` 中已有的 14 条 docker 条目**迁出**为独立 docker 分类（避免跨分类重复）。本计划中 Task 2 的 CATS、Task 10 的 CAT_LABELS、Task 12 的 smoke 断言均已同步修改为 13 分类；命令总量阈值 300 → 500。
+
+**Files:**
+- Create: `resources/commands/docker.json` `resources/commands/kafka.json` `resources/commands/mysql.json` `resources/commands/postgres.json` `resources/commands/redis.json` `resources/commands/vscode.json` `resources/commands/idea.json`
+- Modify: `resources/commands/office.json`（删除 14 条 docker 条目）
+- Modify: `lib/commands.js`（CATS 扩为 13）
+- Modify: `renderer/js/panel.js`（CAT_LABELS 加 7 分类）
+- Modify: `test/commands.test.js`（分类断言 6→13、总数 ≥300 → ≥500）
+
+- [ ] **Step 1: 迁移 office.json 的 14 条 docker 条目 → docker.json**
+
+从 `office.json` 剪切以下条目到 `docker.json`（id/字段不变，仅 `cat` 改为 `"docker"`）：
+
+`docker-run` `docker-ps` `docker-images` `docker-build` `docker-exec` `docker-logs` `docker-stop` `docker-rm` `docker-rmi` `docker-pull` `docker-network` `docker-volume` `docker-compose-up` `docker-compose-down`
+
+- [ ] **Step 2: 补齐 docker.json 至 40+ 条**
+
+按 Task 2 的 8 字段结构补充（`cat` 一律 `"docker"`，tags 含 `["docker", ...]`）：
+
+`docker compose ps` `docker compose logs` `docker compose exec` `docker compose build` `docker compose pull` `docker compose stop` `docker compose start` `docker compose restart` `docker compose top` `docker compose stats` `docker compose inspect` `docker cp` `docker port` `docker attach` `docker export` `docker import` `docker save` `docker load` `docker login` `docker logout` `docker tag` `docker commit` `docker system df` `docker system prune` `docker container prune` `docker image prune` `docker info` `docker version` `docker events` `docker inspect` `docker search` `docker stats`
+
+- [ ] **Step 3: 创建 kafka.json（20+ 条，`cat` 一律 `"kafka"`）**
+
+`kafka-server-start` `kafka-server-stop` `kafka-topics --create` `kafka-topics --list` `kafka-topics --describe` `kafka-topics --alter` `kafka-topics --delete` `kafka-console-producer` `kafka-console-consumer` `kafka-consumer-groups --list` `kafka-consumer-groups --describe` `kafka-consumer-groups --reset-offsets` `kafka-configs --alter` `kafka-configs --describe` `kafka-acls` `kafka-reassign-partitions` `kafka-dump-log` `kafka-get-offsets` `kafka-verifiable-producer` `kafka-mirror-maker` `kafka-broker-api-versions` `kafka-run-class`
+
+- [ ] **Step 4: 创建 mysql.json（20+ 条，`cat` 一律 `"mysql"`）**
+
+`mysql`（客户端连接）`mysql -e` `mysql < file.sql` `mysqldump` `mysqladmin` `mysqlshow` `mysqlimport` `mysqlcheck` `mysql_config_editor` `SHOW DATABASES` `SHOW TABLES` `DESCRIBE table` `SHOW PROCESSLIST` `SHOW VARIABLES` `CREATE DATABASE` `DROP DATABASE` `GRANT` `FLUSH PRIVILEGES` `SET GLOBAL` `EXPLAIN` `SELECT ... LIMIT` `ALTER TABLE`
+
+- [ ] **Step 5: 创建 postgres.json（20+ 条，`cat` 一律 `"postgres"`）**
+
+`psql` `psql -c` `psql \\l` `psql \\dt` `psql \\d table` `psql \\du` `psql \\x` `psql \\c` `psql \\i` `createdb` `dropdb` `createuser` `dropuser` `pg_dump` `pg_restore` `pg_ctl status` `pg_ctl start/stop/reload` `vacuumdb` `reindexdb` `EXPLAIN ANALYZE` `COPY` `ALTER TABLE` `GRANT`
+
+- [ ] **Step 6: 创建 redis.json（25+ 条，`cat` 一律 `"redis"`）**
+
+`redis-server` `redis-cli` `SET` `GET` `DEL` `EXISTS` `EXPIRE` `TTL` `PERSIST` `INCR` `DECR` `SETNX` `KEYS` `SCAN` `TYPE` `HSET` `HGET` `HGETALL` `LPUSH` `LRANGE` `SADD` `SMEMBERS` `ZADD` `ZRANGE` `INFO` `MONITOR` `SELECT` `FLUSHDB` `SAVE` `SUBSCRIBE` `PUBLISH` `CONFIG GET`
+
+- [ ] **Step 7: 创建 vscode.json（25+ 条，`cat` 一律 `"vscode"`，tags 含 `["VSCode", ...]`）**
+
+`Cmd+Shift+P` `Cmd+P` `Cmd+B` `Cmd+J` `Cmd+Shift+E` `Cmd+Shift+F` `Cmd+Shift+G` `Cmd+\`` `Cmd+K Cmd+S` `Cmd+K Cmd+T` `Opt+↑/↓` `Shift+Opt+↑/↓` `Cmd+D` `Cmd+Shift+L` `Cmd+/` `Shift+Opt+A` `Cmd+F` `Cmd+Opt+F` `Cmd+G` `Cmd+Shift+O` `Cmd+Opt+↑/↓` `F2` `Cmd+Shift+5` `Cmd+\` `Cmd+1..9` `Cmd+Opt+←/→` `Cmd+W`
+
+- [ ] **Step 8: 创建 idea.json（25+ 条，`cat` 一律 `"idea"`，tags 含 `["IDEA", ...]`）**
+
+`Shift+Shift` `Cmd+N` `Cmd+Shift+N` `Cmd+E` `Cmd+Shift+E` `Alt+Enter` `Cmd+Opt+L` `Cmd+/` `Cmd+Opt+/` `Cmd+D` `Cmd+Delete` `Opt+Shift+↑/↓` `Cmd+P` `Cmd+B` `Cmd+Opt+B` `Cmd+F12` `Cmd+Shift+F7` `Cmd+G` `Cmd+Shift+G` `Cmd+Shift+Backspace` `Cmd+Opt+←/→` `Cmd+Shift+F12` `Opt+Enter` `Cmd+W` `Shift+F6` `Cmd+Opt+V` `Cmd+Opt+M` `Cmd+Shift+U` `Cmd+Opt+O` `Cmd+Shift+Enter` `Cmd+Opt+T`
+
+- [ ] **Step 9: 更新数据层与渲染层分类定义**
+
+`lib/commands.js` 的 CATS 替换为（13 分类）：
+
+```js
+const CATS = ['linux', 'k8s', 'helm', 'vim', 'terminal', 'office', 'docker', 'kafka', 'mysql', 'postgres', 'redis', 'vscode', 'idea'];
+```
+
+`renderer/js/panel.js` 的 CAT_LABELS 追加 7 项：
+
+```js
+const CAT_LABELS = {
+  linux: 'linux 命令', k8s: 'k8s 命令', helm: 'helm 命令',
+  vim: 'vim 命令', terminal: '终端快捷键', office: '办公常用',
+  docker: 'docker 命令', kafka: 'kafka 命令', mysql: 'mysql 命令',
+  postgres: 'postgres 命令', redis: 'redis 命令',
+  vscode: 'VSCode 快捷键', idea: 'IDEA 快捷键'
+};
+```
+
+`test/commands.test.js` 的分类断言替换为 13 分类数组、`>= 300` 改为 `>= 500`。
+
+- [ ] **Step 10: 运行全部测试**
+
+```bash
+cd /Users/lilinhua/Documents/study/k8s/cli-guide
+npm test
+```
+
+Expected: commands/search/layout/panel 四个测试文件全部 PASS，退出码 0（smoke 属 Task 12，此时尚不存在属正常）。新分类 JSON 全部通过 `validateCommand` 校验、id 全局唯一。
+
+- [ ] **Step 11: Commit**
+
+```bash
+git add resources/commands/ lib/commands.js renderer/js/panel.js test/commands.test.js
+npm test
 ```
 
 Expected: 全部 PASS / 无语法错误。确认 `.superpowers/`、`node_modules/` 未被 git 跟踪（`.gitignore` 已覆盖）。

@@ -6,7 +6,7 @@
 
 ## 背景与目标
 
-开发者经常记不住命令行用法。本应用以"终端脸"3D 桌宠形式常驻 macOS 桌面，点击唤起命令搜索面板，快速检索 linux / k8s / helm / vim / 终端快捷键 / 办公常用命令的常见用法，支持一键复制。整体风格为黑客神秘科技风（矩阵绿霓虹 + 深黑蓝底）。
+开发者经常记不住命令行用法。本应用以"终端脸"3D 桌宠形式常驻 macOS 桌面，点击唤起命令搜索面板，快速检索 linux / k8s / helm / vim / 终端快捷键 / 办公常用 / docker / kafka / mysql / postgres / redis / VSCode 快捷键 / IDEA 快捷键等开发常用命令的常见用法，支持一键复制。整体风格为黑客神秘科技风（矩阵绿霓虹 + 深黑蓝底）。
 
 ## 关键决策（已与用户确认）
 
@@ -17,7 +17,7 @@
 | 交互方式 | A · 悬浮面板（桌宠旁弹出命令入口面板） |
 | 命令详情布局 | B · 宽面板左右分栏（左列表 + 右详情） |
 | 数据源 | 内置命令库 + 用户可扩展（~/.cli-guide/commands/） |
-| 命令分类 | linux / k8s / helm / vim / 终端快捷键 / 办公常用（git、docker、macOS 快捷键、iTerm、tmux 等） |
+| 命令分类 | 13 类：linux / k8s / helm / vim / 终端快捷键 / 办公常用（git、macOS 快捷键、iTerm、tmux）/ docker（含 docker compose）/ kafka / mysql / postgres / redis / VSCode 快捷键 / IDEA 快捷键 |
 | 全局快捷键 | 需要，Cmd+Shift+C 唤起/收起 |
 | 开机自启动 | 支持配置，默认关闭，托盘/设置中开关 |
 | 窗口架构 | 单 BrowserWindow 扩展（compact 150×150 ↔ expanded 760×560） |
@@ -52,15 +52,15 @@
 - **面板结构**：
   - 标题栏：红黄绿圆点 + `> CLI_GUIDE` 字样
   - 搜索框：`❯` 前缀 + 闪烁光标
-  - 分类入口：linux / k8s / helm / vim / 终端快捷键 / 办公
+  - 分类入口：linux / k8s / helm / vim / 终端快捷键 / 办公 / docker / kafka / mysql / postgres / redis / VSCode / IDEA（13 个，可换行展示）
   - 左右分栏：左 = 搜索结果列表（命令名 + 一句话描述 + 难度/常用标签），右 = 详情预览
-- **搜索**：实时过滤（命令名 / 描述 / 关键词模糊匹配，命中高亮），`↑↓` 选择，`Enter` 复制命令到剪贴板。搜索框默认全局搜索（跨全部 6 个分类）；点击分类入口后结果限定该分类，可在分类内叠加关键词继续过滤；再次点击同一分类取消限定
+- **搜索**：实时过滤（命令名 / 描述 / 关键词模糊匹配，命中高亮），`↑↓` 选择，`Enter` 复制命令到剪贴板。搜索框默认全局搜索（跨全部 13 个分类）；点击分类入口后结果限定该分类，可在分类内叠加关键词继续过滤；再次点击同一分类取消限定
 - **详情**：语法高亮（命令绿 / 参数琥珀 / 注释暗）、参数说明列表、使用示例代码块、⧉ 一键复制按钮
 - **收起**：Esc / 再次点击桌宠 / 点击窗外失焦
 
 ## 4. 数据层
 
-- **内置命令库**：`resources/commands/` 下按分类 6 个 JSON（linux / k8s / helm / vim / terminal / office），每类 40~80 条，总量约 350 条
+- **内置命令库**：`resources/commands/` 下按分类 13 个 JSON（linux / k8s / helm / vim / terminal / office / docker / kafka / mysql / postgres / redis / vscode / idea），每类 20~80 条，总量约 550 条
 - **k8s / helm** 数据从现有 k8s-game、helm-game 题库提炼补充
 - **数据格式**：
   ```json
@@ -108,9 +108,11 @@ cli-guide/
 ├── main.js                # 主进程（窗口/快捷键/自启动/Tray/单实例）
 ├── preload.js             # IPC 安全桥（contextBridge）
 ├── resources/
-│   └── commands/          # 内置命令库（6 个分类 JSON）
+│   └── commands/          # 内置命令库（13 个分类 JSON）
 │       ├── linux.json  k8s.json  helm.json
 │       ├── vim.json  terminal.json  office.json
+│       └── docker.json  kafka.json  mysql.json
+│           postgres.json  redis.json  vscode.json  idea.json
 ├── renderer/
 │   ├── index.html
 │   ├── css/style.css

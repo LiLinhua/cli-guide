@@ -20,8 +20,8 @@ check('合法条目零错误', validateCommand({
 /* ---- 内置库完整性 ---- */
 const { loadBuiltinCommands } = require('../lib/commands');
 const all = loadBuiltinCommands(ROOT);
-check('六个分类文件都存在', ['linux', 'k8s', 'helm', 'vim', 'terminal', 'office'].every(c => all.some(x => x.cat === c)));
-check('命令总数 >= 300', all.length >= 300);
+check('十三个分类文件都存在', ['linux', 'k8s', 'helm', 'vim', 'terminal', 'office', 'docker', 'kafka', 'mysql', 'postgres', 'redis', 'vscode', 'idea'].every(c => all.some(x => x.cat === c)));
+check('命令总数 >= 500', all.length >= 500);
 const ids = new Set();
 let dup = 0;
 for (const c of all) { if (ids.has(c.id)) dup++; ids.add(c.id); }
