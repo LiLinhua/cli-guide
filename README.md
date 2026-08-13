@@ -1,13 +1,14 @@
 # 👾 CLI-GUIDE — 黑客风终端脸桌宠命令行手册
 
 > 一个常驻 macOS 桌面的 3D 终端脸桌宠: 点击唤起命令搜索面板,
-> 快速检索 **13 大分类 505 条**常用命令/快捷键用法, 一键复制。
+> 快速检索 **13 大分类 505 条命令 · 2129 个示例**常用命令/快捷键用法, 一键复制。
 
 ## ✨ 功能
 
 - **3D 桌宠**: Three.js 渲染的"终端脸"——Matrix 字符流面部、发光方块眼睛、眨眼/浮动/点击惊吓动画；无 WebGL 自动降级 CSS 版本
 - **点击即查**: 单击桌宠弹出命令面板, 宽面板左右分栏, 左侧列表右侧详情
 - **实时搜索**: 命令名/描述/标签模糊匹配, 命中高亮, ↑↓ 选择, Enter 复制
+- **示例丰富**: 每条命令 2-7 个示例, 按命令参数逐项覆盖单用/组合/管道/进阶用法, 即查即用
 - **13 大分类**:
   - 系统运维: `linux` / `docker` / `kafka` / `mysql` / `postgres` / `redis`
   - 云原生: `k8s` / `helm`
@@ -35,7 +36,7 @@ npm start
 
 ```bash
 npm run build:web
-# 生成 dist/cli-guide-web.html (809 KB, 505 条命令)
+# 生成 dist/cli-guide-web.html (927 KB, 505 条命令 · 2129 示例)
 ```
 
 然后**双击 `dist/cli-guide-web.html`** 用 Chrome / Edge / Safari 打开即可。
@@ -81,7 +82,7 @@ npm test
 | `preload.js` | contextBridge 暴露 `window.cliGuide` API |
 | `lib/commands.js` | 命令数据层: 内置库加载/用户库合并/校验/CATS 分类定义 |
 | `lib/layout.js` | 窗口布局: 展开方向翻转/小屏钳制/缓动插值 |
-| `resources/commands/*.json` | 13 个分类内置命令库 (505 条) |
+| `resources/commands/*.json` | 13 个分类内置命令库 (505 条命令 · 2129 示例) |
 | `renderer/index.html` | 页面骨架 (桌宠区 + 面板区) |
 | `renderer/css/style.css` | 黑客风样式 |
 | `renderer/js/pet.js` | 3D 终端脸桌宠 (Three.js, 降级 CSS) |
@@ -106,7 +107,7 @@ npm test
 
 ## 🛠 自定义命令
 
-编辑 `~/.cli-guide/commands/*.json`, 字段: `id`(唯一) / `cmd`(命令或快捷键) / `cat`(分类) / `desc` / `syntax` / `args` / `examples` / `tags`。同名 id 覆盖内置。修改后重启应用生效。
+编辑 `~/.cli-guide/commands/*.json`, 字段: `id`(唯一) / `cmd`(命令或快捷键) / `cat`(分类) / `desc` / `syntax` / `args` / `examples` / `tags`。`examples` 为 `{cmd, comment}` 对象数组, 内置库每条命令已按 `args` 参数覆盖 2-7 个示例(单参数/组合/管道/进阶用法)。同名 id 覆盖内置。修改后重启应用生效。
 
 > ⚠️ **升级提示**: 内置库只在首次启动时复制到用户目录, 之后以用户目录为准。应用升级后如需获取内置库修正(如快捷键勘误), 删除 `~/.cli-guide/commands/` 下对应 JSON 文件, 重启后自动重新复制。
 
