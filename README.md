@@ -20,6 +20,8 @@
 
 ## 🚀 运行
 
+### 客户端版 (Electron, 推荐)
+
 ```bash
 npm install
 npm start
@@ -27,11 +29,34 @@ npm start
 
 首次启动后命令数据会自动复制到 `~/.cli-guide/commands/`（13 个 JSON 文件）。
 
+### Web 版 (浏览器, 零安装)
+
+> 适合无法安装应用的受限环境：构建为**单个 HTML 文件**，用浏览器直接打开即可体验全部功能（桌宠 3D/面板/搜索/分类/复制），与客户端版共用同一份命令数据与渲染层代码。
+
+```bash
+npm run build:web
+# 生成 dist/cli-guide-web.html (809 KB, 505 条命令)
+```
+
+然后**双击 `dist/cli-guide-web.html`** 用 Chrome / Edge / Safari 打开即可。
+
+Web 版与客户端版的差异：
+
+| 能力 | 客户端版 | Web 版 |
+| --- | --- | --- |
+| 3D 桌宠 / 面板 / 搜索 / 复制 | ✅ | ✅ |
+| 全局快捷键 Cmd+Shift+C | ✅ (任意焦点) | ✅ (页面内焦点) |
+| 开机自启动 / 托盘 | ✅ | ❌ (浏览器无此能力) |
+| 窗口拖动 / 位置记忆 | ✅ (系统级) | ✅ (页面内拖动, 刷新复位) |
+| 自定义命令库 | ✅ `~/.cli-guide/commands/` | ❌ (内置库, 与客户端一致) |
+
+> ⚠️ Web 版复制命令依赖浏览器剪贴板权限；若被拦截会自动降级为传统复制方式。
+
 ## 🧪 测试
 
 ```bash
 npm test
-# commands / search / layout / panel / smoke 五个无头测试, 全绿
+# commands / search / layout / panel / smoke / build-web 六个无头测试, 全绿
 ```
 
 ## 📁 项目结构
@@ -50,8 +75,10 @@ npm test
 | `renderer/js/search.js` | 搜索算法: 子串匹配/优先级/分类过滤 |
 | `renderer/js/commands.js` | 渲染层数据整理 (CommandStore) |
 | `renderer/js/main.js` | 渲染层入口: 装配各模块 + 交互 |
-| `test/` | 五个无头测试 (纯 Node, 无框架) |
+| `test/` | 六个无头测试 (纯 Node, 无框架) |
+| `web/cli-guide-web.js` | Web 版 cliGuide shim (替代 Electron IPC) |
 | `scripts/gen-tray-icon.js` | 生成托盘图标 (纯 Node, 无外部依赖) |
+| `scripts/build-web.js` | 构建单文件 Web 版 → `dist/cli-guide-web.html` |
 
 ## ⌨️ 操作
 
