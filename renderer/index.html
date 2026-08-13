@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' file:; img-src 'self' data:">
+  <title>CLI-GUIDE</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="pet-root"><div id="pet-fallback" class="hidden"></div></div>
+    <div id="panel-root" class="hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="panel-title">&gt; CLI_GUIDE</span>
+          <span class="panel-hint">Esc 收起 · Cmd+Shift+C 唤起</span>
+        </div>
+        <div class="search-row">
+          <span class="search-prefix">❯</span>
+          <input id="search-input" type="text" placeholder="输入关键词搜索命令..." autocomplete="off" spellcheck="false">
+          <span id="search-cursor" class="cursor"></span>
+        </div>
+        <div id="cat-bar" class="cat-bar"></div>
+        <div class="panel-body">
+          <div id="list-col" class="list-col">
+            <div id="result-list" class="result-list"></div>
+            <div id="list-status" class="list-status"></div>
+          </div>
+          <div id="detail-col" class="detail-col">
+            <div id="detail-empty" class="detail-empty">⬡ 选中左侧命令查看详情</div>
+            <div id="detail-content" class="detail-content hidden"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- three 的 UMD 构建先加载, pet.js 通过 window.THREE 使用 -->
+  <script src="../node_modules/three/build/three.min.js"></script>
+  <script src="js/commands.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/pet.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
