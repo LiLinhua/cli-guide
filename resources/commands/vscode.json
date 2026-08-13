@@ -1,88 +1,274 @@
 [
   { "id": "vsc-command-palette", "cmd": "Cmd+Shift+P", "cat": "vscode", "desc": "打开命令面板",
-    "syntax": "Cmd+Shift+P", "args": [],
-    "examples": [ { "cmd": "Cmd+Shift+P → 'Format Document'", "comment": "执行任意命令" } ],
-    "tags": ["VSCode", "命令面板"] },
+    "syntax": "Cmd+Shift+P",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+Shift+P 输入 Format", "comment": "执行格式化命令" },
+      { "cmd": "Cmd+Shift+P 输入 >", "comment": "搜索全部命令" },
+      { "cmd": "Cmd+Shift+P 输入 Settings", "comment": "打开设置" },
+      { "cmd": "Cmd+Shift+P 输入 Install Ext", "comment": "安装扩展" }
+    ],
+    "tags": ["vscode", "命令面板"] },
   { "id": "vsc-quick-open", "cmd": "Cmd+P", "cat": "vscode", "desc": "快速打开文件",
-    "syntax": "Cmd+P", "args": [],
-    "examples": [ { "cmd": "Cmd+P → 输入文件名", "comment": "模糊匹配跳文件" } ],
-    "tags": ["VSCode", "导航"] },
+    "syntax": "Cmd+P",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+P 输入文件名", "comment": "快速打开文件" },
+      { "cmd": "Cmd+P 输入 :行号", "comment": "打开并跳转行" },
+      { "cmd": "Cmd+P 输入 @符号", "comment": "打开并跳转符号" },
+      { "cmd": "Cmd+P 再 Cmd+P", "comment": "最近打开的文件" }
+    ],
+    "tags": ["vscode", "文件"] },
   { "id": "vsc-toggle-sidebar", "cmd": "Cmd+B", "cat": "vscode", "desc": "切换侧边栏",
-    "syntax": "Cmd+B", "args": [], "examples": [], "tags": ["VSCode", "布局"] },
+    "syntax": "Cmd+B",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+B", "comment": "收起/展开侧边栏" },
+      { "cmd": "Cmd+Shift+E", "comment": "聚焦资源管理器" }
+    ],
+    "tags": ["vscode", "界面"] },
   { "id": "vsc-toggle-panel", "cmd": "Cmd+J", "cat": "vscode", "desc": "切换底部面板",
-    "syntax": "Cmd+J", "args": [], "examples": [], "tags": ["VSCode", "布局"] },
+    "syntax": "Cmd+J",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+J", "comment": "显示/隐藏底部面板" },
+      { "cmd": "Cmd+`", "comment": "切换集成终端" },
+      { "cmd": "Cmd+Shift+Y", "comment": "打开调试控制台" }
+    ],
+    "tags": ["vscode", "界面"] },
   { "id": "vsc-explorer", "cmd": "Cmd+Shift+E", "cat": "vscode", "desc": "打开资源管理器",
-    "syntax": "Cmd+Shift+E", "args": [], "examples": [], "tags": ["VSCode", "导航"] },
+    "syntax": "Cmd+Shift+E",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+Shift+E", "comment": "打开资源管理器" },
+      { "cmd": "Cmd+Shift+E 输入文件名", "comment": "文件列表过滤" }
+    ],
+    "tags": ["vscode", "文件"] },
   { "id": "vsc-search", "cmd": "Cmd+Shift+F", "cat": "vscode", "desc": "全局搜索",
     "syntax": "Cmd+Shift+F",
     "args": [],
-    "examples": [ { "cmd": "Cmd+Shift+F → 输入关键词", "comment": "全工作区搜索" } ],
-    "tags": ["VSCode", "搜索"] },
+    "examples": [
+      { "cmd": "Cmd+Shift+F 输入 TODO", "comment": "全局搜 TODO" },
+      { "cmd": "Cmd+Shift+F 选 Replace", "comment": "全局替换" },
+      { "cmd": "Cmd+Shift+F 输入 glob", "comment": "按文件模式过滤" },
+      { "cmd": "Cmd+Shift+F 输入 ^class", "comment": "正则搜索" }
+    ],
+    "tags": ["vscode", "搜索"] },
   { "id": "vsc-git", "cmd": "Cmd+Shift+G", "cat": "vscode", "desc": "打开源代码管理",
-    "syntax": "Cmd+Shift+G", "args": [], "examples": [], "tags": ["VSCode", "git"] },
+    "syntax": "Cmd+Shift+G",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+Shift+G", "comment": "打开源代码管理" },
+      { "cmd": "Cmd+Shift+G 输入提交信息", "comment": "直接提交" },
+      { "cmd": "Cmd+Shift+G 点 ... 更多操作", "comment": "推送/拉取等" }
+    ],
+    "tags": ["vscode", "git"] },
   { "id": "vsc-terminal", "cmd": "Cmd+`", "cat": "vscode", "desc": "打开集成终端",
-    "syntax": "Cmd+` (Ctrl+` 在非 mac 键盘)", "args": [],
-    "examples": [ { "cmd": "Cmd+` 然后 Cmd+Shift+`", "comment": "新建终端标签" } ],
-    "tags": ["VSCode", "终端"] },
+    "syntax": "Cmd+` (Ctrl+` 在非 mac 键盘)",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+`", "comment": "切换集成终端" },
+      { "cmd": "Cmd+Shift+`", "comment": "新建终端" },
+      { "cmd": "终端内 Cmd+1", "comment": "切到编辑器" }
+    ],
+    "tags": ["vscode", "终端"] },
   { "id": "vsc-keyboard-shortcuts", "cmd": "Cmd+K Cmd+S", "cat": "vscode", "desc": "查看/编辑快捷键",
-    "syntax": "Cmd+K 然后 Cmd+S", "args": [], "examples": [], "tags": ["VSCode", "设置"] },
+    "syntax": "Cmd+K 然后 Cmd+S",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+K 然后 Cmd+S", "comment": "打开快捷键面板" },
+      { "cmd": "快捷键面板输入命令名", "comment": "搜索快捷键" },
+      { "cmd": "录制快捷键", "comment": "自定义绑定" }
+    ],
+    "tags": ["vscode", "快捷键"] },
   { "id": "vsc-theme", "cmd": "Cmd+K Cmd+T", "cat": "vscode", "desc": "切换主题",
-    "syntax": "Cmd+K 然后 Cmd+T", "args": [], "examples": [], "tags": ["VSCode", "外观"] },
+    "syntax": "Cmd+K 然后 Cmd+T",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+K 然后 Cmd+T", "comment": "选择颜色主题" },
+      { "cmd": "Cmd+K 然后 Cmd+T 输入 dark", "comment": "搜索深色主题" },
+      { "cmd": "Cmd+K 然后 T", "comment": "切换文件图标主题" }
+    ],
+    "tags": ["vscode", "主题"] },
   { "id": "vsc-move-line", "cmd": "Opt+↑/↓", "cat": "vscode", "desc": "上下移动当前行",
-    "syntax": "Opt+↑ / Opt+↓", "args": [], "examples": [], "tags": ["VSCode", "编辑"] },
+    "syntax": "Opt+↑ / Opt+↓",
+    "args": [],
+    "examples": [
+      { "cmd": "Opt+↓", "comment": "当前行下移" },
+      { "cmd": "Opt+↑", "comment": "当前行上移" },
+      { "cmd": "选中多行移动", "comment": "整块移动" }
+    ],
+    "tags": ["vscode", "编辑"] },
   { "id": "vsc-copy-line", "cmd": "Shift+Opt+↑/↓", "cat": "vscode", "desc": "上下复制当前行",
-    "syntax": "Shift+Opt+↑ / Shift+Opt+↓", "args": [], "examples": [], "tags": ["VSCode", "编辑"] },
+    "syntax": "Shift+Opt+↑ / Shift+Opt+↓",
+    "args": [],
+    "examples": [
+      { "cmd": "Shift+Opt+↓", "comment": "向下复制当前行" },
+      { "cmd": "Shift+Opt+↑", "comment": "向上复制当前行" },
+      { "cmd": "Shift+Opt+↓ 连按", "comment": "快速复制多行" }
+    ],
+    "tags": ["vscode", "编辑"] },
   { "id": "vsc-select-next", "cmd": "Cmd+D", "cat": "vscode", "desc": "选中下一个相同词",
-    "syntax": "Cmd+D (连按可多光标)", "args": [],
-    "examples": [ { "cmd": "选中 foo 后 Cmd+D Cmd+D", "comment": "批量改同名变量" } ],
-    "tags": ["VSCode", "多光标"] },
+    "syntax": "Cmd+D (连按可多光标)",
+    "args": [],
+    "examples": [
+      { "cmd": "光标放词上 Cmd+D", "comment": "选中当前词" },
+      { "cmd": "Cmd+D 连按", "comment": "多光标选中相同词" },
+      { "cmd": "多光标后输入", "comment": "同时修改多处" }
+    ],
+    "tags": ["vscode", "多光标"] },
   { "id": "vsc-select-all", "cmd": "Cmd+Shift+L", "cat": "vscode", "desc": "全选所有相同词",
-    "syntax": "Cmd+Shift+L", "args": [],
-    "examples": [ { "cmd": "Cmd+Shift+L 后直接输入", "comment": "全局重命名当前词" } ],
-    "tags": ["VSCode", "多光标"] },
+    "syntax": "Cmd+Shift+L",
+    "args": [],
+    "examples": [
+      { "cmd": "光标放词上 Cmd+Shift+L", "comment": "选中全部相同词" },
+      { "cmd": "Cmd+Shift+L 后输入", "comment": "全局批量改名" },
+      { "cmd": "Esc 取消多光标", "comment": "退出多光标模式" }
+    ],
+    "tags": ["vscode", "多光标"] },
   { "id": "vsc-comment-line", "cmd": "Cmd+/", "cat": "vscode", "desc": "行注释切换",
-    "syntax": "Cmd+/", "args": [], "examples": [], "tags": ["VSCode", "注释"] },
+    "syntax": "Cmd+/",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+/", "comment": "当前行注释" },
+      { "cmd": "选中多行 Cmd+/", "comment": "批量注释" },
+      { "cmd": "再按 Cmd+/", "comment": "取消注释" }
+    ],
+    "tags": ["vscode", "注释"] },
   { "id": "vsc-comment-block", "cmd": "Shift+Opt+A", "cat": "vscode", "desc": "块注释切换",
-    "syntax": "Shift+Opt+A", "args": [], "examples": [], "tags": ["VSCode", "注释"] },
+    "syntax": "Shift+Opt+A",
+    "args": [],
+    "examples": [
+      { "cmd": "选中代码 Shift+Opt+A", "comment": "块注释" },
+      { "cmd": "再按 Shift+Opt+A", "comment": "取消块注释" }
+    ],
+    "tags": ["vscode", "注释"] },
   { "id": "vsc-find", "cmd": "Cmd+F", "cat": "vscode", "desc": "当前文件查找",
-    "syntax": "Cmd+F (Cmd+Opt+F 替换)", "args": [], "examples": [], "tags": ["VSCode", "搜索"] },
+    "syntax": "Cmd+F (Cmd+Opt+F 替换)",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+F 输入 error", "comment": "文件内查找" },
+      { "cmd": "Cmd+F 后 Enter", "comment": "下一个匹配" },
+      { "cmd": "Cmd+F 后 Opt+Enter", "comment": "多选全部匹配" },
+      { "cmd": "Cmd+F 勾选正则", "comment": "正则查找" }
+    ],
+    "tags": ["vscode", "查找"] },
   { "id": "vsc-replace", "cmd": "Cmd+Opt+F", "cat": "vscode", "desc": "当前文件替换",
-    "syntax": "Cmd+Opt+F", "args": [], "examples": [], "tags": ["VSCode", "搜索"] },
+    "syntax": "Cmd+Opt+F",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+Opt+F 输入新旧值", "comment": "文件内替换" },
+      { "cmd": "Cmd+Opt+F 点全部替换", "comment": "一键全部替换" },
+      { "cmd": "Cmd+Shift+H", "comment": "跨文件替换" }
+    ],
+    "tags": ["vscode", "替换"] },
   { "id": "vsc-goto-line", "cmd": "Cmd+G", "cat": "vscode", "desc": "跳转到指定行",
-    "syntax": "Cmd+G → 输入行号", "args": [], "examples": [], "tags": ["VSCode", "导航"] },
+    "syntax": "Cmd+G → 输入行号",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+G 输入 42", "comment": "跳到第 42 行" },
+      { "cmd": "Cmd+G 输入 42:10", "comment": "跳到第 42 行第 10 列" },
+      { "cmd": "Cmd+P 输入 :42", "comment": "打开文件并跳行" }
+    ],
+    "tags": ["vscode", "跳转"] },
   { "id": "vsc-goto-symbol", "cmd": "Cmd+Shift+O", "cat": "vscode", "desc": "跳转到文件内符号",
     "syntax": "Cmd+Shift+O",
     "args": [],
-    "examples": [ { "cmd": "Cmd+Shift+O → @func", "comment": "跳到函数定义" } ],
-    "tags": ["VSCode", "导航"] },
+    "examples": [
+      { "cmd": "Cmd+Shift+O 输入函数名", "comment": "跳转函数" },
+      { "cmd": "Cmd+Shift+O 输入 :", "comment": "按类型分组查看" },
+      { "cmd": "Cmd+Shift+O 输入 #", "comment": "只看类" }
+    ],
+    "tags": ["vscode", "符号"] },
   { "id": "vsc-multi-cursor", "cmd": "Cmd+Opt+↑/↓", "cat": "vscode", "desc": "上下添加多光标",
-    "syntax": "Cmd+Opt+↑ / Cmd+Opt+↓", "args": [], "examples": [], "tags": ["VSCode", "多光标"] },
+    "syntax": "Cmd+Opt+↑ / Cmd+Opt+↓",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+Opt+↓", "comment": "下方加光标" },
+      { "cmd": "Cmd+Opt+↑", "comment": "上方加光标" },
+      { "cmd": "Alt+点击", "comment": "任意位置加光标" },
+      { "cmd": "Esc", "comment": "退出多光标" }
+    ],
+    "tags": ["vscode", "多光标"] },
   { "id": "vsc-rename", "cmd": "F2", "cat": "vscode", "desc": "重命名符号(全局)",
-    "syntax": "F2", "args": [],
-    "examples": [ { "cmd": "光标在变量上按 F2", "comment": "智能重命名所有引用" } ],
-    "tags": ["VSCode", "重构"] },
+    "syntax": "F2",
+    "args": [],
+    "examples": [
+      { "cmd": "光标放变量上 F2", "comment": "全局重命名" },
+      { "cmd": "光标放函数上 F2", "comment": "重命名函数" },
+      { "cmd": "F2 输入新名回车", "comment": "确认重命名" }
+    ],
+    "tags": ["vscode", "重构"] },
   { "id": "vsc-split-editor", "cmd": "Cmd+\\", "cat": "vscode", "desc": "拆分编辑器",
-    "syntax": "Cmd+\\", "args": [], "examples": [], "tags": ["VSCode", "布局"] },
-  { "id": "vsc-switch-group", "cmd": "Cmd+1..9", "cat": "vscode", "desc": "切换到第 N 个编辑器组",
-    "syntax": "Cmd+1 ～ Cmd+9", "args": [], "examples": [], "tags": ["VSCode", "布局"] },
+    "syntax": "Cmd+\\",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+\\", "comment": "左右拆分编辑器" },
+      { "cmd": "Cmd+\\ 再 Cmd+\\", "comment": "继续拆分" },
+      { "cmd": "Cmd+Opt+0", "comment": "切换编辑器布局" }
+    ],
+    "tags": ["vscode", "布局"] },
+  { "id": "vsc-switch-group", "cmd": "Cmd+1~9", "cat": "vscode", "desc": "切换到第 N 个编辑器组",
+    "syntax": "Cmd+1 ～ Cmd+9",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+1", "comment": "切到第 1 组" },
+      { "cmd": "Cmd+2", "comment": "切到第 2 组" },
+      { "cmd": "Cmd+Opt+1", "comment": "单组布局" }
+    ],
+    "tags": ["vscode", "布局"] },
   { "id": "vsc-switch-tab", "cmd": "Cmd+Opt+←/→", "cat": "vscode", "desc": "切换编辑器标签",
-    "syntax": "Cmd+Opt+← / Cmd+Opt+→", "args": [], "examples": [], "tags": ["VSCode", "导航"] },
+    "syntax": "Cmd+Opt+← / Cmd+Opt+→",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+Opt+→", "comment": "下一个标签" },
+      { "cmd": "Cmd+Opt+←", "comment": "上一个标签" },
+      { "cmd": "Ctrl+Tab", "comment": "最近使用的标签" }
+    ],
+    "tags": ["vscode", "标签"] },
   { "id": "vsc-close-editor", "cmd": "Cmd+W", "cat": "vscode", "desc": "关闭当前编辑器",
-    "syntax": "Cmd+W (Cmd+K W 关闭全部)", "args": [], "examples": [], "tags": ["VSCode", "文件"] },
+    "syntax": "Cmd+W (Cmd+K W 关闭全部)",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+W", "comment": "关闭当前标签" },
+      { "cmd": "Cmd+K 然后 W", "comment": "关闭全部标签" },
+      { "cmd": "Cmd+Shift+T", "comment": "重新打开关闭的标签" }
+    ],
+    "tags": ["vscode", "标签"] },
   { "id": "vsc-format", "cmd": "Shift+Opt+F", "cat": "vscode", "desc": "格式化文档",
-    "syntax": "Shift+Opt+F", "args": [],
-    "examples": [ { "cmd": "Shift+Opt+F", "comment": "按 prettier 规则格式化" } ],
-    "tags": ["VSCode", "格式化"] },
+    "syntax": "Shift+Opt+F",
+    "args": [],
+    "examples": [
+      { "cmd": "Shift+Opt+F", "comment": "格式化整个文档" },
+      { "cmd": "选中代码 Shift+Opt+F", "comment": "格式化选区" },
+      { "cmd": "Cmd+Shift+P 输入 Format", "comment": "命令面板格式化" }
+    ],
+    "tags": ["vscode", "格式"] },
   { "id": "vsc-goto-definition", "cmd": "F12", "cat": "vscode", "desc": "跳转到定义",
-    "syntax": "F12", "args": [],
-    "examples": [ { "cmd": "光标在函数上按 F12", "comment": "跳到函数定义处" } ],
-    "tags": ["VSCode", "导航"] },
+    "syntax": "F12",
+    "args": [],
+    "examples": [
+      { "cmd": "光标放函数上 F12", "comment": "跳转函数定义" },
+      { "cmd": "Cmd+点击", "comment": "等价操作" },
+      { "cmd": "Ctrl+-", "comment": "返回上一个位置" }
+    ],
+    "tags": ["vscode", "导航"] },
   { "id": "vsc-peek-definition", "cmd": "Opt+F12", "cat": "vscode", "desc": "预览定义(不跳转)",
-    "syntax": "Opt+F12", "args": [],
-    "examples": [ { "cmd": "Opt+F12", "comment": "内联预览定义" } ],
-    "tags": ["VSCode", "导航"] },
+    "syntax": "Opt+F12",
+    "args": [],
+    "examples": [
+      { "cmd": "Opt+F12", "comment": "内联预览定义" },
+      { "cmd": "预览内滚动查看", "comment": "不离开当前位置" },
+      { "cmd": "Esc 关闭预览", "comment": "返回编辑" }
+    ],
+    "tags": ["vscode", "导航"] },
   { "id": "vsc-close-all", "cmd": "Cmd+K W", "cat": "vscode", "desc": "关闭所有编辑器",
-    "syntax": "Cmd+K 然后 W", "args": [],
-    "examples": [ { "cmd": "Cmd+K 然后 W", "comment": "一次关闭全部标签" } ],
-    "tags": ["VSCode", "文件"] }
+    "syntax": "Cmd+K 然后 W",
+    "args": [],
+    "examples": [
+      { "cmd": "Cmd+K 然后 W", "comment": "关闭全部编辑器" },
+      { "cmd": "Cmd+K 然后 Shift+W", "comment": "关闭其他组" },
+      { "cmd": "Cmd+Shift+T", "comment": "恢复最近关闭" }
+    ],
+    "tags": ["vscode", "标签"] }
 ]
