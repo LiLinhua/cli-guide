@@ -6,10 +6,39 @@
   "scripts": {
     "start": "electron .",
     "build:web": "node scripts/build-web.js",
+    "dist": "electron-builder --mac",
     "test": "node test/commands.test.js && node test/search.test.js && node test/layout.test.js && node test/panel.test.js && node test/smoke.test.js && node test/build-web.test.js"
   },
+  "build": {
+    "appId": "com.cliguide.app",
+    "productName": "CLI-GUIDE",
+    "asar": true,
+    "files": [
+      "main.js",
+      "preload.js",
+      "lib/**/*",
+      "renderer/**/*",
+      "resources/**/*",
+      "node_modules/three/**/*"
+    ],
+    "directories": { "output": "release" },
+    "electronDist": "node_modules/electron/dist",
+    "mac": {
+      "target": ["dmg", "zip"],
+      "category": "public.app-category.developer-tools",
+      "identity": null,
+      "icon": "build/icon.icns"
+    },
+    "dmg": {
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    }
+  },
   "devDependencies": {
-    "electron": "^43.4.0"
+    "electron": "^43.4.0",
+    "electron-builder": "^26.0.12"
   },
   "dependencies": {
     "three": "^0.160.0"
