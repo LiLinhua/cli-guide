@@ -10,6 +10,9 @@ const WEB_CSS = `
 html, body { background: #05070a; }
 #app { position: fixed; left: 0; top: 0; width: 100%; height: 100%; }
 #pet-root { display: none !important; }          /* 移除桌宠 */
+#panel-root, #panel-root * {
+  -webkit-user-select: text; user-select: text;   /* 允许选中拷贝命令 (客户端版靠复制按钮, Web 版放开) */
+}
 #panel-root {
   position: fixed; left: 50%; top: 50%;
   transform: translate(-50%, -50%);
