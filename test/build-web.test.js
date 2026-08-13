@@ -46,8 +46,8 @@ const scripts = html.match(/<script>([\s\S]*?)<\/script>/g) || [];
 check('内联脚本块完整闭合(8 块: 数据/shim/three/渲染层 x5)', scripts.length === 8);
 check('无未转义闭合泄漏', !/<\/script><\/script>/.test(html));
 
-/* 6. 覆盖样式生效(桌宠固定右下角 + 展开尺寸) */
-check('Web 覆盖样式已注入', html.includes('#app.expanded { width: 760px'));
+/* 6. 覆盖样式生效(面板常驻居中 + 移除桌宠) */
+check('Web 覆盖样式已注入', html.includes('#pet-root { display: none') && html.includes('#panel-root {'));
 
 fs.unlinkSync(out);
 console.log(fail === 0 ? '\n===== 全部通过 =====' : '\n===== 存在 ' + fail + ' 个失败 =====');

@@ -6,14 +6,16 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 const WEB_CSS = `
-/* ===== Web 版覆盖样式: 桌宠固定视口右下角, 展开为 760x560 面板(与客户端窗口动画同语义) ===== */
+/* ===== Web 版覆盖样式: 面板常驻屏幕居中, 无桌宠(与客户端版交互解耦) ===== */
 html, body { background: #05070a; }
-#app {
-  position: fixed; left: auto; top: auto; right: 16px; bottom: 16px;
-  width: 150px; height: 150px; z-index: 9999;
-  transition: left .22s ease-out, top .22s ease-out, width .22s ease-out, height .22s ease-out;
+#app { position: fixed; left: 0; top: 0; width: 100%; height: 100%; }
+#pet-root { display: none !important; }          /* 移除桌宠 */
+#panel-root {
+  position: fixed; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(880px, calc(100vw - 48px));
+  height: min(640px, calc(100vh - 48px));
 }
-#app.expanded { width: 760px; height: 560px; }
 #web-badge {
   position: fixed; left: 12px; top: 10px; z-index: 10000;
   font: 11px/1 "Menlo", monospace; color: #2affa0; letter-spacing: 1px;
