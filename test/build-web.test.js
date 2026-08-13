@@ -39,7 +39,6 @@ check('web shim 已内联(window.cliGuide)', html.includes('window.cliGuide'));
 check('桌宠模块已内联', html.includes('终端脸桌宠'));
 check('面板模块已内联', html.includes('CAT_LABELS'));
 check('入口模块已内联', html.includes('DOMContentLoaded'));
-check('Web 角标存在', html.includes('WEB 测试版'));
 
 /* 5. 脚本内容无 HTML 闭合泄漏 */
 const scripts = html.match(/<script>([\s\S]*?)<\/script>/g) || [];

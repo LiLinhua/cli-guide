@@ -15,16 +15,7 @@ html, body { background: #05070a; }
   transform: translate(-50%, -50%);
   width: min(880px, calc(100vw - 48px));
   height: min(640px, calc(100vh - 48px));
-}
-#web-badge {
-  position: fixed; left: 12px; top: 10px; z-index: 10000;
-  font: 11px/1 "Menlo", monospace; color: #2affa0; letter-spacing: 1px;
-  background: rgba(0, 255, 136, .08); border: 1px solid rgba(0, 255, 136, .35);
-  border-radius: 3px; padding: 5px 10px; user-select: none;
-}
 `;
-
-const WEB_BADGE = '<div id="web-badge">WEB 测试版 · 数据与客户端版一致</div>';
 
 /* 内联脚本内容防 HTML 闭合 */
 function inline(src) {
@@ -60,8 +51,7 @@ function build(outFile) {
   const inject = '<script>\nwindow.__COMMANDS__ = ' + JSON.stringify(cmds) + ';\n</script>\n  <script>\n' + shim + '\n</script>\n  ';
   html = html.replace('<!-- three 的 UMD 构建先加载, pet.js 通过 window.THREE 使用 -->', inject + '<!-- three 的 UMD 构建先加载, pet.js 通过 window.THREE 使用 -->');
 
-  // 5. Web 角标 + 标题
-  html = html.replace('<body>', '<body>\n  ' + WEB_BADGE);
+  // 5. 标题
   html = html.replace('<title>CLI-GUIDE</title>', '<title>CLI-GUIDE · Web 版</title>');
 
   fs.mkdirSync(path.dirname(out), { recursive: true });
@@ -69,7 +59,7 @@ function build(outFile) {
   return out;
 }
 
-module.exports = { build, WEB_CSS, WEB_BADGE };
+module.exports = { build, WEB_CSS };
 if (require.main === module) {
   const out = build();
   const dir = path.join(ROOT, 'resources', 'commands');
