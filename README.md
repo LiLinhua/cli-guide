@@ -66,11 +66,14 @@ npm run build:web
 # 生成 dist/cli-guide-web.html
 ```
 
-**2. 创建启动器**(一次性, 生成 `~/Applications/CLI-GUIDE.app`)
+**2. 创建启动器**(一次性, 生成 `~/Applications/CLI-GUIDE-Web.app`)
+
+> ⚠️ 注意: 此启动器是 **Web 版启动器**(AppleScript 轻量壳, 内部仅调用 Chrome 应用模式打开 Web 版 HTML),
+> 与 Electron 客户端安装包(`/Applications/CLI-GUIDE.app`)完全无关, **无需安装客户端**即可使用。
 
 ```bash
 mkdir -p ~/Applications
-osacompile -o ~/Applications/CLI-GUIDE.app -e 'do shell script "open -na \"/Applications/Google Chrome.app\" --args --app=\"file://<项目绝对路径>/dist/cli-guide-web.html\" --user-data-dir=\"$HOME/.cli-guide/chrome-profile\" --window-size=900,700"'
+osacompile -o ~/Applications/CLI-GUIDE-Web.app -e 'do shell script "open -na \"/Applications/Google Chrome.app\" --args --app=\"file://<项目绝对路径>/dist/cli-guide-web.html\" --user-data-dir=\"$HOME/.cli-guide/chrome-profile\" --window-size=900,700"'
 ```
 
 把 `<项目绝对路径>` 替换为实际路径(如 `/Users/xxx/Documents/study/k8s/cli-guide`)。
@@ -79,15 +82,15 @@ osacompile -o ~/Applications/CLI-GUIDE.app -e 'do shell script "open -na \"/Appl
 
 | 方式 | 操作 |
 | --- | --- |
-| Spotlight | `Cmd+Space` → 输入 `CLI-GUIDE` → 回车 |
-| 双击 | Finder 前往 `~/Applications` → 双击 `CLI-GUIDE` |
+| Spotlight | `Cmd+Space` → 输入 `CLI-GUIDE-Web` → 回车 |
+| 双击 | Finder 前往 `~/Applications` → 双击 `CLI-GUIDE-Web` |
 | 终端别名 | `cli-guide`(可自行写入 `~/.zshrc`) |
 | 终端命令 | 见下方完整命令 |
 
 **4. 开机自启动**(登录项)
 
-- **GUI**: 系统设置 → 通用 → 登录项 → "登录时打开" → `+` → 选择 `~/Applications/CLI-GUIDE.app`
-- **命令行**: `osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Users/<用户名>/Applications/CLI-GUIDE.app", hidden:false}'`
+- **GUI**: 系统设置 → 通用 → 登录项 → "登录时打开" → `+` → 选择 `~/Applications/CLI-GUIDE-Web.app`
+- **命令行**: `osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Users/<用户名>/Applications/CLI-GUIDE-Web.app", hidden:false}'`
 
 **5. 完整启动命令与参数说明**
 
