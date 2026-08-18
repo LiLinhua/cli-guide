@@ -1,14 +1,13 @@
 'use strict';
-/* 3D 终端脸桌宠: Three.js 程序化建模, WebGL 失败自动降级 CSS */
+/* 3D 骷髅头骨桌宠: Three.js 程序化建模, WebGL 失败自动降级 CSS */
 (function () {
-  // 浏览器环境由 index.html 先加载 three.min.js (window.THREE); Node 测试用 require
   const THREE = (typeof require !== 'undefined') ? require('three') : window.THREE;
 
   function Pet(container) {
     this.container = container;
     this.fallback = false;
-    this.onClick = null;      // 单击回调
-    this.onDragStart = null;  // 拖拽开始回调 (dx,dy 由调用方管理)
+    this.onClick = null;
+    this.onDragStart = null;
     this._down = null;
     this._moved = false;
     this._bindEvents();
@@ -32,7 +31,7 @@
     this.renderer.setSize(150, 150, false);
     const el = this.renderer.domElement;
     el.style.cursor = 'grab';
-    el.style.pointerEvents = 'none'; // 鼠标事件由容器层处理(拖拽/点击判定)
+    el.style.pointerEvents = 'none';
     this._buildScene();
     this._raf = requestAnimationFrame(this._loop.bind(this));
   };
@@ -45,175 +44,343 @@
   /* ---------- 场景搭建 ---------- */
   Pet.prototype._buildScene = function () {
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-    this.camera.position.set(0, 0.4, 5.2);
+    this.camera = new THREE.PerspectiveCamera(24, 1, 0.1, 15);
+    this.camera.position.set(0, 0.05, 4);
     this.camera.lookAt(0, 0, 0);
 
-    // 灯光: 让主体有立体层次 + 绿/蓝冷色氛围
-    this.scene.add(new THREE.AmbientLight(0x8899aa, 0.55));
-    const key = new THREE.PointLight(0x00ff88, 1.1, 12);
-    key.position.set(1.6, 2.0, 3.2);
-    this.scene.add(key);
-    const rim = new THREE.PointLight(0x00aaff, 0.35, 10);
-    rim.position.set(-2.0, -1.0, 2.5);
-    this.scene.add(rim);
+    // 灯光
+    this.scene.add(new THREE.AmbientLight(0x8899cc, 1.0));
+    const key = new THREE.DirectionalLight(0x00ff88, 2.2);
+    key.position.set(2.5, 3.5, 4); this.scene.add(key);
+    const fill = new THREE.DirectionalLight(0x44ddff, 0.8);
+    fill.position.set(-2.5, 1.5, 3); this.scene.add(fill);
+    const rim = new THREE.DirectionalLight(0x00ff88, 0.8);
+    rim.position.set(-2, -1.5, -3.5); this.scene.add(rim);
+    const top = new THREE.DirectionalLight(0x00ffcc, 0.6);
+    top.position.set(0, 5, 0); this.scene.add(top);
 
     this.group = new THREE.Group();
+    this.group.scale.set(0.55, 0.55, 0.55);
     this.scene.add(this.group);
 
-    // 主体: 终端窗口盒子 (标准材质 + 灯光 → 立体感)
-    const body = new THREE.Mesh(
-      new THREE.BoxGeometry(2.1, 1.5, 0.35),
-      new THREE.MeshStandardMaterial({ color: 0x0d1620, roughness: 0.6, metalness: 0.35 })
-    );
-    this.group.add(body);
-    // 主边缘线 (绿色)
-    const edges = new THREE.LineSegments(
-      new THREE.EdgesGeometry(body.geometry),
-      new THREE.LineBasicMaterial({ color: 0x00ff88 })
-    );
-    this.group.add(edges);
-    // 半透明外框线: 营造外发光层次
-    const outer = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.BoxGeometry(2.16, 1.56, 0.4)),
-      new THREE.LineBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.25 })
-    );
-    this.group.add(outer);
-
-    // 屏幕凹槽内衬 (深色, 让屏幕有嵌入感)
-    const bezel = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.96, 1.26),
-      new THREE.MeshBasicMaterial({ color: 0x060d13 })
-    );
-    bezel.position.z = 0.18;
-    this.group.add(bezel);
-
-    // 屏幕: 字符流贴图
-    const sCanvas = document.createElement('canvas');
-    sCanvas.width = 96; sCanvas.height = 64;
-    this.sCtx = sCanvas.getContext('2d');
-    this._initStream();
-    this.screenTex = new THREE.CanvasTexture(sCanvas);
-    const screen = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.86, 1.16),
-      new THREE.MeshBasicMaterial({ map: this.screenTex, transparent: true })
-    );
-    screen.position.z = 0.185;
-    this.group.add(screen);
-
-    // 眼睛 (拟人化: 深色眼白框 + 发光瞳孔 + 高光点)
-    this._buildEyes();
-
-    // traffic lights (放大 + 呼吸闪烁)
-    this._buildTrafficLights();
+    // 构建光滑曲面骷髅头骨
+    this._buildSkull();
 
     // 辉光 sprite
-    const gCanvas = document.createElement('canvas');
-    gCanvas.width = gCanvas.height = 64;
-    const g = gCanvas.getContext('2d');
-    const grad = g.createRadialGradient(32, 32, 2, 32, 32, 32);
-    grad.addColorStop(0, 'rgba(0,255,136,.5)');
-    grad.addColorStop(1, 'rgba(0,255,136,0)');
-    g.fillStyle = grad;
-    g.fillRect(0, 0, 64, 64);
-    const glow = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: new THREE.CanvasTexture(gCanvas), transparent: true, depthWrite: false
-    }));
-    glow.scale.set(3.6, 2.8, 1);
-    this.group.add(glow);
+    const glow = this._makeGlowSprite(2.0);
+    glow.position.set(0, -0.05, -2.5);
+    glow.material.opacity = 0.04;
+    this.scene.add(glow);
 
-    // 点击惊吓
+    // 粒子系统
+    this._createParticles();
+
+    // 投影
+    this._createShadow();
+
     this._shock = 0;
+    this._laserTime = 0;
   };
 
-  /* ---------- 眼睛: 眼白框 + 发光瞳孔 + 高光 ---------- */
-  Pet.prototype._buildEyes = function () {
-    this.eyeL = this._makeEye(-0.52);
-    this.eyeR = this._makeEye(0.52);
-    this.group.add(this.eyeL, this.eyeR);
+  /* ========== 头骨几何体 ========== */
+  Pet.prototype._buildSkull = function () {
+    const merged = this._mergeGeos([
+      this._createSkullGeometry(48),
+      this._createJawGeometry(32)
+    ]);
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0x2a3e4c, roughness: 0.08, metalness: 0.3,
+      emissive: 0x00ff88, emissiveIntensity: 0.12
+    });
+    this._skullMesh = new THREE.Mesh(merged, mat);
+    this.group.add(this._skullMesh);
+
+    // 微光边缘线
+    const edges = new THREE.EdgesGeometry(merged);
+    this.group.add(new THREE.LineSegments(
+      edges, new THREE.LineBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.15 })
+    ));
+
+    // 五官
+    this._addEyeHalos();
+    this._addEyes();
+    this._addNose();
+    this._addMouth();
   };
 
-  Pet.prototype._makeEye = function (x) {
-    const g = new THREE.Group();
-    // 眼白: 深色圆角感边框 (略大, 微绿)
-    const white = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.46, 0.56),
-      new THREE.MeshBasicMaterial({ color: 0x0a2a1c })
-    );
-    // 瞳孔: 亮绿发光方块
-    const pupil = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.3, 0.38),
-      new THREE.MeshBasicMaterial({ color: 0x00ff88 })
-    );
-    // 瞳孔外光晕
-    const halo = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.34, 0.42),
-      new THREE.MeshBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.3 })
-    );
-    // 高光点: 亮白绿, 左上
-    const glint = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.1, 0.13),
-      new THREE.MeshBasicMaterial({ color: 0xd8ffe8 })
-    );
-    glint.position.set(0.05, 0.07, 0.01);
-    halo.add(pupil);
-    pupil.add(glint);
-    white.add(halo);
-    g.add(white);
-    g.position.set(x, 0.05, 0.2);
-    g.userData.pupil = pupil;
-    g.userData.glint = glint;
-    return g;
+  Pet.prototype._createSkullGeometry = function (seg) {
+    const geo = new THREE.SphereGeometry(1.4, seg, Math.floor(seg * 0.75));
+    const pos = geo.attributes.position;
+    const v = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i++) {
+      v.set(pos.getX(i), pos.getY(i), pos.getZ(i));
+      if (v.y > 0) v.y *= 1.18;
+      v.z *= 0.80;
+      if (v.y < -0.1) v.x *= 1 - Math.min((v.y + 0.1) / 1.1, 1) * 0.15;
+      // 颧骨
+      if (v.y > -0.35 && v.y < 0.35 && Math.abs(v.x) > 0.35 && v.z < -0.1) {
+        const d = Math.sqrt((v.y) * (v.y) + (Math.abs(v.x) - 0.75) * (Math.abs(v.x) - 0.75));
+        if (d < 0.4) { const s = Math.cos(d / 0.4 * Math.PI * 0.5); v.x *= 1 + s * 0.1; v.z -= s * 0.15; }
+      }
+      // 眉弓
+      if (v.y > 0.25 && v.y < 0.6 && Math.abs(v.x) < 0.7 && v.z < -0.2) {
+        const d = Math.sqrt((v.y - 0.4) * (v.y - 0.4) + (Math.abs(v.x) - 0.3) * (Math.abs(v.x) - 0.3));
+        if (d < 0.3) { v.z -= Math.cos(d / 0.3 * Math.PI * 0.5) * 0.18; }
+      }
+      // 眼眶凹陷
+      if (v.z < -0.2) {
+        const eX = Math.abs(v.x), eY = v.y - 0.20;
+        if (eX < 0.55 && Math.abs(eY) < 0.5) {
+          const d = Math.sqrt(eX * eX + eY * eY);
+          if (d < 0.45) { v.z += Math.cos(d / 0.45 * Math.PI * 0.5) * 0.35; }
+        }
+      }
+      // 鼻腔凹陷
+      if (v.y > -0.35 && v.y < 0.02 && Math.abs(v.x) < 0.12 && v.z < -0.4) {
+        const nW = 0.10 * (1 + (v.y + 0.35) / 0.37);
+        if (Math.abs(v.x) < nW) { v.z += 0.18; }
+      }
+      pos.setXYZ(i, v.x, v.y, v.z);
+    }
+    pos.needsUpdate = true;
+    geo.computeVertexNormals();
+    return geo;
   };
 
-  /* ---------- traffic lights: 红黄绿圆点 ---------- */
-  Pet.prototype._buildTrafficLights = function () {
-    this.traffic = [];
-    const colors = [0xff5f56, 0xffbd2e, 0x27c93f];
-    colors.forEach((c, i) => {
-      const mat = new THREE.MeshStandardMaterial({
-        color: c, emissive: c, emissiveIntensity: 0.5, roughness: 0.3
-      });
-      const m = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 12), mat);
-      m.position.set(-0.72 + i * 0.21, 0.72, 0.2);
-      this.group.add(m);
-      this.traffic.push({ mesh: m, mat });
+  Pet.prototype._createJawGeometry = function (seg) {
+    const jaw = new THREE.SphereGeometry(0.9, seg, Math.floor(seg * 0.6));
+    const pos = jaw.attributes.position;
+    const v = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i++) {
+      v.set(pos.getX(i), pos.getY(i), pos.getZ(i));
+      v.y *= 0.45; v.z *= 0.65; v.x *= 0.90;
+      if (v.y < -0.05 && Math.abs(v.x) > 0.4) {
+        v.x *= 1 + (Math.min(Math.abs(v.y), 0.3) / 0.3) * 0.08;
+      }
+      pos.setXYZ(i, v.x, v.y - 0.88, v.z);
+    }
+    pos.needsUpdate = true;
+    jaw.computeVertexNormals();
+    return jaw;
+  };
+
+  Pet.prototype._mergeGeos = function (geos) {
+    const ni = geos.map(g => { const ng = g.toNonIndexed(); if (g !== ng) g.dispose(); return ng; });
+    const total = ni.reduce((s, g) => s + g.attributes.position.count, 0);
+    const positions = new Float32Array(total * 3), normals = new Float32Array(total * 3);
+    let off = 0;
+    ni.forEach(g => {
+      const p = g.attributes.position, n = g.attributes.normal;
+      for (let i = 0; i < p.count; i++) {
+        positions[off * 3] = p.getX(i); positions[off * 3 + 1] = p.getY(i); positions[off * 3 + 2] = p.getZ(i);
+        if (n) { normals[off * 3] = n.getX(i); normals[off * 3 + 1] = n.getY(i); normals[off * 3 + 2] = n.getZ(i); }
+        off++;
+      }
+      g.dispose();
+    });
+    const m = new THREE.BufferGeometry();
+    m.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    m.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+    return m;
+  };
+
+  /* ========== 五官 ========== */
+  Pet.prototype._addEyes = function () {
+    const segs = 20;
+    [-0.50, 0.50].forEach(x => {
+      const group = new THREE.Group();
+      // 辉光 (z 最浅, 在 socket 之后)
+      const g = this._makeGlowSprite(0.25);
+      g.position.set(x, 0.20, -1.20);
+      g.material.opacity = 0.2;
+      group.add(g);
+      // 深黑色眶窝
+      const socket = new THREE.Mesh(
+        new THREE.SphereGeometry(0.35, segs, segs),
+        new THREE.MeshBasicMaterial({ color: 0x020810 })
+      );
+      socket.position.set(x, 0.20, -1.22);
+      socket.scale.set(1, 1.2, 0.4);
+      group.add(socket);
+      // 白色瞳孔 (z 最深 = 世界坐标最靠前, 盖住 socket)
+      const whitePupil = new THREE.Mesh(
+        new THREE.SphereGeometry(0.20, segs, segs),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      whitePupil.position.set(x, 0.20, -1.30);
+      whitePupil.scale.set(1, 1.2, 0.45);
+      group.add(whitePupil);
+      // 绿色发光瞳孔 (z 最深 = 最靠前)
+      const pupil = new THREE.Mesh(
+        new THREE.SphereGeometry(0.12, segs, segs),
+        new THREE.MeshBasicMaterial({ color: 0x00ff88 })
+      );
+      pupil.position.set(x, 0.20, -1.32);
+      pupil.scale.set(1, 1.3, 0.5);
+      group.add(pupil);
+      // 高光点
+      const glint = new THREE.Mesh(
+        new THREE.SphereGeometry(0.035, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      pupil.add(glint);
+      glint.position.set(0.035, 0.035, 0.03);
+
+      this.group.add(group);
+      if (x < 0) { this._eyeL = group; this._pupilL = pupil; this._glintL = glint; }
+      else { this._eyeR = group; this._pupilR = pupil; this._glintR = glint; }
+    });
+    // 激光束 (独立于眼睛组, 直接添加到主组, 避免坐标翻转问题)
+    this._laserL = this._createLaserBeam(-0.50);
+    this._laserR = this._createLaserBeam(0.50);
+  };
+
+  Pet.prototype._addEyeHalos = function () {
+    [-0.50, 0.50].forEach(x => {
+      const g = this._makeGlowSprite(0.7);
+      g.position.set(x, 0.20, -1.35);
+      g.material.opacity = 0.2;
+      this.group.add(g);
     });
   };
 
-  /* ---------- Matrix 字符流 ---------- */
-  Pet.prototype._initStream = function () {
-    this.cols = [];
-    for (let i = 0; i < 20; i++) {
-      this.cols.push({ head: Math.floor(Math.random() * 64), speed: 0.3 + Math.random() * 0.8 });
-    }
-    this._chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&';
+  Pet.prototype._createLaserBeam = function (x) {
+    const g = new THREE.Group();
+    // 主光束锥体
+    const cone = new THREE.Mesh(
+      new THREE.ConeGeometry(0.15, 3.0, 12),
+      new THREE.MeshBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending })
+    );
+    cone.rotation.x = -Math.PI / 2;
+    cone.position.set(x, 0.20, -2.78);
+    g.add(cone);
+    // 外层光晕锥体 (更大, 更透)
+    const outer = new THREE.Mesh(
+      new THREE.ConeGeometry(0.30, 3.5, 12),
+      new THREE.MeshBasicMaterial({ color: 0x44ffaa, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending })
+    );
+    outer.rotation.x = -Math.PI / 2;
+    outer.position.set(x, 0.20, -3.03);
+    g.add(outer);
+    // 尖端发光球 (主)
+    const tip = new THREE.Mesh(
+      new THREE.SphereGeometry(0.20, 12, 12),
+      new THREE.MeshBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending })
+    );
+    tip.position.set(x, 0.20, -4.28);
+    g.add(tip);
+    // 尖端发光球 (外)
+    const tipOuter = new THREE.Mesh(
+      new THREE.SphereGeometry(0.35, 12, 12),
+      new THREE.MeshBasicMaterial({ color: 0x44ffaa, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending })
+    );
+    tipOuter.position.set(x, 0.20, -4.28);
+    g.add(tipOuter);
+    // 尖端辉光
+    const glow = this._makeGlowSprite(0.8);
+    glow.position.set(x, 0.20, -4.28);
+    glow.material.opacity = 0.5;
+    g.add(glow);
+
+    g.visible = false;
+    this.group.add(g);
+    return g;
   };
-  Pet.prototype._drawStream = function () {
-    const c = this.sCtx, w = 96, h = 64;
-    c.clearRect(0, 0, w, h);
-    // 屏幕底色 (深绿黑, 让字符更有层次)
-    c.fillStyle = 'rgba(3,10,7,0.92)';
-    c.fillRect(0, 0, w, h);
-    c.font = '7px monospace';
-    for (let i = 0; i < this.cols.length; i++) {
-      const col = this.cols[i];
-      col.head = (col.head + col.speed) % (h + 10);
-      const x = i * 5;
-      for (let j = 0; j < 4; j++) {
-        const y = col.head - j * 7;
-        if (y < 0 || y > h) continue;
-        c.fillStyle = j === 0 ? '#7dffc0' : 'rgba(0,255,136,' + (0.6 - j * 0.13) + ')';
-        c.fillText(this._chars[(Math.random() * this._chars.length) | 0], x, y);
-      }
+
+  Pet.prototype._addMouth = function () {
+    const mouth = new THREE.Mesh(
+      new THREE.SphereGeometry(0.28, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0x020810 })
+    );
+    mouth.position.set(0, -0.50, -1.30);
+    mouth.scale.set(2.0, 0.9, 0.35);
+    this.group.add(mouth);
+    const rim = new THREE.Mesh(
+      new THREE.TorusGeometry(0.26, 0.030, 8, 24),
+      new THREE.MeshBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.25 })
+    );
+    rim.position.set(0, -0.50, -1.25);
+    rim.scale.set(2.0, 0.9, 1);
+    rim.rotation.x = 0.1;
+    this.group.add(rim);
+  };
+
+  Pet.prototype._addNose = function () {
+    const shape = new THREE.Shape();
+    const w = 0.12, h = 0.14;
+    shape.moveTo(0, 0); shape.quadraticCurveTo(-w, -h * 0.5, -w * 0.5, -h);
+    shape.quadraticCurveTo(0, -h * 1.3, w * 0.5, -h);
+    shape.quadraticCurveTo(w, -h * 0.5, 0, 0);
+    const nose = new THREE.Mesh(
+      new THREE.ShapeGeometry(shape),
+      new THREE.MeshBasicMaterial({ color: 0x061218, side: THREE.DoubleSide })
+    );
+    nose.position.set(0, -0.05, -1.32);
+    this.group.add(nose);
+    const edges = new THREE.EdgesGeometry(nose.geometry);
+    this.group.add(new THREE.LineSegments(
+      edges, new THREE.LineBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.5 })
+    ));
+  };
+
+  Pet.prototype._createParticles = function () {
+    const count = 60;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    this._partOffsets = [];
+    for (let i = 0; i < count; i++) {
+      const th = Math.random() * Math.PI * 2;
+      const ph = Math.acos(2 * Math.random() - 1);
+      const r = 0.5 + Math.random() * 0.4;
+      pos[i * 3] = r * Math.sin(ph) * Math.cos(th);
+      pos[i * 3 + 1] = r * Math.cos(ph) * 0.8;
+      pos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th) - 0.3;
+      this._partOffsets.push(Math.random() * Math.PI * 2);
     }
-    // CRT 扫描线
-    c.fillStyle = 'rgba(0,0,0,0.28)';
-    for (let y = 0; y < h; y += 3) c.fillRect(0, y, w, 1);
-    // 顶部高光条
-    c.fillStyle = 'rgba(0,255,136,0.1)';
-    c.fillRect(0, 0, w, 3);
-    if (this.screenTex) this.screenTex.needsUpdate = true;
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    this._particles = new THREE.Points(geo, new THREE.PointsMaterial({
+      color: 0x00ff88, size: 0.025, transparent: true, opacity: 0.6,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    }));
+    this.scene.add(this._particles);
+  };
+
+  Pet.prototype._createShadow = function () {
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(32, 32, 2, 32, 32, 32);
+    g.addColorStop(0, 'rgba(0,0,0,0.55)');
+    g.addColorStop(0.5, 'rgba(0,0,0,0.20)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 64, 64);
+    this._shadow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(c),
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.6,
+      blending: THREE.NormalBlending
+    }));
+    this._shadow.scale.set(0.8, 0.6, 1);
+    this._shadow.position.set(0, -0.6, 0);
+    this.scene.add(this._shadow);
+  };
+
+  Pet.prototype._makeGlowSprite = function (size) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(32, 32, 2, 32, 32, 32);
+    g.addColorStop(0, 'rgba(0,255,136,0.6)');
+    g.addColorStop(1, 'rgba(0,255,136,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 64, 64);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false
+    }));
+    sprite.scale.set(size, size, 1);
+    return sprite;
   };
 
   /* ---------- 动画循环 ---------- */
@@ -221,33 +388,87 @@
     if (this._raf) this._raf = requestAnimationFrame(this._loop.bind(this));
     if (this.fallback) return;
     const t = ts / 1000;
-    this.group.position.y = Math.sin(t * 1.2) * 0.12;          // 悬浮
-    const breathe = 1 + Math.sin(t * 1.6) * 0.02;
-    this.group.scale.setScalar(breathe);                        // 呼吸
-    const blink = (t % 2.7) > 2.62 ? 0.12 : 1;                  // 眨眼(整只眼睛)
-    this.eyeL.scale.y = blink; this.eyeR.scale.y = blink;
-    // 瞳孔高光微浮动 (灵动感)
-    if (this.eyeL.userData.pupil) {
-      this.eyeL.userData.pupil.position.x = Math.sin(t * 2.3) * 0.03;
-      this.eyeL.userData.pupil.position.y = 0.07 + Math.sin(t * 3.1) * 0.02;
-      this.eyeR.userData.pupil.position.x = Math.sin(t * 2.3 + 1) * 0.03;
-      this.eyeR.userData.pupil.position.y = 0.07 + Math.sin(t * 3.1 + 1) * 0.02;
+
+    this.group.position.y = Math.sin(t * 0.9) * 0.06;         // 悬浮
+    const floatY = this.group.position.y;
+    // 投影跟随悬浮
+    if (this._shadow) {
+      const h = floatY + 0.6;  // 到地面距离
+      this._shadow.material.opacity = Math.max(0.15, 0.6 - h * 2.0);
+      this._shadow.scale.setScalar(1.0 + h * 0.5);
     }
-    // traffic lights 呼吸: 每 2.4s 轮换一盏灯脉动
-    const lightIdx = Math.floor(t / 2.4) % 3;
-    this.traffic.forEach((tl, i) => {
-      tl.mat.emissiveIntensity = i === lightIdx ? 0.9 + Math.sin(t * 6) * 0.5 : 0.45;
-    });
-    if (this._shock > 0) {                                      // 点击惊吓
+    const breathe = 1 + Math.sin(t * 1.2) * 0.012;
+    this.group.scale.setScalar(breathe * 0.28);               // 呼吸+基础缩放
+    this.group.rotation.y = Math.PI + Math.sin(t * 0.7) * 0.18 + Math.sin(t * 1.5) * 0.06;  // 正面朝向 + 随机左右摇头
+    this.group.rotation.x = Math.sin(t * 0.5) * 0.10 + Math.sin(t * 1.2) * 0.04;  // 随机上下点头
+
+    // 眨眼
+    const blink = (t % 3.2) > 3.0 ? 0.1 : 1;
+    if (this._eyeL) { this._eyeL.scale.y = blink; this._eyeR.scale.y = blink; }
+
+    // 瞳孔环顾 + 高光跟随
+    if (this._pupilL) {
+      const px = Math.sin(t * 2.3) * 0.03;
+      const py = 0.20 + Math.sin(t * 3.1) * 0.02;
+      this._pupilL.position.x = -0.50 + px;
+      this._pupilL.position.y = py;
+      this._pupilR.position.x = 0.50 + Math.sin(t * 2.3 + 1) * 0.03;
+      this._pupilR.position.y = 0.20 + Math.sin(t * 3.1 + 1) * 0.02;
+      // 高光跟随瞳孔
+      // 高光自动跟随瞳孔 (glint 是 pupil 的子元素)
+    }
+
+    // 点击惊吓
+    if (this._shock > 0) {
       this._shock -= 0.06;
-      this.group.scale.setScalar(breathe * (1 + this._shock * 0.5));
+      this.group.scale.setScalar(breathe * 0.28 * (1 + this._shock * 0.4));
+      // 惊吓时瞳孔放大
+      if (this._pupilL) {
+        const shockScale = 1 + this._shock * 0.3;
+        this._pupilL.scale.setScalar(shockScale);
+        this._pupilR.scale.setScalar(shockScale);
+      }
+    } else {
+      if (this._pupilL) { this._pupilL.scale.setScalar(1); this._pupilR.scale.setScalar(1); }
     }
-    this.group.rotation.y = Math.sin(t * 0.5) * 0.12;
-    this._drawStream();
+
+    // 粒子动画
+    if (this._particles) {
+      const arr = this._particles.geometry.attributes.position.array;
+      for (let i = 0; i < this._partOffsets.length; i++) {
+        const ph = t * 0.35 + this._partOffsets[i];
+        arr[i * 3 + 1] += Math.sin(ph) * 0.002;
+        arr[i * 3] += Math.cos(ph * 0.7) * 0.002;
+      }
+      this._particles.geometry.attributes.position.needsUpdate = true;
+      this._particles.material.opacity = 0.25 + Math.sin(t * 0.7) * 0.12;
+    }
+
+    // 激光束动画
+    if (this._laserTime > 0) {
+      this._laserTime -= 0.025;
+      // 起始充能效果 (前 0.5 秒快速从 0 到 1)
+      const charge = Math.min(1, (3 - this._laserTime) / 0.3);
+      const flicker = (0.2 + Math.sin(t * 40) * 0.8);
+      const intensity = Math.min(this._laserTime, 1) * charge * flicker;
+      [this._laserL, this._laserR].forEach(laser => {
+        if (!laser) return;
+        laser.visible = true;
+        laser.children.forEach(child => {
+          child.material.opacity = Math.max(0, intensity);
+        });
+        const pulse = 1 + Math.sin(t * 35) * 0.25;
+        laser.scale.setScalar(pulse);
+      });
+    } else {
+      if (this._laserL) this._laserL.visible = false;
+      if (this._laserR) this._laserR.visible = false;
+    }
+
     this.renderer.render(this.scene, this.camera);
   };
 
-  /* ---------- 鼠标交互: 拖拽 + 单击判定 ---------- */
+  /* ---------- 鼠标交互 ---------- */
   Pet.prototype._bindEvents = function () {
     const el = this.container;
     el.addEventListener('mousedown', (e) => {
@@ -272,7 +493,7 @@
       this._down = null;
       el.classList.remove('dragging');
       if (wasClick && this.onClick) {
-        this._shock = 1;
+        this.fireLaser();
         this.onClick();
       }
     });
@@ -281,6 +502,11 @@
   Pet.prototype.destroy = function () {
     if (this._raf) cancelAnimationFrame(this._raf);
     if (this.renderer) this.renderer.dispose();
+  };
+
+  Pet.prototype.fireLaser = function () {
+    this._shock = 1;
+    this._laserTime = 8;
   };
 
   if (typeof module !== 'undefined') module.exports = { Pet };

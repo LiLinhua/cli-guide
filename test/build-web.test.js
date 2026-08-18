@@ -36,7 +36,7 @@ check('十三分类齐全', new Set(cmds.map(c => c.cat)).size === 13);
 /* 4. 渲染层与 shim 齐全 */
 check('three UMD 已内联', html.includes('WebGLRenderer'));
 check('web shim 已内联(window.cliGuide)', html.includes('window.cliGuide'));
-check('桌宠模块已内联', html.includes('终端脸桌宠'));
+check('桌宠模块已内联', html.includes('骷髅头骨桌宠'));
 check('面板模块已内联', html.includes('CAT_LABELS'));
 check('入口模块已内联', html.includes('DOMContentLoaded'));
 

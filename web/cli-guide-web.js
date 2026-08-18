@@ -51,7 +51,7 @@
       return Promise.resolve();
     },
     hidePanel: () => {
-      // Web 版面板常驻: 禁用 Esc 收起 (仅 Cmd/Ctrl+Shift+C 可切换)
+      // Web 版面板常驻: 禁用 Esc 收起 (仅 Cmd/Ctrl+Shift+Z 可切换)
       return Promise.resolve();
     },
     dragMove: () => Promise.resolve(), // 无桌宠, 无拖拽
@@ -64,9 +64,9 @@
     }
   };
 
-  // 页面内快捷键: Cmd/Ctrl+Shift+C 切换面板显示 (客户端版为全局快捷键)
+  // 页面内快捷键: Cmd/Ctrl+Shift+Z 切换面板显示 (客户端版为全局快捷键)
   document.addEventListener('keydown', (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
+    if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'Z' || e.key === 'z')) {
       e.preventDefault();
       window.cliGuide.togglePanel();
     }

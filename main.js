@@ -11,7 +11,7 @@ const USER_DIR = path.join(os.homedir(), '.cli-guide');
 const CONFIG_FILE = path.join(USER_DIR, 'config.json');
 const USER_CMDS_DIR = path.join(USER_DIR, 'commands');
 const PANEL_W = 760, PANEL_H = 560;
-const HOTKEY = 'CommandOrControl+Shift+C';
+const HOTKEY = 'CommandOrControl+Shift+Z';
 
 let win = null;
 let tray = null;
@@ -53,6 +53,7 @@ function createWindow() {
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false }
   });
   win.setAlwaysOnTop(true, 'screen-saver');
+  win.setVisibleOnAllWorkspaces(true);
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
   win.on('blur', () => { if (state === 'expanded') collapse(); });
@@ -120,6 +121,26 @@ ipcMain.handle('window:drag-move', (_e, dx, dy) => {
 ipcMain.handle('login:set', (_e, enabled) => setLoginItem(enabled));
 ipcMain.handle('data:open-dir', () => { ensureUserData(); shell.openPath(USER_CMDS_DIR); });
 ipcMain.handle('app:quit', () => app.quit());
+ipcMain.handle('menu:open', () => {
+  if (!win) return;
+  if (state === 'expanded') return; // 已展开, 无需扩窗
+  const b = win.getBounds();
+  const wa = screen.getDisplayMatching(b).workArea;
+  const menuW = 180;
+  let newW = PET_W + menuW;
+  let newX = b.x;
+  if (newX + newW > wa.x + wa.width) {
+    newX = wa.x + wa.width - newW;
+  }
+  win.setBounds({ x: newX, y: b.y, width: newW, height: PET_H });
+});
+ipcMain.handle('menu:close', () => {
+  if (!win) return;
+  if (state === 'expanded') return; // 已展开, 不缩回
+  const b = win.getBounds();
+  // 恢复 compact: 保持右边缘对齐
+  win.setBounds({ x: b.x + b.width - PET_W, y: b.y, width: PET_W, height: PET_H });
+});
 
 /* ---------- 全局快捷键 ---------- */
 function setupHotkey() {

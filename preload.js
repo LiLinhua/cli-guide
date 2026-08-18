@@ -12,5 +12,7 @@ contextBridge.exposeInMainWorld('cliGuide', {
   setLoginItem: (enabled) => ipcRenderer.invoke('login:set', enabled),
   openDataDir: () => ipcRenderer.invoke('data:open-dir'),
   quit: () => ipcRenderer.invoke('app:quit'),
-  onWindowState: (cb) => ipcRenderer.on('window:state', (_e, state) => cb(state))
+  onWindowState: (cb) => ipcRenderer.on('window:state', (_e, state) => cb(state)),
+  showMenu: () => ipcRenderer.invoke('menu:open'),
+  hideMenu: () => ipcRenderer.invoke('menu:close')
 });

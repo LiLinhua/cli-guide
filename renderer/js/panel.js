@@ -43,6 +43,17 @@
         if (self.h.onEnter) self.h.onEnter();
       }
     });
+    // 点击左上角红点关闭面板
+    const head = this.root.querySelector('.panel-head');
+    if (head) {
+      head.addEventListener('click', (e) => {
+        if (e.target.classList.contains('dot')) {
+          if (typeof window.cliGuide !== 'undefined' && window.cliGuide.hidePanel) {
+            window.cliGuide.hidePanel();
+          }
+        }
+      });
+    }
   };
 
   Panel.prototype.setData = function (items) { this.items = items; };
