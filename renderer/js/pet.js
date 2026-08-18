@@ -362,8 +362,8 @@
       opacity: 0.6,
       blending: THREE.NormalBlending
     }));
-    this._shadow.scale.set(0.8, 0.6, 1);
-    this._shadow.position.set(0, -0.6, 0);
+    this._shadow.scale.set(0.7, 0.5, 1);
+    this._shadow.position.set(0, -0.40, 0);
     this.scene.add(this._shadow);
   };
 
@@ -393,9 +393,9 @@
     const floatY = this.group.position.y;
     // 投影跟随悬浮
     if (this._shadow) {
-      const h = floatY + 0.6;  // 到地面距离
-      this._shadow.material.opacity = Math.max(0.15, 0.6 - h * 2.0);
-      this._shadow.scale.setScalar(1.0 + h * 0.5);
+      const h = floatY + 0.40;
+      this._shadow.material.opacity = Math.max(0.15, 0.6 - h * 2.5);
+      this._shadow.scale.setScalar(1.0 + h * 0.4);
     }
     const breathe = 1 + Math.sin(t * 1.2) * 0.012;
     this.group.scale.setScalar(breathe * 0.28);               // 呼吸+基础缩放
