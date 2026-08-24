@@ -14,5 +14,8 @@ contextBridge.exposeInMainWorld('cliGuide', {
   quit: () => ipcRenderer.invoke('app:quit'),
   onWindowState: (cb) => ipcRenderer.on('window:state', (_e, state) => cb(state)),
   showMenu: () => ipcRenderer.invoke('menu:open'),
-  hideMenu: () => ipcRenderer.invoke('menu:close')
+  hideMenu: () => ipcRenderer.invoke('menu:close'),
+  stealth: () => ipcRenderer.invoke('pet:stealth'),
+  unstealth: () => ipcRenderer.invoke('pet:unstealth'),
+  showPet: () => ipcRenderer.invoke('pet:show')
 });

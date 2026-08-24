@@ -11,6 +11,9 @@
     results: [],
     activeIndex: 0,
     expanded: false,
+    _stealthed: false,
+    _lastInteraction: Date.now(),
+    _stealthTimerId: null,
     _ctxMenu: null,
     _ctxBackdrop: null,
 
@@ -28,8 +31,14 @@
         onCategory: c => this.toggleCat(c)
       });
       this.pet = new Pet(document.getElementById('pet-root'));
-      this.pet.onClick = () => window.cliGuide.togglePanel();
-      this.pet.onDragStart = (dx, dy) => window.cliGuide.dragMove(dx, dy);
+      this.pet.onClick = () => {
+        this._trackInteraction();
+        window.cliGuide.togglePanel();
+      };
+      this.pet.onDragStart = (dx, dy) => {
+        this._trackInteraction();
+        window.cliGuide.dragMove(dx, dy);
+      };
       this.pet.init();
       this.query = '';
 
@@ -45,6 +54,7 @@
 
       // 右键菜单
       this._createContextMenu();
+      this._createStealthBar();
       document.getElementById('pet-root').addEventListener('contextmenu', (e) => {
         e.preventDefault();
         this._showContextMenu();
@@ -74,12 +84,30 @@
           this._hideContextMenu();
         }
       });
+
+      this._resetStealthTimer();
     },
 
     setState(st) {
       this.expanded = st === 'expanded';
+      this._stealthed = st === 'invisible';
       document.getElementById('panel-root').classList.toggle('hidden', !this.expanded);
-      if (this.expanded) {
+      // 桌宠内容与隐身条切换
+      const petRoot = document.getElementById('pet-root');
+      if (petRoot) petRoot.classList.toggle('hidden', this._stealthed);
+      if (this._stealthBar) this._stealthBar.classList.toggle('hidden', !this._stealthed);
+      // 更新桌宠动画
+      if (this.pet && this.pet.setStealth) this.pet.setStealth(this._stealthed);
+      // 更新隐身菜单文字
+      const stealthLabel = document.getElementById('ctx-stealth-label');
+      if (stealthLabel) stealthLabel.textContent = this._stealthed ? '取消隐身' : '隐身';
+      // 管理隐身计时器
+      if (this._stealthed) {
+        this._stopStealthTimer();
+      } else if (st === 'compact') {
+        this._resetStealthTimer();
+      } else if (this.expanded) {
+        this._stopStealthTimer();
         if (this.pet) this.pet.fireLaser();
         const input = document.getElementById('search-input');
         input.focus();
@@ -135,6 +163,11 @@
           <span>展开 / 收起面板</span>
         </div>
         <div class="ctx-separator"></div>
+        <div class="ctx-item" data-action="stealth-toggle">
+          <span class="ctx-icon">◉</span>
+          <span id="ctx-stealth-label">隐身</span>
+        </div>
+        <div class="ctx-separator"></div>
         <div class="ctx-item" data-action="login">
           <span class="ctx-check" id="ctx-login-check"></span>
           <span>开机自启动</span>
@@ -159,9 +192,19 @@
     },
 
     async _showContextMenu() {
+      this._trackInteraction();
+      // 如果隐身中, 先取消隐身再弹菜单
+      if (this._stealthed) {
+        await window.cliGuide.unstealth();
+      }
       const config = await window.cliGuide.getConfig();
       const check = document.getElementById('ctx-login-check');
       if (check) check.textContent = config.loginItem ? '✓' : '';
+      const stealthLabel = document.getElementById('ctx-stealth-label');
+      if (stealthLabel) stealthLabel.textContent = this._stealthed ? '取消隐身' : '隐身';
+      // expanded 时隐藏隐身菜单项
+      const stealthItem = document.querySelector('[data-action="stealth-toggle"]');
+      if (stealthItem) stealthItem.style.display = this.expanded ? 'none' : '';
       this._ctxBackdrop.classList.remove('hidden');
       this._ctxMenu.classList.remove('hidden');
       window.cliGuide.showMenu(); // 扩窗容纳菜单
@@ -177,6 +220,13 @@
       this._hideContextMenu();
       switch (action) {
         case 'toggle': window.cliGuide.togglePanel(); break;
+        case 'stealth-toggle':
+          if (this._stealthed) {
+            window.cliGuide.unstealth();
+          } else {
+            window.cliGuide.stealth();
+          }
+          break;
         case 'login': {
           window.cliGuide.getConfig().then(cfg => {
             window.cliGuide.setLoginItem(!cfg.loginItem);
@@ -185,6 +235,44 @@
         }
         case 'data': window.cliGuide.openDataDir(); break;
         case 'quit': window.cliGuide.quit(); break;
+      }
+    },
+
+    /* ---------- 隐身贴边 ---------- */
+    _createStealthBar() {
+      const bar = document.createElement('div');
+      bar.id = 'stealth-bar';
+      bar.className = 'hidden';
+      bar.innerHTML = '<span class="stealth-dot"></span>';
+      bar.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        this._showContextMenu();
+      });
+      bar.addEventListener('click', () => {
+        if (this._stealthed) window.cliGuide.showPet();
+      });
+      document.getElementById('app').appendChild(bar);
+      this._stealthBar = bar;
+    },
+
+    /* ---------- 隐身计时器 ---------- */
+    _trackInteraction() {
+      this._lastInteraction = Date.now();
+    },
+    _resetStealthTimer() {
+      this._stopStealthTimer();
+      this._lastInteraction = Date.now();
+      this._stealthTimerId = setInterval(() => {
+        if (this._stealthed || this.expanded) return;
+        if (Date.now() - this._lastInteraction >= 180000) {
+          window.cliGuide.stealth();
+        }
+      }, 1000);
+    },
+    _stopStealthTimer() {
+      if (this._stealthTimerId) {
+        clearInterval(this._stealthTimerId);
+        this._stealthTimerId = null;
       }
     }
   };

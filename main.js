@@ -5,7 +5,7 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const { loadBuiltinCommands, loadUserCommands, mergeCommands } = require('./lib/commands');
-const { defaultCompactBounds, computeExpandedBounds, interpolate, PET_W, PET_H } = require('./lib/layout');
+const { defaultCompactBounds, computeExpandedBounds, computeStealthBounds, interpolate, PET_W, PET_H, STEALTH_SIZE } = require('./lib/layout');
 
 const USER_DIR = path.join(os.homedir(), '.cli-guide');
 const CONFIG_FILE = path.join(USER_DIR, 'config.json');
@@ -17,6 +17,8 @@ let win = null;
 let tray = null;
 let state = 'compact';
 let animTimer = null;
+let _compactBeforeStealth = null;
+let _stealthPreview = false;
 
 /* ---------- 配置 ---------- */
 function loadConfig() {
@@ -79,11 +81,37 @@ function collapse() {
   const to = { x: from.x + from.width - PET_W, y: from.y + from.height - PET_H, width: PET_W, height: PET_H };
   animateBounds(from, to, 200, () => {
     if (win) win.setBounds(to);
-    saveConfig({ ...loadConfig(), x: to.x, y: to.y });
-    broadcast();
+    if (_stealthPreview) {
+      // 临时预览: 收起面板后继续隐身贴边
+      _stealthPreview = false;
+      _compactBeforeStealth = { x: to.x, y: to.y, width: PET_W, height: PET_H };
+      const wa = screen.getDisplayMatching(to).workArea;
+      const stealthBounds = computeStealthBounds(to, wa);
+      state = 'invisible';
+      broadcast();
+      win.setBounds(stealthBounds);
+    } else {
+      saveConfig({ ...loadConfig(), x: to.x, y: to.y });
+      broadcast();
+    }
   });
 }
-function toggle() { (state === 'compact') ? expand() : collapse(); }
+function toggle() {
+  if (state === 'invisible') {
+    if (!win) return;
+    _stealthPreview = true;
+    const compactBounds = _compactBeforeStealth || defaultCompactBounds(screen.getPrimaryDisplay().workArea);
+    const wa = screen.getDisplayMatching(compactBounds).workArea;
+    const to = computeExpandedBounds(compactBounds, wa, { width: PANEL_W, height: PANEL_H });
+    animateBounds(win.getBounds(), to, 220, () => {
+      if (win) win.setBounds(to);
+      state = 'expanded';
+      broadcast();
+    });
+  } else {
+    (state === 'compact') ? expand() : collapse();
+  }
+}
 function animateBounds(from, to, ms, done) {
   if (animTimer) clearInterval(animTimer);
   const t0 = Date.now();
@@ -121,9 +149,43 @@ ipcMain.handle('window:drag-move', (_e, dx, dy) => {
 ipcMain.handle('login:set', (_e, enabled) => setLoginItem(enabled));
 ipcMain.handle('data:open-dir', () => { ensureUserData(); shell.openPath(USER_CMDS_DIR); });
 ipcMain.handle('app:quit', () => app.quit());
+ipcMain.handle('pet:stealth', () => {
+  if (!win || state !== 'compact') return;
+  _compactBeforeStealth = win.getBounds();
+  saveConfig({ ...loadConfig(), x: _compactBeforeStealth.x, y: _compactBeforeStealth.y });
+  const wa = screen.getDisplayMatching(_compactBeforeStealth).workArea;
+  const to = computeStealthBounds(_compactBeforeStealth, wa);
+  state = 'invisible';
+  broadcast(); // 动画开始前同步状态, 防止竞态
+  animateBounds(_compactBeforeStealth, to, 200, () => {
+    if (win) win.setBounds(to);
+  });
+});
+ipcMain.handle('pet:show', () => {
+  if (!win || state !== 'invisible') return;
+  _stealthPreview = true;
+  const to = _compactBeforeStealth || defaultCompactBounds(screen.getPrimaryDisplay().workArea);
+  animateBounds(win.getBounds(), to, 200, () => {
+    if (win) win.setBounds(to);
+    state = 'compact';
+    broadcast();
+  });
+});
+ipcMain.handle('pet:unstealth', () => {
+  return new Promise((resolve) => {
+    if (!win || state !== 'invisible') { resolve(); return; }
+    _stealthPreview = false;
+    const to = _compactBeforeStealth || defaultCompactBounds(screen.getPrimaryDisplay().workArea);
+    win.setBounds(to); // 即时恢复 compact 位置, 无需动画
+    state = 'compact';
+    _compactBeforeStealth = null;
+    broadcast();
+    resolve();
+  });
+});
 ipcMain.handle('menu:open', () => {
   if (!win) return;
-  if (state === 'expanded') return; // 已展开, 无需扩窗
+  if (state === 'expanded' || state === 'invisible') return; // 已展开/隐身, 无需扩窗
   const b = win.getBounds();
   const wa = screen.getDisplayMatching(b).workArea;
   const menuW = 180;
@@ -136,7 +198,7 @@ ipcMain.handle('menu:open', () => {
 });
 ipcMain.handle('menu:close', () => {
   if (!win) return;
-  if (state === 'expanded') return; // 已展开, 不缩回
+  if (state === 'expanded' || state === 'invisible') return; // 已展开/隐身, 不缩回
   const b = win.getBounds();
   // 恢复 compact: 保持右边缘对齐
   win.setBounds({ x: b.x + b.width - PET_W, y: b.y, width: PET_W, height: PET_H });
@@ -192,8 +254,10 @@ if (!gotLock) {
   });
   app.on('window-all-closed', () => { /* 常驻, 不退出 */ });
   app.on('will-quit', () => {
-    // 拖拽后未展开过直接退出时, 保存当前 compact 位置
-    if (win && state === 'compact') saveConfig({ ...loadConfig(), x: win.getBounds().x, y: win.getBounds().y });
+    if (win && (state === 'compact' || state === 'invisible')) {
+      const b = state === 'invisible' ? (_compactBeforeStealth || win.getBounds()) : win.getBounds();
+      saveConfig({ ...loadConfig(), x: b.x, y: b.y });
+    }
     globalShortcut.unregisterAll();
   });
 }

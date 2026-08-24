@@ -504,6 +504,15 @@
     if (this.renderer) this.renderer.dispose();
   };
 
+  Pet.prototype.setStealth = function (stealth) {
+    if (this.fallback) return;
+    if (stealth) {
+      if (this._raf) { cancelAnimationFrame(this._raf); this._raf = null; }
+    } else {
+      if (!this._raf) this._raf = requestAnimationFrame(this._loop.bind(this));
+    }
+  };
+
   Pet.prototype.fireLaser = function () {
     this._shock = 1;
     this._laserTime = 8;
