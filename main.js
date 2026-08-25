@@ -5,7 +5,7 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const { loadBuiltinCommands, loadUserCommands, mergeCommands } = require('./lib/commands');
-const { defaultCompactBounds, computeExpandedBounds, computeStealthBounds, interpolate, PET_W, PET_H, STEALTH_SIZE } = require('./lib/layout');
+const { defaultCompactBounds, computeExpandedBounds, computeStealthBounds, computeMenuBounds, interpolate, PET_W, PET_H, STEALTH_SIZE } = require('./lib/layout');
 
 const USER_DIR = path.join(os.homedir(), '.cli-guide');
 const CONFIG_FILE = path.join(USER_DIR, 'config.json');
@@ -19,6 +19,7 @@ let state = 'compact';
 let animTimer = null;
 let _compactBeforeStealth = null;
 let _stealthPreview = false;
+let _boundsBeforeMenu = null;
 
 /* ---------- 配置 ---------- */
 function loadConfig() {
@@ -144,7 +145,20 @@ ipcMain.handle('window:drag-move', (_e, dx, dy) => {
   if (!win) return;
   if (animTimer) { clearInterval(animTimer); animTimer = null; } // 拖拽中断展开/收起动画, 避免位置被拉回
   const b = win.getBounds();
-  win.setPosition(Math.round(b.x + dx), Math.round(b.y + dy));
+  let newX = Math.round(b.x + dx);
+  let newY = Math.round(b.y + dy);
+  if (state === 'invisible' && _compactBeforeStealth) {
+    // 隐身拖拽: 仅沿贴边方向移动, 并同步更新恢复位置
+    const wa = screen.getDisplayMatching(b).workArea;
+    if (b.height === STEALTH_SIZE) {
+      newY = b.y; // 水平条: 仅水平移动
+      _compactBeforeStealth.x = Math.max(wa.x, Math.min(wa.x + wa.width - PET_W, newX));
+    } else if (b.width === STEALTH_SIZE) {
+      newX = b.x; // 垂直条: 仅垂直移动
+      _compactBeforeStealth.y = Math.max(wa.y, Math.min(wa.y + wa.height - PET_H, newY));
+    }
+  }
+  win.setPosition(newX, newY);
 });
 ipcMain.handle('login:set', (_e, enabled) => setLoginItem(enabled));
 ipcMain.handle('data:open-dir', () => { ensureUserData(); shell.openPath(USER_CMDS_DIR); });
@@ -183,25 +197,25 @@ ipcMain.handle('pet:unstealth', () => {
     resolve();
   });
 });
-ipcMain.handle('menu:open', () => {
-  if (!win) return;
-  if (state === 'expanded' || state === 'invisible') return; // 已展开/隐身, 无需扩窗
+ipcMain.handle('menu:open', (_e, menuH) => {
+  if (!win) return { dy: 0 };
+  if (state === 'expanded' || state === 'invisible') return { dy: 0 }; // 已展开/隐身, 无需扩窗
+  if (_boundsBeforeMenu) return { dy: 0 }; // 菜单已展开(重复右键), 窗口不动
   const b = win.getBounds();
+  _boundsBeforeMenu = { x: b.x, y: b.y };
   const wa = screen.getDisplayMatching(b).workArea;
-  const menuW = 180;
-  let newW = PET_W + menuW;
-  let newX = b.x;
-  if (newX + newW > wa.x + wa.width) {
-    newX = wa.x + wa.width - newW;
-  }
-  win.setBounds({ x: newX, y: b.y, width: newW, height: PET_H });
+  // 扩宽容纳菜单, 扩高容纳菜单实测高度(否则底部菜单项被窗口裁剪); 贴右/贴底时左移/上移
+  const to = computeMenuBounds(b, wa, menuH);
+  win.setBounds(to);
+  return { dy: to.y - b.y }; // 负值 = 窗口上移, 渲染层据此补偿桌宠位置
 });
 ipcMain.handle('menu:close', () => {
-  if (!win) return;
-  if (state === 'expanded' || state === 'invisible') return; // 已展开/隐身, 不缩回
-  const b = win.getBounds();
-  // 恢复 compact: 保持右边缘对齐
-  win.setBounds({ x: b.x + b.width - PET_W, y: b.y, width: PET_W, height: PET_H });
+  const restore = _boundsBeforeMenu;
+  _boundsBeforeMenu = null;
+  if (!win || !restore) return;
+  if (state === 'expanded' || state === 'invisible') return; // 状态已切换, 窗口由状态机管理
+  // 精确恢复扩窗前的 compact 位置(桌宠不漂移)
+  win.setBounds({ x: restore.x, y: restore.y, width: PET_W, height: PET_H });
 });
 
 /* ---------- 全局快捷键 ---------- */

@@ -89,6 +89,10 @@
     },
 
     setState(st) {
+      // 状态切换时自动关闭右键菜单(全局快捷键/托盘展开面板时菜单不残留)
+      if (this._ctxMenu && !this._ctxMenu.classList.contains('hidden')) {
+        this._hideContextMenu();
+      }
       this.expanded = st === 'expanded';
       this._stealthed = st === 'invisible';
       document.getElementById('panel-root').classList.toggle('hidden', !this.expanded);
@@ -205,14 +209,29 @@
       // expanded 时隐藏隐身菜单项
       const stealthItem = document.querySelector('[data-action="stealth-toggle"]');
       if (stealthItem) stealthItem.style.display = this.expanded ? 'none' : '';
-      this._ctxBackdrop.classList.remove('hidden');
+      if (!this._ctxMenu.classList.contains('hidden')) return; // 菜单已显示(重复右键), 仅刷新上面内容
+      // 先渲染但不可见, 实测菜单高度(内容随隐身项显隐变化), 供主进程扩窗; 否则底部菜单项被窗口裁剪
       this._ctxMenu.classList.remove('hidden');
-      window.cliGuide.showMenu(); // 扩窗容纳菜单
+      this._ctxMenu.style.visibility = 'hidden';
+      const menuH = Math.ceil(this._ctxMenu.getBoundingClientRect().height);
+      const r = await window.cliGuide.showMenu(menuH); // 扩窗容纳菜单(含高度)
+      // 等待扩窗期间状态可能已切换(快捷键展开面板等), 此时不显示菜单
+      if (this.expanded || this._stealthed) {
+        this._ctxMenu.classList.add('hidden');
+        this._ctxMenu.style.visibility = '';
+        window.cliGuide.hideMenu();
+        return;
+      }
+      this._ctxMenu.style.visibility = '';
+      // 窗口上移(贴底弹菜单)时补偿桌宠偏移, 保持屏幕位置不跳
+      document.getElementById('pet-root').style.top = (r && r.dy < 0) ? String(-r.dy) + 'px' : '';
+      this._ctxBackdrop.classList.remove('hidden');
     },
 
     _hideContextMenu() {
       this._ctxBackdrop.classList.add('hidden');
       this._ctxMenu.classList.add('hidden');
+      document.getElementById('pet-root').style.top = ''; // 清除菜单期偏移
       window.cliGuide.hideMenu(); // 恢复 compact
     },
 
@@ -248,9 +267,34 @@
         e.preventDefault();
         this._showContextMenu();
       });
-      bar.addEventListener('click', () => {
-        if (this._stealthed) window.cliGuide.showPet();
+
+      // 拖拽 + 左键点击处理
+      let _drag = null;
+      let _dragged = false;
+      bar.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        _drag = { x: e.screenX, y: e.screenY };
+        _dragged = false;
+        bar.classList.add('dragging');
       });
+      document.addEventListener('mousemove', (e) => {
+        if (!_drag) return;
+        const dx = e.screenX - _drag.x;
+        const dy = e.screenY - _drag.y;
+        if (Math.abs(dx) + Math.abs(dy) > 3) {
+          _dragged = true;
+          window.cliGuide.dragMove(dx, dy);
+          _drag.x = e.screenX;
+          _drag.y = e.screenY;
+        }
+      });
+      document.addEventListener('mouseup', () => {
+        if (!_drag) return;
+        if (!_dragged && this._stealthed) window.cliGuide.showPet();
+        _drag = null;
+        bar.classList.remove('dragging');
+      });
+
       document.getElementById('app').appendChild(bar);
       this._stealthBar = bar;
     },

@@ -60,6 +60,7 @@ global.cliGuide = {
   },
   copyText: async (t) => { copiedText = t; },
   togglePanel: async () => {}, hidePanel: async () => {}, dragMove: async () => {},
+  showMenu: async () => ({ dy: 0 }), hideMenu: async () => {},
   onWindowState: (cb) => { global.__stateCb = cb; }
 };
 

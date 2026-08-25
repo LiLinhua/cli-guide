@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld('cliGuide', {
   openDataDir: () => ipcRenderer.invoke('data:open-dir'),
   quit: () => ipcRenderer.invoke('app:quit'),
   onWindowState: (cb) => ipcRenderer.on('window:state', (_e, state) => cb(state)),
-  showMenu: () => ipcRenderer.invoke('menu:open'),
+  showMenu: (menuH) => ipcRenderer.invoke('menu:open', menuH),
   hideMenu: () => ipcRenderer.invoke('menu:close'),
   stealth: () => ipcRenderer.invoke('pet:stealth'),
   unstealth: () => ipcRenderer.invoke('pet:unstealth'),

@@ -55,6 +55,9 @@
       return Promise.resolve();
     },
     dragMove: () => Promise.resolve(), // 无桌宠, 无拖拽
+    showMenu: () => Promise.resolve({ dy: 0 }), // 无扩窗
+    hideMenu: () => Promise.resolve(), // 无扩窗
+    stealth: () => Promise.resolve(), unstealth: () => Promise.resolve(),
     setLoginItem: () => Promise.resolve(false), // 浏览器无开机自启动
     openDataDir: () => Promise.resolve(),
     quit: () => Promise.resolve(),

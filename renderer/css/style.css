@@ -277,8 +277,9 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 200;
-  cursor: default;
+  cursor: grab;
 }
+#stealth-bar.dragging { cursor: grabbing; }
 #stealth-bar .stealth-dot {
   width: 5px; height: 5px;
   border-radius: 50%;
