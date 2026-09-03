@@ -1,477 +1,1470 @@
-[
-  { "id": "helm-install", "cmd": "helm install", "cat": "helm", "desc": "安装 chart",
-    "syntax": "helm install <name> <chart> [-n <ns>] [--values f.yaml]",
-    "args": [ { "name": "--values/-f", "desc": "指定 values 文件" }, { "name": "--set", "desc": "覆盖参数" }, { "name": "-n", "desc": "命名空间" } ],
-    "examples": [
-      { "cmd": "helm install my-nginx nginx", "comment": "安装 chart 到当前命名空间" },
-      { "cmd": "helm install my-nginx nginx -n prod", "comment": "安装到指定命名空间" },
-      { "cmd": "helm install my-app ./app --values prod-values.yaml", "comment": "用 values 文件安装" },
-      { "cmd": "helm install my-app ./app --set replicaCount=3 --set image.tag=v2", "comment": "--set 覆盖参数" },
-      { "cmd": "helm install my-nginx nginx --create-namespace -n staging", "comment": "创建命名空间并安装" },
-      { "cmd": "helm install my-app ./app --atomic", "comment": "失败自动回滚安装" }
-    ],
-    "tags": ["安装"] },
-  { "id": "helm-upgrade", "cmd": "helm upgrade", "cat": "helm", "desc": "升级 release",
-    "syntax": "helm upgrade <release> <chart> [--values f.yaml]",
-    "args": [ { "name": "--values/-f", "desc": "新配置" }, { "name": "--set", "desc": "覆盖参数" } ],
-    "examples": [
-      { "cmd": "helm upgrade my-nginx nginx", "comment": "升级到 chart 新版本" },
-      { "cmd": "helm upgrade my-app ./app --values prod-values.yaml", "comment": "带配置升级" },
-      { "cmd": "helm upgrade my-app ./app --set image.tag=v3", "comment": "只改镜像版本" },
-      { "cmd": "helm upgrade my-nginx nginx --version 4.0.0", "comment": "升级到指定 chart 版本" },
-      { "cmd": "helm upgrade my-app ./app --atomic", "comment": "升级失败自动回滚" },
-      { "cmd": "helm upgrade my-app ./app --force", "comment": "强制替换重建" }
-    ],
-    "tags": ["升级"] },
-  { "id": "helm-rollback", "cmd": "helm rollback", "cat": "helm", "desc": "回滚 release",
-    "syntax": "helm rollback <release> <revision>",
-    "args": [ { "name": "revision", "desc": "目标版本号" } ],
-    "examples": [
-      { "cmd": "helm rollback my-app 3", "comment": "回滚到第 3 版" },
-      { "cmd": "helm rollback my-app 1 --wait", "comment": "回滚并等待就绪" },
-      { "cmd": "helm history my-app", "comment": "先查看版本号" },
-      { "cmd": "helm rollback my-app 2 --force", "comment": "强制回滚" }
-    ],
-    "tags": ["回滚"] },
-  { "id": "helm-uninstall", "cmd": "helm uninstall", "cat": "helm", "desc": "卸载 release",
-    "syntax": "helm uninstall <release> [-n <ns>]",
-    "args": [ { "name": "-n", "desc": "命名空间" } ],
-    "examples": [
-      { "cmd": "helm uninstall my-nginx", "comment": "卸载 release" },
-      { "cmd": "helm uninstall my-app -n prod", "comment": "卸载指定命名空间" },
-      { "cmd": "helm uninstall my-app --keep-history", "comment": "卸载但保留历史" },
-      { "cmd": "helm uninstall my-app --wait", "comment": "等待资源清理完成" },
-      { "cmd": "helm ls --all", "comment": "确认已卸载" }
-    ],
-    "tags": ["卸载"] },
-  { "id": "helm-list", "cmd": "helm list", "cat": "helm", "desc": "列出 release",
-    "syntax": "helm list [-A] [-n <ns>]",
-    "args": [ { "name": "-A", "desc": "所有命名空间" } ],
-    "examples": [
-      { "cmd": "helm list", "comment": "列出当前命名空间 release" },
-      { "cmd": "helm list -A", "comment": "列出全部命名空间 release" },
-      { "cmd": "helm list -n prod", "comment": "指定命名空间查看" },
-      { "cmd": "helm list --all", "comment": "含已卸载的 release" },
-      { "cmd": "helm list -f 'my.*'", "comment": "按名字过滤" },
-      { "cmd": "helm ls --short", "comment": "只输出 release 名" }
-    ],
-    "tags": ["列表"] },
-  { "id": "helm-status", "cmd": "helm status", "cat": "helm", "desc": "查看 release 状态",
-    "syntax": "helm status <release>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm status my-nginx", "comment": "查看 release 状态" },
-      { "cmd": "helm status my-app --show-resources", "comment": "连带资源清单一起看" },
-      { "cmd": "helm status my-app -n prod", "comment": "指定命名空间查看" },
-      { "cmd": "helm status my-nginx --revision 3", "comment": "查看历史版本状态" }
-    ],
-    "tags": ["状态"] },
-  { "id": "helm-repo-add", "cmd": "helm repo add", "cat": "helm", "desc": "添加仓库",
-    "syntax": "helm repo add <name> <url>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm repo add bitnami https://charts.bitnami.com/bitnami", "comment": "添加 Bitnami 仓库" },
-      { "cmd": "helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx", "comment": "添加 ingress-nginx 仓库" },
-      { "cmd": "helm repo add myrepo https://repo.example.com/charts", "comment": "添加私有仓库" },
-      { "cmd": "helm repo add stable https://charts.helm.sh/stable", "comment": "添加官方稳定仓库" },
-      { "cmd": "helm repo update", "comment": "添加后更新索引" }
-    ],
-    "tags": ["仓库"] },
-  { "id": "helm-repo-update", "cmd": "helm repo update", "cat": "helm", "desc": "更新仓库索引",
-    "syntax": "helm repo update",
-    "args": [],
-    "examples": [
-      { "cmd": "helm repo update", "comment": "更新全部仓库索引" },
-      { "cmd": "helm repo update bitnami", "comment": "只更新指定仓库" },
-      { "cmd": "helm search repo nginx", "comment": "更新后搜索新版本" },
-      { "cmd": "helm repo update --fail-on-repo-update-fail", "comment": "更新失败即报错" }
-    ],
-    "tags": ["仓库"] },
-  { "id": "helm-search", "cmd": "helm search", "cat": "helm", "desc": "搜索 chart",
-    "syntax": "helm search repo <keyword>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm search repo nginx", "comment": "搜索 nginx chart" },
-      { "cmd": "helm search repo mysql --versions", "comment": "查看全部版本" },
-      { "cmd": "helm search repo redis --max-col-width 0", "comment": "完整信息搜索" },
-      { "cmd": "helm search repo 'postgres' -l", "comment": "只看最新版本" },
-      { "cmd": "helm search hub prometheus", "comment": "搜索 Helm Hub" }
-    ],
-    "tags": ["搜索"] },
-  { "id": "helm-create", "cmd": "helm create", "cat": "helm", "desc": "创建 chart 骨架",
-    "syntax": "helm create <name>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm create mychart", "comment": "创建标准 chart 骨架" },
-      { "cmd": "helm create mychart && tree mychart", "comment": "创建并查看结构" },
-      { "cmd": "helm create --starter my-starter mychart", "comment": "用自定义 starter 创建" },
-      { "cmd": "cd mychart && helm lint .", "comment": "创建后检查规范" }
-    ],
-    "tags": ["创建"] },
-  { "id": "helm-template", "cmd": "helm template", "cat": "helm", "desc": "本地渲染模板(不部署)",
-    "syntax": "helm template <name> <chart>",
-    "args": [ { "name": "-f", "desc": "values 文件" } ],
-    "examples": [
-      { "cmd": "helm template my-app ./app", "comment": "本地渲染清单" },
-      { "cmd": "helm template my-app ./app -f prod.yaml", "comment": "按配置渲染" },
-      { "cmd": "helm template my-app ./app --set replicaCount=2", "comment": "带参数渲染" },
-      { "cmd": "helm template my-app ./app --debug", "comment": "渲染含调试信息" },
-      { "cmd": "helm template my-app ./app | kubectl apply --dry-run=client -f -", "comment": "渲染后试运行" },
-      { "cmd": "helm template my-app ./app --output-dir rendered/", "comment": "渲染输出到目录" }
-    ],
-    "tags": ["渲染", "调试"] },
-  { "id": "helm-lint", "cmd": "helm lint", "cat": "helm", "desc": "检查 chart 规范",
-    "syntax": "helm lint <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm lint ./mychart", "comment": "检查 chart 规范" },
-      { "cmd": "helm lint ./mychart -f values.yaml", "comment": "带配置检查" },
-      { "cmd": "helm lint ./mychart --strict", "comment": "严格模式检查" },
-      { "cmd": "helm lint ./mychart --set replicas=2", "comment": "带参数检查" },
-      { "cmd": "helm lint ./mychart | tail -5", "comment": "只看检查结论" }
-    ],
-    "tags": ["检查"] },
-  { "id": "helm-get-values", "cmd": "helm get values", "cat": "helm", "desc": "查看 release 配置",
-    "syntax": "helm get values <release>",
-    "args": [ { "name": "-a", "desc": "含默认值" } ],
-    "examples": [
-      { "cmd": "helm get values my-app", "comment": "查看自定义配置" },
-      { "cmd": "helm get values my-app -a", "comment": "含默认值完整配置" },
-      { "cmd": "helm get values my-app -o yaml > current.yaml", "comment": "导出当前配置" },
-      { "cmd": "helm get values my-app --revision 2", "comment": "查看历史版本配置" }
-    ],
-    "tags": ["配置"] },
-  { "id": "helm-history", "cmd": "helm history", "cat": "helm", "desc": "查看发布历史",
-    "syntax": "helm history <release>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm history my-app", "comment": "查看发布历史" },
-      { "cmd": "helm history my-app --max 5", "comment": "只看最近 5 条" },
-      { "cmd": "helm history my-app -o json", "comment": "JSON 输出" },
-      { "cmd": "helm history my-app --col-width 0", "comment": "完整信息" },
-      { "cmd": "helm history my-app | grep -i failed", "comment": "查找失败记录" }
-    ],
-    "tags": ["历史"] },
-  { "id": "helm-repo-list", "cmd": "helm repo list", "cat": "helm", "desc": "查看仓库列表",
-    "syntax": "helm repo list",
-    "args": [],
-    "examples": [
-      { "cmd": "helm repo list", "comment": "查看已配置仓库" },
-      { "cmd": "helm repo list -o json", "comment": "JSON 输出" },
-      { "cmd": "helm repo list | grep -i bitnami", "comment": "过滤指定仓库" }
-    ],
-    "tags": ["仓库", "列表"] },
-  { "id": "helm-repo-remove", "cmd": "helm repo remove", "cat": "helm", "desc": "移除仓库",
-    "syntax": "helm repo remove <name>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm repo remove stable", "comment": "移除仓库" },
-      { "cmd": "helm repo remove bitnami && helm repo list", "comment": "移除后确认" },
-      { "cmd": "helm repo remove old-repo", "comment": "移除废弃仓库" }
-    ],
-    "tags": ["仓库"] },
-  { "id": "helm-show-values", "cmd": "helm show values", "cat": "helm", "desc": "查看 chart 默认配置",
-    "syntax": "helm show values <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm show values bitnami/redis", "comment": "查看默认配置" },
-      { "cmd": "helm show values ./app | grep -i password", "comment": "查找密码配置项" },
-      { "cmd": "helm show values nginx > defaults.yaml", "comment": "导出默认配置参考" },
-      { "cmd": "helm show values bitnami/mysql --jsonpath '{.auth.rootPassword}'", "comment": "只取指定配置项" }
-    ],
-    "tags": ["配置", "查看"] },
-  { "id": "helm-show-chart", "cmd": "helm show chart", "cat": "helm", "desc": "查看 chart 元信息",
-    "syntax": "helm show chart <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm show chart bitnami/nginx", "comment": "查看 chart 版本与依赖" },
-      { "cmd": "helm show chart ./app", "comment": "查看本地 chart 元信息" },
-      { "cmd": "helm show chart bitnami/redis | grep version", "comment": "只看版本" },
-      { "cmd": "helm show all bitnami/nginx", "comment": "查看全部信息" }
-    ],
-    "tags": ["查看"] },
-  { "id": "helm-pull", "cmd": "helm pull", "cat": "helm", "desc": "下载 chart",
-    "syntax": "helm pull <chart> [--untar]",
-    "args": [ { "name": "--untar", "desc": "解压到目录" } ],
-    "examples": [
-      { "cmd": "helm pull bitnami/redis", "comment": "下载 chart 包" },
-      { "cmd": "helm pull bitnami/redis --untar", "comment": "下载并解压" },
-      { "cmd": "helm pull bitnami/redis --version 17.0.0", "comment": "下载指定版本" },
-      { "cmd": "helm pull myrepo/app --untar --untardir ./charts", "comment": "解压到指定目录" },
-      { "cmd": "helm pull bitnami/nginx --verify", "comment": "下载并校验签名" }
-    ],
-    "tags": ["下载"] },
-  { "id": "helm-package", "cmd": "helm package", "cat": "helm", "desc": "打包 chart",
-    "syntax": "helm package <dir>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm package ./mychart", "comment": "打包 chart 为 tgz" },
-      { "cmd": "helm package ./mychart --version 1.0.1", "comment": "指定版本打包" },
-      { "cmd": "helm package ./mychart --app-version 2.0", "comment": "指定应用版本" },
-      { "cmd": "helm package ./mychart -d dist/", "comment": "输出到指定目录" },
-      { "cmd": "helm package ./mychart --sign --key mykey", "comment": "签名打包" }
-    ],
-    "tags": ["打包"] },
-  { "id": "helm-push", "cmd": "helm push", "cat": "helm", "desc": "推送 chart 到仓库",
-    "syntax": "helm push <chart.tgz> <repo>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm push mychart-1.0.0.tgz myrepo", "comment": "推送到仓库" },
-      { "cmd": "helm push mychart-1.0.0.tgz myrepo --force", "comment": "覆盖同名版本" },
-      { "cmd": "helm push app-2.0.0.tgz oci://registry.example.com/charts", "comment": "推送到 OCI 仓库" },
-      { "cmd": "helm package ./app && helm push app-*.tgz myrepo", "comment": "打包后推送" }
-    ],
-    "tags": ["发布"] },
-  { "id": "helm-version", "cmd": "helm version", "cat": "helm", "desc": "查看 helm 版本",
-    "syntax": "helm version",
-    "args": [],
-    "examples": [
-      { "cmd": "helm version", "comment": "查看版本" },
-      { "cmd": "helm version --short", "comment": "简洁输出" },
-      { "cmd": "helm version --client", "comment": "只看客户端版本" },
-      { "cmd": "helm version --template '{{.Version}}'", "comment": "自定义格式" }
-    ],
-    "tags": ["版本"] },
-  { "id": "helm-env", "cmd": "helm env", "cat": "helm", "desc": "查看 helm 环境变量",
-    "syntax": "helm env",
-    "args": [],
-    "examples": [
-      { "cmd": "helm env", "comment": "查看全部环境配置" },
-      { "cmd": "helm env | grep HELM_", "comment": "过滤 helm 变量" },
-      { "cmd": "helm env HELM_CACHE_HOME", "comment": "查看缓存目录" },
-      { "cmd": "export HELM_KUBECONTEXT=prod && helm env | grep KUBE", "comment": "设置后验证" }
-    ],
-    "tags": ["配置", "环境变量"] },
-  { "id": "helm-plugin-list", "cmd": "helm plugin list", "cat": "helm", "desc": "查看插件列表",
-    "syntax": "helm plugin list",
-    "args": [],
-    "examples": [
-      { "cmd": "helm plugin list", "comment": "查看已装插件" },
-      { "cmd": "helm plugin install https://github.com/databus23/helm-diff", "comment": "安装 diff 插件" },
-      { "cmd": "helm plugin install https://github.com/jkroepke/helm-secrets", "comment": "安装 secrets 插件" },
-      { "cmd": "helm plugin uninstall diff", "comment": "卸载插件" }
-    ],
-    "tags": ["插件"] },
-  { "id": "helm-completion", "cmd": "helm completion", "cat": "helm", "desc": "生成 shell 自动补全",
-    "syntax": "helm completion zsh | source",
-    "args": [],
-    "examples": [
-      { "cmd": "helm completion zsh > ~/.zshrc", "comment": "zsh 补全写入配置" },
-      { "cmd": "helm completion bash", "comment": "bash 补全脚本" },
-      { "cmd": "helm completion zsh | source /dev/stdin", "comment": "临时启用补全" },
-      { "cmd": "helm completion fish", "comment": "fish 补全脚本" }
-    ],
-    "tags": ["补全"] },
-  { "id": "helm-test", "cmd": "helm test", "cat": "helm", "desc": "运行 chart 测试",
-    "syntax": "helm test <release>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm test my-app", "comment": "运行 chart 内置测试" },
-      { "cmd": "helm test my-app --logs", "comment": "运行并查看测试日志" },
-      { "cmd": "helm test my-app --timeout 120s", "comment": "指定超时时间" },
-      { "cmd": "helm test my-app -n prod", "comment": "指定命名空间测试" },
-      { "cmd": "helm test my-app --filter test-connection", "comment": "只跑指定测试" }
-    ],
-    "tags": ["测试"] },
-  { "id": "helm-dependency-list", "cmd": "helm dependency list", "cat": "helm", "desc": "查看依赖列表",
-    "syntax": "helm dependency list <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm dependency list ./app", "comment": "查看 chart 依赖" },
-      { "cmd": "helm dependency list ./app | grep -i missing", "comment": "检查缺失依赖" },
-      { "cmd": "helm dependency list ./app --max-col-width 0", "comment": "完整信息" }
-    ],
-    "tags": ["依赖"] },
-  { "id": "helm-dependency-update", "cmd": "helm dependency update", "cat": "helm", "desc": "更新依赖",
-    "syntax": "helm dependency update <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm dependency update ./app", "comment": "更新依赖锁文件" },
-      { "cmd": "helm dependency update ./app --skip-refresh", "comment": "跳过仓库刷新更新" },
-      { "cmd": "helm dependency update ./app --keyring keyring.gpg", "comment": "带校验更新" },
-      { "cmd": "helm dependency build ./app", "comment": "按锁文件构建依赖" }
-    ],
-    "tags": ["依赖"] },
-  { "id": "helm-dependency-build", "cmd": "helm dependency build", "cat": "helm", "desc": "构建依赖",
-    "syntax": "helm dependency build <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm dependency build ./app", "comment": "按 Chart.lock 构建" },
-      { "cmd": "helm dependency build ./app --verify", "comment": "校验签名构建" },
-      { "cmd": "helm dependency build ./app --keyring ~/.gnupg/pubring.gpg", "comment": "指定密钥环" },
-      { "cmd": "helm dependency list ./app", "comment": "构建后确认状态" }
-    ],
-    "tags": ["依赖"] },
-  { "id": "helm-get-manifest", "cmd": "helm get manifest", "cat": "helm", "desc": "查看渲染后的清单",
-    "syntax": "helm get manifest <release>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm get manifest my-app", "comment": "查看部署的完整清单" },
-      { "cmd": "helm get manifest my-app | grep -A20 Deployment", "comment": "只看 Deployment 部分" },
-      { "cmd": "helm get manifest my-app -n prod", "comment": "指定命名空间查看" },
-      { "cmd": "helm get manifest my-app > current.yaml", "comment": "导出当前清单" }
-    ],
-    "tags": ["清单", "查看"] },
-  { "id": "helm-get-hooks", "cmd": "helm get hooks", "cat": "helm", "desc": "查看钩子清单",
-    "syntax": "helm get hooks <release>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm get hooks my-app", "comment": "查看 release 钩子清单" },
-      { "cmd": "helm get hooks my-app | grep -A10 pre-install", "comment": "查看安装前钩子" },
-      { "cmd": "helm get hooks my-app -n prod", "comment": "指定命名空间查看" }
-    ],
-    "tags": ["钩子"] },
-  { "id": "helm-get-notes", "cmd": "helm get notes", "cat": "helm", "desc": "查看安装提示",
-    "syntax": "helm get notes <release>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm get notes my-app", "comment": "查看安装后的使用提示" },
-      { "cmd": "helm get notes my-nginx | grep -i password", "comment": "查找密码获取方式" },
-      { "cmd": "helm get notes my-app --revision 2", "comment": "查看历史版本提示" }
-    ],
-    "tags": ["提示"] },
-  { "id": "helm-upgrade-install", "cmd": "helm upgrade --install", "cat": "helm", "desc": "安装或升级(幂等)",
-    "syntax": "helm upgrade --install <release> <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm upgrade --install my-nginx nginx", "comment": "没有则装, 有则升" },
-      { "cmd": "helm upgrade --install my-app ./app -f values.yaml", "comment": "幂等部署带配置" },
-      { "cmd": "helm upgrade --install my-app ./app --set image.tag=v2", "comment": "幂等部署带参数" },
-      { "cmd": "helm upgrade --install my-nginx nginx --atomic --timeout 5m", "comment": "原子部署 CI 推荐" },
-      { "cmd": "helm upgrade --install my-app ./app --create-namespace -n prod", "comment": "自动建命名空间" }
-    ],
-    "tags": ["部署", "幂等"] },
-  { "id": "helm-upgrade-atomic", "cmd": "helm upgrade --atomic", "cat": "helm", "desc": "原子升级(失败回滚)",
-    "syntax": "helm upgrade --atomic <release> <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm upgrade --atomic my-app ./app", "comment": "失败自动回滚" },
-      { "cmd": "helm upgrade --atomic my-app ./app --timeout 10m", "comment": "10 分钟超时回滚" },
-      { "cmd": "helm upgrade --atomic --install my-app ./app", "comment": "原子安装或升级" },
-      { "cmd": "helm upgrade --atomic my-nginx nginx --wait", "comment": "等待就绪否则回滚" }
-    ],
-    "tags": ["升级", "回滚"] },
-  { "id": "helm-upgrade-reuse-values", "cmd": "helm upgrade --reuse-values", "cat": "helm", "desc": "复用上次配置升级",
-    "syntax": "helm upgrade --reuse-values <release> <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm upgrade --reuse-values my-app ./app", "comment": "复用上次配置升级" },
-      { "cmd": "helm upgrade --reuse-values --set image.tag=v3 my-app ./app", "comment": "复用配置并改镜像" },
-      { "cmd": "helm upgrade --reset-values my-app ./app", "comment": "重置为 chart 默认值" },
-      { "cmd": "helm get values my-app -a > last.yaml", "comment": "升级前备份配置" }
-    ],
-    "tags": ["升级", "配置"] },
-  { "id": "helm-diff", "cmd": "helm diff upgrade", "cat": "helm", "desc": "对比 release 差异(插件)",
-    "syntax": "helm diff upgrade <release> <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm diff upgrade my-app ./app", "comment": "升级前预览差异" },
-      { "cmd": "helm diff upgrade my-app ./app -f new-values.yaml", "comment": "按新配置对比" },
-      { "cmd": "helm diff upgrade my-app ./app --three-way-merge", "comment": "三方合并对比" },
-      { "cmd": "helm diff upgrade my-app nginx --version 4.0.0", "comment": "对比指定版本" },
-      { "cmd": "helm diff upgrade my-app ./app --context 5", "comment": "更多上下文行" }
-    ],
-    "tags": ["对比", "插件"] },
-  { "id": "helm-secrets", "cmd": "helm secrets enc", "cat": "helm", "desc": "加密配置(插件)",
-    "syntax": "helm secrets enc <values.yaml>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm secrets enc secrets.yaml", "comment": "加密敏感配置" },
-      { "cmd": "helm secrets dec secrets.yaml", "comment": "解密查看" },
-      { "cmd": "helm secrets enc secrets.yaml && helm secrets dec secrets.yaml", "comment": "加密解密往返" },
-      { "cmd": "helm upgrade --install my-app ./app -f secrets.yaml", "comment": "helm secrets 自动解密加载" }
-    ],
-    "tags": ["加密", "插件"] },
-  { "id": "helm-registry-login", "cmd": "helm registry login", "cat": "helm", "desc": "登录 OCI 仓库",
-    "syntax": "helm registry login <registry>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm registry login registry.example.com", "comment": "登录 OCI 仓库" },
-      { "cmd": "echo $PASS | helm registry login registry.example.com -u admin --password-stdin", "comment": "脚本方式登录" },
-      { "cmd": "helm registry logout registry.example.com", "comment": "退出登录" },
-      { "cmd": "helm push app-1.0.0.tgz oci://registry.example.com/charts", "comment": "登录后推送" }
-    ],
-    "tags": ["OCI", "仓库"] },
-  { "id": "helm-chart-save", "cmd": "helm chart save", "cat": "helm", "desc": "导出 chart 为 OCI 镜像",
-    "syntax": "helm chart save <dir> <registry>/<name>:<tag>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm chart save ./app registry.example.com/charts/app:1.0.0", "comment": "chart 存为 OCI 镜像" },
-      { "cmd": "helm chart save ./app registry.example.com/app:latest", "comment": "打 latest 标签" },
-      { "cmd": "helm chart list", "comment": "查看已保存的 OCI chart" },
-      { "cmd": "helm chart push registry.example.com/app:1.0.0", "comment": "推送 OCI 镜像" }
-    ],
-    "tags": ["OCI", "导出"] },
-  { "id": "helm-chart-export", "cmd": "helm chart export", "cat": "helm", "desc": "从 OCI 仓库拉出 chart",
-    "syntax": "helm chart export <ref> <dir>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm chart export registry.example.com/app:1.0.0 ./charts", "comment": "从 OCI 拉取 chart" },
-      { "cmd": "helm chart pull registry.example.com/app:1.0.0", "comment": "拉取保存到本地缓存" },
-      { "cmd": "helm chart export registry.example.com/app:1.0.0 .", "comment": "导出到当前目录" },
-      { "cmd": "ls ./app", "comment": "确认导出结果" }
-    ],
-    "tags": ["OCI", "导入"] },
-  { "id": "helm-search-hub", "cmd": "helm search hub", "cat": "helm", "desc": "搜索 Helm Hub 上所有 chart",
-    "syntax": "helm search hub <keyword>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm search hub prometheus", "comment": "Hub 搜索 prometheus" },
-      { "cmd": "helm search hub grafana --max-col-width 0", "comment": "完整信息搜索" },
-      { "cmd": "helm search hub --max=20 nginx", "comment": "限制结果数量" },
-      { "cmd": "helm search hub 'gitlab' -l", "comment": "查看更多结果" }
-    ],
-    "tags": ["搜索", "Hub"] },
-  { "id": "helm-install-dry-run", "cmd": "helm install --dry-run", "cat": "helm", "desc": "试运行安装(不部署)",
-    "syntax": "helm install --dry-run --debug <name> <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm install --dry-run --debug my-app ./app", "comment": "试运行并输出渲染结果" },
-      { "cmd": "helm install --dry-run my-app ./app -f prod.yaml", "comment": "按配置试运行" },
-      { "cmd": "helm install --dry-run my-app ./app --set replicaCount=5", "comment": "带参数试运行" },
-      { "cmd": "helm install --dry-run my-app ./app --generate-name", "comment": "自动生成名字试运行" },
-      { "cmd": "helm install --dry-run my-app ./app 2>&1 | grep -i error", "comment": "检查渲染错误" }
-    ],
-    "tags": ["试运行", "调试"] },
-  { "id": "helm-get-metadata", "cmd": "helm get metadata", "cat": "helm", "desc": "查看 release 元数据",
-    "syntax": "helm get metadata <release>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm get metadata my-app", "comment": "查看 release 元数据" },
-      { "cmd": "helm get metadata my-app -n prod", "comment": "指定命名空间查看" },
-      { "cmd": "helm get metadata my-app -o yaml", "comment": "YAML 格式输出" },
-      { "cmd": "helm get metadata my-app | grep -i chart", "comment": "查看 chart 信息" }
-    ],
-    "tags": ["元数据"] },
-  { "id": "helm-show-readme", "cmd": "helm show readme", "cat": "helm", "desc": "查看 chart 说明文档",
-    "syntax": "helm show readme <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm show readme bitnami/redis", "comment": "查看 chart 使用文档" },
-      { "cmd": "helm show readme ./app | head -50", "comment": "只看开头说明" },
-      { "cmd": "helm show readme bitnami/mysql | grep -i password", "comment": "查找密码说明" },
-      { "cmd": "helm show readme myrepo/app > README-chart.md", "comment": "导出文档" }
-    ],
-    "tags": ["文档"] },
-  { "id": "helm-uninstall-keep-history", "cmd": "helm uninstall --keep-history", "cat": "helm", "desc": "卸载但保留历史",
-    "syntax": "helm uninstall --keep-history <release>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm uninstall --keep-history my-app", "comment": "卸载并保留发布历史" },
-      { "cmd": "helm uninstall --keep-history my-app && helm history my-app", "comment": "卸载后仍可查历史" },
-      { "cmd": "helm rollback my-app 3", "comment": "保留历史可随时回滚" },
-      { "cmd": "helm uninstall my-app", "comment": "不带参数彻底删除" }
-    ],
-    "tags": ["卸载", "历史"] },
-  { "id": "helm-upgrade-dry-run", "cmd": "helm upgrade --dry-run", "cat": "helm", "desc": "试运行升级(不部署)",
-    "syntax": "helm upgrade --dry-run <release> <chart>",
-    "args": [],
-    "examples": [
-      { "cmd": "helm upgrade --dry-run my-app ./app", "comment": "升级前试运行" },
-      { "cmd": "helm upgrade --dry-run my-app ./app -f new.yaml --debug", "comment": "带调试信息试运行" },
-      { "cmd": "helm upgrade --dry-run my-app nginx --version 4.0.0", "comment": "试运行升级 chart 版本" },
-      { "cmd": "helm upgrade --dry-run my-app ./app --reuse-values", "comment": "复用配置试运行" },
-      { "cmd": "helm upgrade --dry-run my-app ./app 2>&1 | grep -i warning", "comment": "检查升级警告" }
-    ],
-    "tags": ["试运行", "升级"] }
-]
+{
+  "cat": "helm",
+  "label": "helm 命令",
+  "order": 3,
+  "commands": [
+    {
+      "id": "helm-install",
+      "cmd": "helm install",
+      "cat": "helm",
+      "desc": "安装 chart",
+      "syntax": "helm install <name> <chart> [-n <ns>] [--values f.yaml]",
+      "args": [
+        {
+          "name": "--values/-f",
+          "desc": "指定 values 文件"
+        },
+        {
+          "name": "--set",
+          "desc": "覆盖参数"
+        },
+        {
+          "name": "-n",
+          "desc": "命名空间"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "helm install my-nginx nginx",
+          "comment": "安装 chart 到当前命名空间"
+        },
+        {
+          "cmd": "helm install my-nginx nginx -n prod",
+          "comment": "安装到指定命名空间"
+        },
+        {
+          "cmd": "helm install my-app ./app --values prod-values.yaml",
+          "comment": "用 values 文件安装"
+        },
+        {
+          "cmd": "helm install my-app ./app --set replicaCount=3 --set image.tag=v2",
+          "comment": "--set 覆盖参数"
+        },
+        {
+          "cmd": "helm install my-nginx nginx --create-namespace -n staging",
+          "comment": "创建命名空间并安装"
+        },
+        {
+          "cmd": "helm install my-app ./app --atomic",
+          "comment": "失败自动回滚安装"
+        }
+      ],
+      "tags": [
+        "安装"
+      ]
+    },
+    {
+      "id": "helm-upgrade",
+      "cmd": "helm upgrade",
+      "cat": "helm",
+      "desc": "升级 release",
+      "syntax": "helm upgrade <release> <chart> [--values f.yaml]",
+      "args": [
+        {
+          "name": "--values/-f",
+          "desc": "新配置"
+        },
+        {
+          "name": "--set",
+          "desc": "覆盖参数"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "helm upgrade my-nginx nginx",
+          "comment": "升级到 chart 新版本"
+        },
+        {
+          "cmd": "helm upgrade my-app ./app --values prod-values.yaml",
+          "comment": "带配置升级"
+        },
+        {
+          "cmd": "helm upgrade my-app ./app --set image.tag=v3",
+          "comment": "只改镜像版本"
+        },
+        {
+          "cmd": "helm upgrade my-nginx nginx --version 4.0.0",
+          "comment": "升级到指定 chart 版本"
+        },
+        {
+          "cmd": "helm upgrade my-app ./app --atomic",
+          "comment": "升级失败自动回滚"
+        },
+        {
+          "cmd": "helm upgrade my-app ./app --force",
+          "comment": "强制替换重建"
+        }
+      ],
+      "tags": [
+        "升级"
+      ]
+    },
+    {
+      "id": "helm-rollback",
+      "cmd": "helm rollback",
+      "cat": "helm",
+      "desc": "回滚 release",
+      "syntax": "helm rollback <release> <revision>",
+      "args": [
+        {
+          "name": "revision",
+          "desc": "目标版本号"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "helm rollback my-app 3",
+          "comment": "回滚到第 3 版"
+        },
+        {
+          "cmd": "helm rollback my-app 1 --wait",
+          "comment": "回滚并等待就绪"
+        },
+        {
+          "cmd": "helm history my-app",
+          "comment": "先查看版本号"
+        },
+        {
+          "cmd": "helm rollback my-app 2 --force",
+          "comment": "强制回滚"
+        }
+      ],
+      "tags": [
+        "回滚"
+      ]
+    },
+    {
+      "id": "helm-uninstall",
+      "cmd": "helm uninstall",
+      "cat": "helm",
+      "desc": "卸载 release",
+      "syntax": "helm uninstall <release> [-n <ns>]",
+      "args": [
+        {
+          "name": "-n",
+          "desc": "命名空间"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "helm uninstall my-nginx",
+          "comment": "卸载 release"
+        },
+        {
+          "cmd": "helm uninstall my-app -n prod",
+          "comment": "卸载指定命名空间"
+        },
+        {
+          "cmd": "helm uninstall my-app --keep-history",
+          "comment": "卸载但保留历史"
+        },
+        {
+          "cmd": "helm uninstall my-app --wait",
+          "comment": "等待资源清理完成"
+        },
+        {
+          "cmd": "helm ls --all",
+          "comment": "确认已卸载"
+        }
+      ],
+      "tags": [
+        "卸载"
+      ]
+    },
+    {
+      "id": "helm-list",
+      "cmd": "helm list",
+      "cat": "helm",
+      "desc": "列出 release",
+      "syntax": "helm list [-A] [-n <ns>]",
+      "args": [
+        {
+          "name": "-A",
+          "desc": "所有命名空间"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "helm list",
+          "comment": "列出当前命名空间 release"
+        },
+        {
+          "cmd": "helm list -A",
+          "comment": "列出全部命名空间 release"
+        },
+        {
+          "cmd": "helm list -n prod",
+          "comment": "指定命名空间查看"
+        },
+        {
+          "cmd": "helm list --all",
+          "comment": "含已卸载的 release"
+        },
+        {
+          "cmd": "helm list -f 'my.*'",
+          "comment": "按名字过滤"
+        },
+        {
+          "cmd": "helm ls --short",
+          "comment": "只输出 release 名"
+        }
+      ],
+      "tags": [
+        "列表"
+      ]
+    },
+    {
+      "id": "helm-status",
+      "cmd": "helm status",
+      "cat": "helm",
+      "desc": "查看 release 状态",
+      "syntax": "helm status <release>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm status my-nginx",
+          "comment": "查看 release 状态"
+        },
+        {
+          "cmd": "helm status my-app --show-resources",
+          "comment": "连带资源清单一起看"
+        },
+        {
+          "cmd": "helm status my-app -n prod",
+          "comment": "指定命名空间查看"
+        },
+        {
+          "cmd": "helm status my-nginx --revision 3",
+          "comment": "查看历史版本状态"
+        }
+      ],
+      "tags": [
+        "状态"
+      ]
+    },
+    {
+      "id": "helm-repo-add",
+      "cmd": "helm repo add",
+      "cat": "helm",
+      "desc": "添加仓库",
+      "syntax": "helm repo add <name> <url>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm repo add bitnami https://charts.bitnami.com/bitnami",
+          "comment": "添加 Bitnami 仓库"
+        },
+        {
+          "cmd": "helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx",
+          "comment": "添加 ingress-nginx 仓库"
+        },
+        {
+          "cmd": "helm repo add myrepo https://repo.example.com/charts",
+          "comment": "添加私有仓库"
+        },
+        {
+          "cmd": "helm repo add stable https://charts.helm.sh/stable",
+          "comment": "添加官方稳定仓库"
+        },
+        {
+          "cmd": "helm repo update",
+          "comment": "添加后更新索引"
+        }
+      ],
+      "tags": [
+        "仓库"
+      ]
+    },
+    {
+      "id": "helm-repo-update",
+      "cmd": "helm repo update",
+      "cat": "helm",
+      "desc": "更新仓库索引",
+      "syntax": "helm repo update",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm repo update",
+          "comment": "更新全部仓库索引"
+        },
+        {
+          "cmd": "helm repo update bitnami",
+          "comment": "只更新指定仓库"
+        },
+        {
+          "cmd": "helm search repo nginx",
+          "comment": "更新后搜索新版本"
+        },
+        {
+          "cmd": "helm repo update --fail-on-repo-update-fail",
+          "comment": "更新失败即报错"
+        }
+      ],
+      "tags": [
+        "仓库"
+      ]
+    },
+    {
+      "id": "helm-search",
+      "cmd": "helm search",
+      "cat": "helm",
+      "desc": "搜索 chart",
+      "syntax": "helm search repo <keyword>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm search repo nginx",
+          "comment": "搜索 nginx chart"
+        },
+        {
+          "cmd": "helm search repo mysql --versions",
+          "comment": "查看全部版本"
+        },
+        {
+          "cmd": "helm search repo redis --max-col-width 0",
+          "comment": "完整信息搜索"
+        },
+        {
+          "cmd": "helm search repo 'postgres' -l",
+          "comment": "只看最新版本"
+        },
+        {
+          "cmd": "helm search hub prometheus",
+          "comment": "搜索 Helm Hub"
+        }
+      ],
+      "tags": [
+        "搜索"
+      ]
+    },
+    {
+      "id": "helm-create",
+      "cmd": "helm create",
+      "cat": "helm",
+      "desc": "创建 chart 骨架",
+      "syntax": "helm create <name>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm create mychart",
+          "comment": "创建标准 chart 骨架"
+        },
+        {
+          "cmd": "helm create mychart && tree mychart",
+          "comment": "创建并查看结构"
+        },
+        {
+          "cmd": "helm create --starter my-starter mychart",
+          "comment": "用自定义 starter 创建"
+        },
+        {
+          "cmd": "cd mychart && helm lint .",
+          "comment": "创建后检查规范"
+        }
+      ],
+      "tags": [
+        "创建"
+      ]
+    },
+    {
+      "id": "helm-template",
+      "cmd": "helm template",
+      "cat": "helm",
+      "desc": "本地渲染模板(不部署)",
+      "syntax": "helm template <name> <chart>",
+      "args": [
+        {
+          "name": "-f",
+          "desc": "values 文件"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "helm template my-app ./app",
+          "comment": "本地渲染清单"
+        },
+        {
+          "cmd": "helm template my-app ./app -f prod.yaml",
+          "comment": "按配置渲染"
+        },
+        {
+          "cmd": "helm template my-app ./app --set replicaCount=2",
+          "comment": "带参数渲染"
+        },
+        {
+          "cmd": "helm template my-app ./app --debug",
+          "comment": "渲染含调试信息"
+        },
+        {
+          "cmd": "helm template my-app ./app | kubectl apply --dry-run=client -f -",
+          "comment": "渲染后试运行"
+        },
+        {
+          "cmd": "helm template my-app ./app --output-dir rendered/",
+          "comment": "渲染输出到目录"
+        }
+      ],
+      "tags": [
+        "渲染",
+        "调试"
+      ]
+    },
+    {
+      "id": "helm-lint",
+      "cmd": "helm lint",
+      "cat": "helm",
+      "desc": "检查 chart 规范",
+      "syntax": "helm lint <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm lint ./mychart",
+          "comment": "检查 chart 规范"
+        },
+        {
+          "cmd": "helm lint ./mychart -f values.yaml",
+          "comment": "带配置检查"
+        },
+        {
+          "cmd": "helm lint ./mychart --strict",
+          "comment": "严格模式检查"
+        },
+        {
+          "cmd": "helm lint ./mychart --set replicas=2",
+          "comment": "带参数检查"
+        },
+        {
+          "cmd": "helm lint ./mychart | tail -5",
+          "comment": "只看检查结论"
+        }
+      ],
+      "tags": [
+        "检查"
+      ]
+    },
+    {
+      "id": "helm-get-values",
+      "cmd": "helm get values",
+      "cat": "helm",
+      "desc": "查看 release 配置",
+      "syntax": "helm get values <release>",
+      "args": [
+        {
+          "name": "-a",
+          "desc": "含默认值"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "helm get values my-app",
+          "comment": "查看自定义配置"
+        },
+        {
+          "cmd": "helm get values my-app -a",
+          "comment": "含默认值完整配置"
+        },
+        {
+          "cmd": "helm get values my-app -o yaml > current.yaml",
+          "comment": "导出当前配置"
+        },
+        {
+          "cmd": "helm get values my-app --revision 2",
+          "comment": "查看历史版本配置"
+        }
+      ],
+      "tags": [
+        "配置"
+      ]
+    },
+    {
+      "id": "helm-history",
+      "cmd": "helm history",
+      "cat": "helm",
+      "desc": "查看发布历史",
+      "syntax": "helm history <release>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm history my-app",
+          "comment": "查看发布历史"
+        },
+        {
+          "cmd": "helm history my-app --max 5",
+          "comment": "只看最近 5 条"
+        },
+        {
+          "cmd": "helm history my-app -o json",
+          "comment": "JSON 输出"
+        },
+        {
+          "cmd": "helm history my-app --col-width 0",
+          "comment": "完整信息"
+        },
+        {
+          "cmd": "helm history my-app | grep -i failed",
+          "comment": "查找失败记录"
+        }
+      ],
+      "tags": [
+        "历史"
+      ]
+    },
+    {
+      "id": "helm-repo-list",
+      "cmd": "helm repo list",
+      "cat": "helm",
+      "desc": "查看仓库列表",
+      "syntax": "helm repo list",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm repo list",
+          "comment": "查看已配置仓库"
+        },
+        {
+          "cmd": "helm repo list -o json",
+          "comment": "JSON 输出"
+        },
+        {
+          "cmd": "helm repo list | grep -i bitnami",
+          "comment": "过滤指定仓库"
+        }
+      ],
+      "tags": [
+        "仓库",
+        "列表"
+      ]
+    },
+    {
+      "id": "helm-repo-remove",
+      "cmd": "helm repo remove",
+      "cat": "helm",
+      "desc": "移除仓库",
+      "syntax": "helm repo remove <name>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm repo remove stable",
+          "comment": "移除仓库"
+        },
+        {
+          "cmd": "helm repo remove bitnami && helm repo list",
+          "comment": "移除后确认"
+        },
+        {
+          "cmd": "helm repo remove old-repo",
+          "comment": "移除废弃仓库"
+        }
+      ],
+      "tags": [
+        "仓库"
+      ]
+    },
+    {
+      "id": "helm-show-values",
+      "cmd": "helm show values",
+      "cat": "helm",
+      "desc": "查看 chart 默认配置",
+      "syntax": "helm show values <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm show values bitnami/redis",
+          "comment": "查看默认配置"
+        },
+        {
+          "cmd": "helm show values ./app | grep -i password",
+          "comment": "查找密码配置项"
+        },
+        {
+          "cmd": "helm show values nginx > defaults.yaml",
+          "comment": "导出默认配置参考"
+        },
+        {
+          "cmd": "helm show values bitnami/mysql --jsonpath '{.auth.rootPassword}'",
+          "comment": "只取指定配置项"
+        }
+      ],
+      "tags": [
+        "配置",
+        "查看"
+      ]
+    },
+    {
+      "id": "helm-show-chart",
+      "cmd": "helm show chart",
+      "cat": "helm",
+      "desc": "查看 chart 元信息",
+      "syntax": "helm show chart <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm show chart bitnami/nginx",
+          "comment": "查看 chart 版本与依赖"
+        },
+        {
+          "cmd": "helm show chart ./app",
+          "comment": "查看本地 chart 元信息"
+        },
+        {
+          "cmd": "helm show chart bitnami/redis | grep version",
+          "comment": "只看版本"
+        },
+        {
+          "cmd": "helm show all bitnami/nginx",
+          "comment": "查看全部信息"
+        }
+      ],
+      "tags": [
+        "查看"
+      ]
+    },
+    {
+      "id": "helm-pull",
+      "cmd": "helm pull",
+      "cat": "helm",
+      "desc": "下载 chart",
+      "syntax": "helm pull <chart> [--untar]",
+      "args": [
+        {
+          "name": "--untar",
+          "desc": "解压到目录"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "helm pull bitnami/redis",
+          "comment": "下载 chart 包"
+        },
+        {
+          "cmd": "helm pull bitnami/redis --untar",
+          "comment": "下载并解压"
+        },
+        {
+          "cmd": "helm pull bitnami/redis --version 17.0.0",
+          "comment": "下载指定版本"
+        },
+        {
+          "cmd": "helm pull myrepo/app --untar --untardir ./charts",
+          "comment": "解压到指定目录"
+        },
+        {
+          "cmd": "helm pull bitnami/nginx --verify",
+          "comment": "下载并校验签名"
+        }
+      ],
+      "tags": [
+        "下载"
+      ]
+    },
+    {
+      "id": "helm-package",
+      "cmd": "helm package",
+      "cat": "helm",
+      "desc": "打包 chart",
+      "syntax": "helm package <dir>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm package ./mychart",
+          "comment": "打包 chart 为 tgz"
+        },
+        {
+          "cmd": "helm package ./mychart --version 1.0.1",
+          "comment": "指定版本打包"
+        },
+        {
+          "cmd": "helm package ./mychart --app-version 2.0",
+          "comment": "指定应用版本"
+        },
+        {
+          "cmd": "helm package ./mychart -d dist/",
+          "comment": "输出到指定目录"
+        },
+        {
+          "cmd": "helm package ./mychart --sign --key mykey",
+          "comment": "签名打包"
+        }
+      ],
+      "tags": [
+        "打包"
+      ]
+    },
+    {
+      "id": "helm-push",
+      "cmd": "helm push",
+      "cat": "helm",
+      "desc": "推送 chart 到仓库",
+      "syntax": "helm push <chart.tgz> <repo>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm push mychart-1.0.0.tgz myrepo",
+          "comment": "推送到仓库"
+        },
+        {
+          "cmd": "helm push mychart-1.0.0.tgz myrepo --force",
+          "comment": "覆盖同名版本"
+        },
+        {
+          "cmd": "helm push app-2.0.0.tgz oci://registry.example.com/charts",
+          "comment": "推送到 OCI 仓库"
+        },
+        {
+          "cmd": "helm package ./app && helm push app-*.tgz myrepo",
+          "comment": "打包后推送"
+        }
+      ],
+      "tags": [
+        "发布"
+      ]
+    },
+    {
+      "id": "helm-version",
+      "cmd": "helm version",
+      "cat": "helm",
+      "desc": "查看 helm 版本",
+      "syntax": "helm version",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm version",
+          "comment": "查看版本"
+        },
+        {
+          "cmd": "helm version --short",
+          "comment": "简洁输出"
+        },
+        {
+          "cmd": "helm version --client",
+          "comment": "只看客户端版本"
+        },
+        {
+          "cmd": "helm version --template '{{.Version}}'",
+          "comment": "自定义格式"
+        }
+      ],
+      "tags": [
+        "版本"
+      ]
+    },
+    {
+      "id": "helm-env",
+      "cmd": "helm env",
+      "cat": "helm",
+      "desc": "查看 helm 环境变量",
+      "syntax": "helm env",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm env",
+          "comment": "查看全部环境配置"
+        },
+        {
+          "cmd": "helm env | grep HELM_",
+          "comment": "过滤 helm 变量"
+        },
+        {
+          "cmd": "helm env HELM_CACHE_HOME",
+          "comment": "查看缓存目录"
+        },
+        {
+          "cmd": "export HELM_KUBECONTEXT=prod && helm env | grep KUBE",
+          "comment": "设置后验证"
+        }
+      ],
+      "tags": [
+        "配置",
+        "环境变量"
+      ]
+    },
+    {
+      "id": "helm-plugin-list",
+      "cmd": "helm plugin list",
+      "cat": "helm",
+      "desc": "查看插件列表",
+      "syntax": "helm plugin list",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm plugin list",
+          "comment": "查看已装插件"
+        },
+        {
+          "cmd": "helm plugin install https://github.com/databus23/helm-diff",
+          "comment": "安装 diff 插件"
+        },
+        {
+          "cmd": "helm plugin install https://github.com/jkroepke/helm-secrets",
+          "comment": "安装 secrets 插件"
+        },
+        {
+          "cmd": "helm plugin uninstall diff",
+          "comment": "卸载插件"
+        }
+      ],
+      "tags": [
+        "插件"
+      ]
+    },
+    {
+      "id": "helm-completion",
+      "cmd": "helm completion",
+      "cat": "helm",
+      "desc": "生成 shell 自动补全",
+      "syntax": "helm completion zsh | source",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm completion zsh > ~/.zshrc",
+          "comment": "zsh 补全写入配置"
+        },
+        {
+          "cmd": "helm completion bash",
+          "comment": "bash 补全脚本"
+        },
+        {
+          "cmd": "helm completion zsh | source /dev/stdin",
+          "comment": "临时启用补全"
+        },
+        {
+          "cmd": "helm completion fish",
+          "comment": "fish 补全脚本"
+        }
+      ],
+      "tags": [
+        "补全"
+      ]
+    },
+    {
+      "id": "helm-test",
+      "cmd": "helm test",
+      "cat": "helm",
+      "desc": "运行 chart 测试",
+      "syntax": "helm test <release>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm test my-app",
+          "comment": "运行 chart 内置测试"
+        },
+        {
+          "cmd": "helm test my-app --logs",
+          "comment": "运行并查看测试日志"
+        },
+        {
+          "cmd": "helm test my-app --timeout 120s",
+          "comment": "指定超时时间"
+        },
+        {
+          "cmd": "helm test my-app -n prod",
+          "comment": "指定命名空间测试"
+        },
+        {
+          "cmd": "helm test my-app --filter test-connection",
+          "comment": "只跑指定测试"
+        }
+      ],
+      "tags": [
+        "测试"
+      ]
+    },
+    {
+      "id": "helm-dependency-list",
+      "cmd": "helm dependency list",
+      "cat": "helm",
+      "desc": "查看依赖列表",
+      "syntax": "helm dependency list <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm dependency list ./app",
+          "comment": "查看 chart 依赖"
+        },
+        {
+          "cmd": "helm dependency list ./app | grep -i missing",
+          "comment": "检查缺失依赖"
+        },
+        {
+          "cmd": "helm dependency list ./app --max-col-width 0",
+          "comment": "完整信息"
+        }
+      ],
+      "tags": [
+        "依赖"
+      ]
+    },
+    {
+      "id": "helm-dependency-update",
+      "cmd": "helm dependency update",
+      "cat": "helm",
+      "desc": "更新依赖",
+      "syntax": "helm dependency update <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm dependency update ./app",
+          "comment": "更新依赖锁文件"
+        },
+        {
+          "cmd": "helm dependency update ./app --skip-refresh",
+          "comment": "跳过仓库刷新更新"
+        },
+        {
+          "cmd": "helm dependency update ./app --keyring keyring.gpg",
+          "comment": "带校验更新"
+        },
+        {
+          "cmd": "helm dependency build ./app",
+          "comment": "按锁文件构建依赖"
+        }
+      ],
+      "tags": [
+        "依赖"
+      ]
+    },
+    {
+      "id": "helm-dependency-build",
+      "cmd": "helm dependency build",
+      "cat": "helm",
+      "desc": "构建依赖",
+      "syntax": "helm dependency build <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm dependency build ./app",
+          "comment": "按 Chart.lock 构建"
+        },
+        {
+          "cmd": "helm dependency build ./app --verify",
+          "comment": "校验签名构建"
+        },
+        {
+          "cmd": "helm dependency build ./app --keyring ~/.gnupg/pubring.gpg",
+          "comment": "指定密钥环"
+        },
+        {
+          "cmd": "helm dependency list ./app",
+          "comment": "构建后确认状态"
+        }
+      ],
+      "tags": [
+        "依赖"
+      ]
+    },
+    {
+      "id": "helm-get-manifest",
+      "cmd": "helm get manifest",
+      "cat": "helm",
+      "desc": "查看渲染后的清单",
+      "syntax": "helm get manifest <release>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm get manifest my-app",
+          "comment": "查看部署的完整清单"
+        },
+        {
+          "cmd": "helm get manifest my-app | grep -A20 Deployment",
+          "comment": "只看 Deployment 部分"
+        },
+        {
+          "cmd": "helm get manifest my-app -n prod",
+          "comment": "指定命名空间查看"
+        },
+        {
+          "cmd": "helm get manifest my-app > current.yaml",
+          "comment": "导出当前清单"
+        }
+      ],
+      "tags": [
+        "清单",
+        "查看"
+      ]
+    },
+    {
+      "id": "helm-get-hooks",
+      "cmd": "helm get hooks",
+      "cat": "helm",
+      "desc": "查看钩子清单",
+      "syntax": "helm get hooks <release>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm get hooks my-app",
+          "comment": "查看 release 钩子清单"
+        },
+        {
+          "cmd": "helm get hooks my-app | grep -A10 pre-install",
+          "comment": "查看安装前钩子"
+        },
+        {
+          "cmd": "helm get hooks my-app -n prod",
+          "comment": "指定命名空间查看"
+        }
+      ],
+      "tags": [
+        "钩子"
+      ]
+    },
+    {
+      "id": "helm-get-notes",
+      "cmd": "helm get notes",
+      "cat": "helm",
+      "desc": "查看安装提示",
+      "syntax": "helm get notes <release>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm get notes my-app",
+          "comment": "查看安装后的使用提示"
+        },
+        {
+          "cmd": "helm get notes my-nginx | grep -i password",
+          "comment": "查找密码获取方式"
+        },
+        {
+          "cmd": "helm get notes my-app --revision 2",
+          "comment": "查看历史版本提示"
+        }
+      ],
+      "tags": [
+        "提示"
+      ]
+    },
+    {
+      "id": "helm-upgrade-install",
+      "cmd": "helm upgrade --install",
+      "cat": "helm",
+      "desc": "安装或升级(幂等)",
+      "syntax": "helm upgrade --install <release> <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm upgrade --install my-nginx nginx",
+          "comment": "没有则装, 有则升"
+        },
+        {
+          "cmd": "helm upgrade --install my-app ./app -f values.yaml",
+          "comment": "幂等部署带配置"
+        },
+        {
+          "cmd": "helm upgrade --install my-app ./app --set image.tag=v2",
+          "comment": "幂等部署带参数"
+        },
+        {
+          "cmd": "helm upgrade --install my-nginx nginx --atomic --timeout 5m",
+          "comment": "原子部署 CI 推荐"
+        },
+        {
+          "cmd": "helm upgrade --install my-app ./app --create-namespace -n prod",
+          "comment": "自动建命名空间"
+        }
+      ],
+      "tags": [
+        "部署",
+        "幂等"
+      ]
+    },
+    {
+      "id": "helm-upgrade-atomic",
+      "cmd": "helm upgrade --atomic",
+      "cat": "helm",
+      "desc": "原子升级(失败回滚)",
+      "syntax": "helm upgrade --atomic <release> <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm upgrade --atomic my-app ./app",
+          "comment": "失败自动回滚"
+        },
+        {
+          "cmd": "helm upgrade --atomic my-app ./app --timeout 10m",
+          "comment": "10 分钟超时回滚"
+        },
+        {
+          "cmd": "helm upgrade --atomic --install my-app ./app",
+          "comment": "原子安装或升级"
+        },
+        {
+          "cmd": "helm upgrade --atomic my-nginx nginx --wait",
+          "comment": "等待就绪否则回滚"
+        }
+      ],
+      "tags": [
+        "升级",
+        "回滚"
+      ]
+    },
+    {
+      "id": "helm-upgrade-reuse-values",
+      "cmd": "helm upgrade --reuse-values",
+      "cat": "helm",
+      "desc": "复用上次配置升级",
+      "syntax": "helm upgrade --reuse-values <release> <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm upgrade --reuse-values my-app ./app",
+          "comment": "复用上次配置升级"
+        },
+        {
+          "cmd": "helm upgrade --reuse-values --set image.tag=v3 my-app ./app",
+          "comment": "复用配置并改镜像"
+        },
+        {
+          "cmd": "helm upgrade --reset-values my-app ./app",
+          "comment": "重置为 chart 默认值"
+        },
+        {
+          "cmd": "helm get values my-app -a > last.yaml",
+          "comment": "升级前备份配置"
+        }
+      ],
+      "tags": [
+        "升级",
+        "配置"
+      ]
+    },
+    {
+      "id": "helm-diff",
+      "cmd": "helm diff upgrade",
+      "cat": "helm",
+      "desc": "对比 release 差异(插件)",
+      "syntax": "helm diff upgrade <release> <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm diff upgrade my-app ./app",
+          "comment": "升级前预览差异"
+        },
+        {
+          "cmd": "helm diff upgrade my-app ./app -f new-values.yaml",
+          "comment": "按新配置对比"
+        },
+        {
+          "cmd": "helm diff upgrade my-app ./app --three-way-merge",
+          "comment": "三方合并对比"
+        },
+        {
+          "cmd": "helm diff upgrade my-app nginx --version 4.0.0",
+          "comment": "对比指定版本"
+        },
+        {
+          "cmd": "helm diff upgrade my-app ./app --context 5",
+          "comment": "更多上下文行"
+        }
+      ],
+      "tags": [
+        "对比",
+        "插件"
+      ]
+    },
+    {
+      "id": "helm-secrets",
+      "cmd": "helm secrets enc",
+      "cat": "helm",
+      "desc": "加密配置(插件)",
+      "syntax": "helm secrets enc <values.yaml>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm secrets enc secrets.yaml",
+          "comment": "加密敏感配置"
+        },
+        {
+          "cmd": "helm secrets dec secrets.yaml",
+          "comment": "解密查看"
+        },
+        {
+          "cmd": "helm secrets enc secrets.yaml && helm secrets dec secrets.yaml",
+          "comment": "加密解密往返"
+        },
+        {
+          "cmd": "helm upgrade --install my-app ./app -f secrets.yaml",
+          "comment": "helm secrets 自动解密加载"
+        }
+      ],
+      "tags": [
+        "加密",
+        "插件"
+      ]
+    },
+    {
+      "id": "helm-registry-login",
+      "cmd": "helm registry login",
+      "cat": "helm",
+      "desc": "登录 OCI 仓库",
+      "syntax": "helm registry login <registry>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm registry login registry.example.com",
+          "comment": "登录 OCI 仓库"
+        },
+        {
+          "cmd": "echo $PASS | helm registry login registry.example.com -u admin --password-stdin",
+          "comment": "脚本方式登录"
+        },
+        {
+          "cmd": "helm registry logout registry.example.com",
+          "comment": "退出登录"
+        },
+        {
+          "cmd": "helm push app-1.0.0.tgz oci://registry.example.com/charts",
+          "comment": "登录后推送"
+        }
+      ],
+      "tags": [
+        "OCI",
+        "仓库"
+      ]
+    },
+    {
+      "id": "helm-chart-save",
+      "cmd": "helm chart save",
+      "cat": "helm",
+      "desc": "导出 chart 为 OCI 镜像",
+      "syntax": "helm chart save <dir> <registry>/<name>:<tag>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm chart save ./app registry.example.com/charts/app:1.0.0",
+          "comment": "chart 存为 OCI 镜像"
+        },
+        {
+          "cmd": "helm chart save ./app registry.example.com/app:latest",
+          "comment": "打 latest 标签"
+        },
+        {
+          "cmd": "helm chart list",
+          "comment": "查看已保存的 OCI chart"
+        },
+        {
+          "cmd": "helm chart push registry.example.com/app:1.0.0",
+          "comment": "推送 OCI 镜像"
+        }
+      ],
+      "tags": [
+        "OCI",
+        "导出"
+      ]
+    },
+    {
+      "id": "helm-chart-export",
+      "cmd": "helm chart export",
+      "cat": "helm",
+      "desc": "从 OCI 仓库拉出 chart",
+      "syntax": "helm chart export <ref> <dir>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm chart export registry.example.com/app:1.0.0 ./charts",
+          "comment": "从 OCI 拉取 chart"
+        },
+        {
+          "cmd": "helm chart pull registry.example.com/app:1.0.0",
+          "comment": "拉取保存到本地缓存"
+        },
+        {
+          "cmd": "helm chart export registry.example.com/app:1.0.0 .",
+          "comment": "导出到当前目录"
+        },
+        {
+          "cmd": "ls ./app",
+          "comment": "确认导出结果"
+        }
+      ],
+      "tags": [
+        "OCI",
+        "导入"
+      ]
+    },
+    {
+      "id": "helm-search-hub",
+      "cmd": "helm search hub",
+      "cat": "helm",
+      "desc": "搜索 Helm Hub 上所有 chart",
+      "syntax": "helm search hub <keyword>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm search hub prometheus",
+          "comment": "Hub 搜索 prometheus"
+        },
+        {
+          "cmd": "helm search hub grafana --max-col-width 0",
+          "comment": "完整信息搜索"
+        },
+        {
+          "cmd": "helm search hub --max=20 nginx",
+          "comment": "限制结果数量"
+        },
+        {
+          "cmd": "helm search hub 'gitlab' -l",
+          "comment": "查看更多结果"
+        }
+      ],
+      "tags": [
+        "搜索",
+        "Hub"
+      ]
+    },
+    {
+      "id": "helm-install-dry-run",
+      "cmd": "helm install --dry-run",
+      "cat": "helm",
+      "desc": "试运行安装(不部署)",
+      "syntax": "helm install --dry-run --debug <name> <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm install --dry-run --debug my-app ./app",
+          "comment": "试运行并输出渲染结果"
+        },
+        {
+          "cmd": "helm install --dry-run my-app ./app -f prod.yaml",
+          "comment": "按配置试运行"
+        },
+        {
+          "cmd": "helm install --dry-run my-app ./app --set replicaCount=5",
+          "comment": "带参数试运行"
+        },
+        {
+          "cmd": "helm install --dry-run my-app ./app --generate-name",
+          "comment": "自动生成名字试运行"
+        },
+        {
+          "cmd": "helm install --dry-run my-app ./app 2>&1 | grep -i error",
+          "comment": "检查渲染错误"
+        }
+      ],
+      "tags": [
+        "试运行",
+        "调试"
+      ]
+    },
+    {
+      "id": "helm-get-metadata",
+      "cmd": "helm get metadata",
+      "cat": "helm",
+      "desc": "查看 release 元数据",
+      "syntax": "helm get metadata <release>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm get metadata my-app",
+          "comment": "查看 release 元数据"
+        },
+        {
+          "cmd": "helm get metadata my-app -n prod",
+          "comment": "指定命名空间查看"
+        },
+        {
+          "cmd": "helm get metadata my-app -o yaml",
+          "comment": "YAML 格式输出"
+        },
+        {
+          "cmd": "helm get metadata my-app | grep -i chart",
+          "comment": "查看 chart 信息"
+        }
+      ],
+      "tags": [
+        "元数据"
+      ]
+    },
+    {
+      "id": "helm-show-readme",
+      "cmd": "helm show readme",
+      "cat": "helm",
+      "desc": "查看 chart 说明文档",
+      "syntax": "helm show readme <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm show readme bitnami/redis",
+          "comment": "查看 chart 使用文档"
+        },
+        {
+          "cmd": "helm show readme ./app | head -50",
+          "comment": "只看开头说明"
+        },
+        {
+          "cmd": "helm show readme bitnami/mysql | grep -i password",
+          "comment": "查找密码说明"
+        },
+        {
+          "cmd": "helm show readme myrepo/app > README-chart.md",
+          "comment": "导出文档"
+        }
+      ],
+      "tags": [
+        "文档"
+      ]
+    },
+    {
+      "id": "helm-uninstall-keep-history",
+      "cmd": "helm uninstall --keep-history",
+      "cat": "helm",
+      "desc": "卸载但保留历史",
+      "syntax": "helm uninstall --keep-history <release>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm uninstall --keep-history my-app",
+          "comment": "卸载并保留发布历史"
+        },
+        {
+          "cmd": "helm uninstall --keep-history my-app && helm history my-app",
+          "comment": "卸载后仍可查历史"
+        },
+        {
+          "cmd": "helm rollback my-app 3",
+          "comment": "保留历史可随时回滚"
+        },
+        {
+          "cmd": "helm uninstall my-app",
+          "comment": "不带参数彻底删除"
+        }
+      ],
+      "tags": [
+        "卸载",
+        "历史"
+      ]
+    },
+    {
+      "id": "helm-upgrade-dry-run",
+      "cmd": "helm upgrade --dry-run",
+      "cat": "helm",
+      "desc": "试运行升级(不部署)",
+      "syntax": "helm upgrade --dry-run <release> <chart>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "helm upgrade --dry-run my-app ./app",
+          "comment": "升级前试运行"
+        },
+        {
+          "cmd": "helm upgrade --dry-run my-app ./app -f new.yaml --debug",
+          "comment": "带调试信息试运行"
+        },
+        {
+          "cmd": "helm upgrade --dry-run my-app nginx --version 4.0.0",
+          "comment": "试运行升级 chart 版本"
+        },
+        {
+          "cmd": "helm upgrade --dry-run my-app ./app --reuse-values",
+          "comment": "复用配置试运行"
+        },
+        {
+          "cmd": "helm upgrade --dry-run my-app ./app 2>&1 | grep -i warning",
+          "comment": "检查升级警告"
+        }
+      ],
+      "tags": [
+        "试运行",
+        "升级"
+      ]
+    }
+  ]
+}

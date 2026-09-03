@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..');
+const { loadBuiltinCommands, mergeCategories } = require('../lib/commands');
 
 const WEB_CSS = `
 /* ===== Web 版覆盖样式: 面板常驻屏幕居中, 无桌宠(与客户端版交互解耦) ===== */
@@ -45,13 +46,14 @@ function build(outFile) {
   });
 
   // 4. 注入内联命令数据 + web shim (位于首个脚本之前, 先于渲染层加载)
-  const cmds = [];
-  const dir = path.join(ROOT, 'resources', 'commands');
-  for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.json')).sort()) {
-    cmds.push(...JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')));
-  }
+  const { commands, categories } = loadBuiltinCommands(ROOT);
+  const cats = mergeCategories(categories, [], commands);
   const shim = inline(path.join(ROOT, 'web', 'cli-guide-web.js'));
-  const inject = '<script>\nwindow.__COMMANDS__ = ' + JSON.stringify(cmds) + ';\n</script>\n  <script>\n' + shim + '\n</script>\n  ';
+  // JSON 载荷转义 `<`, 防止数据内含 </script> 提前闭合脚本块 (与 inline() 同理)
+  const escJson = (v) => JSON.stringify(v).replace(/</g, '\\u003c');
+  const inject = '<script>\nwindow.__COMMANDS__ = ' + escJson(commands) +
+    ';\nwindow.__CATEGORIES__ = ' + escJson(cats) +
+    ';\n</script>\n  <script>\n' + shim + '\n</script>\n  ';
   html = html.replace('<!-- three 的 UMD 构建先加载, pet.js 通过 window.THREE 使用 -->', inject + '<!-- three 的 UMD 构建先加载, pet.js 通过 window.THREE 使用 -->');
 
   // 5. 标题
@@ -65,8 +67,6 @@ function build(outFile) {
 module.exports = { build, WEB_CSS };
 if (require.main === module) {
   const out = build();
-  const dir = path.join(ROOT, 'resources', 'commands');
-  const total = fs.readdirSync(dir).filter(x => x.endsWith('.json'))
-    .reduce((n, f) => n + JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')).length, 0);
-  console.log('web build written: ' + out + ' (' + Math.round(fs.statSync(out).size / 1024) + ' KB, ' + total + ' 条命令)');
+  const { commands } = loadBuiltinCommands(ROOT);
+  console.log('web build written: ' + out + ' (' + Math.round(fs.statSync(out).size / 1024) + ' KB, ' + commands.length + ' 条命令)');
 }

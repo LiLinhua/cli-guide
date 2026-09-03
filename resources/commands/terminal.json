@@ -1,353 +1,1014 @@
-[
-  { "id": "term-ctrl-c", "cmd": "Ctrl+C", "cat": "terminal", "desc": "中断当前命令",
-    "syntax": "Ctrl+C",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+C", "comment": "中断卡住的命令" },
-      { "cmd": "Ctrl+C", "comment": "退出交互程序(如 vim 卡死时)" },
-      { "cmd": "Ctrl+C 两次", "comment": "强制退出顽固进程" },
-      { "cmd": "kill -INT <pid>", "comment": "向后台进程发中断信号" }
-    ],
-    "tags": ["中断", "快捷键"] },
-  { "id": "term-ctrl-l", "cmd": "Ctrl+L", "cat": "terminal", "desc": "清屏",
-    "syntax": "Ctrl+L",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+L", "comment": "清屏但保留历史滚动" },
-      { "cmd": "clear", "comment": "等价命令" },
-      { "cmd": "clear && pwd", "comment": "清屏后重新显示目录" }
-    ],
-    "tags": ["清屏", "快捷键"] },
-  { "id": "term-ctrl-a", "cmd": "Ctrl+A", "cat": "terminal", "desc": "光标移到行首",
-    "syntax": "Ctrl+A",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+A", "comment": "跳到行首修改命令" },
-      { "cmd": "Ctrl+A 然后 Ctrl+K", "comment": "清除整行命令" },
-      { "cmd": "Ctrl+A 然后输入 sudo", "comment": "行首补 sudo" },
-      { "cmd": "Ctrl+E", "comment": "回到行尾" }
-    ],
-    "tags": ["光标"] },
-  { "id": "term-ctrl-e", "cmd": "Ctrl+E", "cat": "terminal", "desc": "光标移到行尾",
-    "syntax": "Ctrl+E",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+E", "comment": "跳到行尾追加参数" },
-      { "cmd": "Ctrl+E 然后输入 2>&1", "comment": "行尾追加重定向" },
-      { "cmd": "Ctrl+E 然后 Enter", "comment": "快速执行命令" }
-    ],
-    "tags": ["光标"] },
-  { "id": "term-ctrl-u", "cmd": "Ctrl+U", "cat": "terminal", "desc": "删除光标前所有字符",
-    "syntax": "Ctrl+U",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+U", "comment": "清空整行(光标前)" },
-      { "cmd": "Ctrl+U 重新输入", "comment": "输错命令快速重来" },
-      { "cmd": "Ctrl+U 然后 Ctrl+Y", "comment": "剪切后粘贴恢复" }
-    ],
-    "tags": ["编辑"] },
-  { "id": "term-ctrl-w", "cmd": "Ctrl+W", "cat": "terminal", "desc": "删除光标前一个词",
-    "syntax": "Ctrl+W",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+W", "comment": "删掉上一个单词" },
-      { "cmd": "Ctrl+W 连按", "comment": "逐个删除路径段" },
-      { "cmd": "kubectl get pods Ctrl+W", "comment": "删掉最后一个参数" }
-    ],
-    "tags": ["编辑"] },
-  { "id": "term-ctrl-r", "cmd": "Ctrl+R", "cat": "terminal", "desc": "反向搜索命令历史",
-    "syntax": "Ctrl+R",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+R 输入 kubectl", "comment": "搜索历史中的 kubectl" },
-      { "cmd": "Ctrl+R 再按 Ctrl+R", "comment": "继续向前匹配" },
-      { "cmd": "Ctrl+R 找到后 Enter", "comment": "直接执行找到的命令" },
-      { "cmd": "Ctrl+R 找到后 ← →", "comment": "调出后编辑再执行" }
-    ],
-    "tags": ["历史", "搜索"] },
-  { "id": "term-ctrl-z", "cmd": "Ctrl+Z", "cat": "terminal", "desc": "挂起当前进程(可 fg 恢复)",
-    "syntax": "Ctrl+Z  →  fg / bg",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+Z", "comment": "挂起 vim 回终端" },
-      { "cmd": "Ctrl+Z 然后 fg", "comment": "恢复前台继续" },
-      { "cmd": "Ctrl+Z 然后 bg", "comment": "转后台运行" },
-      { "cmd": "jobs", "comment": "查看挂起任务" }
-    ],
-    "tags": ["进程", "挂起"] },
-  { "id": "term-tab", "cmd": "Tab", "cat": "terminal", "desc": "命令/文件名自动补全",
-    "syntax": "Tab (连按两次列出候选)",
-    "args": [],
-    "examples": [
-      { "cmd": "kub<Tab>", "comment": "补全为 kubectl" },
-      { "cmd": "cd Doc<Tab>", "comment": "补全目录名" },
-      { "cmd": "Tab 连按两次", "comment": "列出所有候选" },
-      { "cmd": "Alt+Esc 或 Esc Esc", "comment": "zsh 中批量补全" }
-    ],
-    "tags": ["补全"] },
-  { "id": "term-double-bang", "cmd": "!!", "cat": "terminal", "desc": "执行上一条命令",
-    "syntax": "!!",
-    "args": [],
-    "examples": [
-      { "cmd": "!!", "comment": "重复上一条命令" },
-      { "cmd": "sudo !!", "comment": "用 sudo 重跑上一条" },
-      { "cmd": "!kubectl", "comment": "执行最近以 kubectl 开头的命令" },
-      { "cmd": "!$", "comment": "取上一条命令最后一个参数" }
-    ],
-    "tags": ["历史"] },
-  { "id": "term-cmd-t", "cmd": "Cmd+T", "cat": "terminal", "desc": "新建标签页",
-    "syntax": "Cmd+T",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+T", "comment": "新建标签页" },
-      { "cmd": "Cmd+T 然后 Cmd+2", "comment": "新建并切到第 2 个标签" },
-      { "cmd": "Cmd+N", "comment": "新建窗口" }
-    ],
-    "tags": ["iTerm", "标签"] },
-  { "id": "term-cmd-d", "cmd": "Cmd+D", "cat": "terminal", "desc": "垂直分屏",
-    "syntax": "Cmd+D",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+D", "comment": "垂直分屏" },
-      { "cmd": "Cmd+D 再 Cmd+D", "comment": "继续分屏" },
-      { "cmd": "Opt+Cmd+D", "comment": "关闭当前分屏窗格" },
-      { "cmd": "Cmd+Opt+方向键", "comment": "切换窗格焦点" }
-    ],
-    "tags": ["iTerm", "分屏"] },
-  { "id": "term-cmd-arrow", "cmd": "Cmd+←/→", "cat": "terminal", "desc": "切换相邻标签页",
-    "syntax": "Cmd+← / Cmd+→",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+→", "comment": "切到下一个标签" },
-      { "cmd": "Cmd+←", "comment": "切到上一个标签" },
-      { "cmd": "Cmd+数字", "comment": "直接跳到指定标签" }
-    ],
-    "tags": ["iTerm", "标签"] },
-  { "id": "term-cmd-f", "cmd": "Cmd+F", "cat": "terminal", "desc": "在终端输出中查找",
-    "syntax": "Cmd+F",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+F 输入 error", "comment": "在历史输出中搜 error" },
-      { "cmd": "Cmd+F 然后 Enter", "comment": "跳转下一个匹配" },
-      { "cmd": "Cmd+Shift+F", "comment": "全屏查找(输入焦点不回终端)" }
-    ],
-    "tags": ["iTerm", "查找"] },
-  { "id": "term-cmd-shift-d", "cmd": "Cmd+Shift+D", "cat": "terminal", "desc": "水平分屏",
-    "syntax": "Cmd+Shift+D",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+D", "comment": "上下水平分屏" },
-      { "cmd": "Cmd+Shift+D 后 Cmd+D", "comment": "混合分屏布局" },
-      { "cmd": "Opt+Cmd+D", "comment": "关闭当前窗格" }
-    ],
-    "tags": ["iTerm", "分屏"] },
-  { "id": "term-cmd-num", "cmd": "Cmd+1~9", "cat": "terminal", "desc": "跳转到第 N 个标签页",
-    "syntax": "Cmd+1 ～ Cmd+9",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+1", "comment": "跳到第 1 个标签" },
-      { "cmd": "Cmd+9", "comment": "跳到第 9 个标签" },
-      { "cmd": "Cmd+0", "comment": "跳到第 10 个标签" }
-    ],
-    "tags": ["iTerm", "标签"] },
-  { "id": "term-cmd-w", "cmd": "Cmd+W", "cat": "terminal", "desc": "关闭当前标签页",
-    "syntax": "Cmd+W",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+W", "comment": "关闭当前标签" },
-      { "cmd": "Cmd+W 误关后 Cmd+Shift+T", "comment": "恢复误关的标签" },
-      { "cmd": "Cmd+Shift+W", "comment": "关闭整个窗口" }
-    ],
-    "tags": ["标签", "关闭"] },
-  { "id": "term-cmd-shift-t", "cmd": "Cmd+Shift+T", "cat": "terminal", "desc": "恢复最近关闭的标签",
-    "syntax": "Cmd+Shift+T",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+T", "comment": "恢复最近关闭标签" },
-      { "cmd": "Cmd+Shift+T 连按", "comment": "依次恢复多个标签" }
-    ],
-    "tags": ["标签"] },
-  { "id": "term-cmd-c-v", "cmd": "Cmd+C / Cmd+V", "cat": "terminal", "desc": "复制/粘贴(选中即复制需开启)",
-    "syntax": "Cmd+C / Cmd+V",
-    "args": [],
-    "examples": [
-      { "cmd": "选中文本后 Cmd+C", "comment": "复制选中内容" },
-      { "cmd": "Cmd+V", "comment": "粘贴剪贴板" },
-      { "cmd": "选中文本自动复制", "comment": "开启选中即复制偏好" },
-      { "cmd": "Cmd+Shift+V", "comment": "粘贴并自动执行" }
-    ],
-    "tags": ["复制", "粘贴"] },
-  { "id": "term-ctrl-d", "cmd": "Ctrl+D", "cat": "terminal", "desc": "退出当前 shell",
-    "syntax": "Ctrl+D",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+D", "comment": "退出登录 shell" },
-      { "cmd": "Ctrl+D", "comment": "结束标准输入(EOF)" },
-      { "cmd": "ssh 会话内 Ctrl+D", "comment": "退出远程连接" },
-      { "cmd": "exit", "comment": "等价命令" }
-    ],
-    "tags": ["退出", "快捷键"] },
-  { "id": "term-ctrl-k", "cmd": "Ctrl+K", "cat": "terminal", "desc": "删除光标到行尾",
-    "syntax": "Ctrl+K",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+K", "comment": "删除光标后内容" },
-      { "cmd": "Ctrl+A 然后 Ctrl+K", "comment": "清空整行" },
-      { "cmd": "Ctrl+K 然后 Ctrl+Y", "comment": "剪切粘贴恢复" }
-    ],
-    "tags": ["编辑"] },
-  { "id": "term-ctrl-y", "cmd": "Ctrl+Y", "cat": "terminal", "desc": "粘贴最近删除的内容",
-    "syntax": "Ctrl+Y",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+U 然后 Ctrl+Y", "comment": "剪切整行再粘贴" },
-      { "cmd": "Ctrl+K 然后 Ctrl+Y", "comment": "剪切行尾再粘贴" },
-      { "cmd": "Ctrl+W 然后 Ctrl+Y", "comment": "剪词再粘贴" }
-    ],
-    "tags": ["编辑", "粘贴"] },
-  { "id": "term-ctrl-pn", "cmd": "Ctrl+P/N", "cat": "terminal", "desc": "上/下一条历史命令",
-    "syntax": "Ctrl+P(上) / Ctrl+N(下)",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+P", "comment": "上一条历史(同 ↑)" },
-      { "cmd": "Ctrl+N", "comment": "下一条历史(同 ↓)" },
-      { "cmd": "Ctrl+P 连按", "comment": "逐条回溯历史" }
-    ],
-    "tags": ["历史"] },
-  { "id": "term-alt-arrow", "cmd": "Alt+←/→", "cat": "terminal", "desc": "按词移动光标",
-    "syntax": "Alt+← / Alt+→",
-    "args": [],
-    "examples": [
-      { "cmd": "Alt+→", "comment": "跳到下一个词" },
-      { "cmd": "Alt+←", "comment": "回到上一个词" },
-      { "cmd": "Alt+← 后 Ctrl+W", "comment": "定位后删词" }
-    ],
-    "tags": ["光标", "编辑"] },
-  { "id": "term-cmd-shift-i", "cmd": "Cmd+Shift+I", "cat": "terminal", "desc": "全屏当前标签页",
-    "syntax": "Cmd+Shift+I",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+I", "comment": "全屏当前标签" },
-      { "cmd": "Cmd+Shift+I 再按", "comment": "还原窗口" },
-      { "cmd": "Cmd+Opt+E", "comment": "全屏所有标签" }
-    ],
-    "tags": ["iTerm", "全屏"] },
-  { "id": "term-cmd-semicolon", "cmd": "Cmd+;", "cat": "terminal", "desc": "自动补全历史命令",
-    "syntax": "Cmd+; (连按循环候选)",
-    "args": [],
-    "examples": [
-      { "cmd": "输入 docker 后 Cmd+;", "comment": "补全 docker 历史命令" },
-      { "cmd": "Cmd+; 连按", "comment": "循环切换候选" },
-      { "cmd": "Cmd+; 选中后 Enter", "comment": "执行候选命令" }
-    ],
-    "tags": ["iTerm", "补全", "历史"] },
-  { "id": "term-cmd-shift-h", "cmd": "Cmd+Shift+H", "cat": "terminal", "desc": "打开历史命令面板",
-    "syntax": "Cmd+Shift+H",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+H", "comment": "打开命令历史面板" },
-      { "cmd": "Cmd+Shift+H 搜索后 Enter", "comment": "搜索并执行历史命令" }
-    ],
-    "tags": ["iTerm", "历史"] },
-  { "id": "term-cmd-shift-e", "cmd": "Cmd+Shift+E", "cat": "terminal", "desc": "显示命令时间戳",
-    "syntax": "Cmd+Shift+E (切换开关)",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+E", "comment": "开启时间戳显示" },
-      { "cmd": "Cmd+Shift+E 再按", "comment": "关闭时间戳" }
-    ],
-    "tags": ["iTerm", "时间"] },
-  { "id": "term-cmd-opt-e", "cmd": "Cmd+Opt+E", "cat": "terminal", "desc": "全屏所有标签页",
-    "syntax": "Cmd+Opt+E",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Opt+E", "comment": "所有标签全屏(网格)" },
-      { "cmd": "Cmd+Opt+E 再按", "comment": "还原窗口" }
-    ],
-    "tags": ["iTerm", "全屏"] },
-  { "id": "term-cmd-opt-arrow", "cmd": "Cmd+Opt+←/→", "cat": "terminal", "desc": "切换终端窗口",
-    "syntax": "Cmd+Opt+← / Cmd+Opt+→",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Opt+→", "comment": "切到下一个窗口" },
-      { "cmd": "Cmd+Opt+←", "comment": "切到上一个窗口" }
-    ],
-    "tags": ["iTerm", "窗口"] },
-  { "id": "term-cmd-shift-f", "cmd": "Cmd+Shift+F", "cat": "terminal", "desc": "全屏查找",
-    "syntax": "Cmd+Shift+F",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+F", "comment": "全屏查找面板" },
-      { "cmd": "Cmd+Shift+F 输入后 Enter", "comment": "跳转匹配" }
-    ],
-    "tags": ["iTerm", "查找"] },
-  { "id": "term-cmd-k", "cmd": "Cmd+K", "cat": "terminal", "desc": "清屏(iTerm)",
-    "syntax": "Cmd+K",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+K", "comment": "清空终端内容" },
-      { "cmd": "Cmd+K 清屏后继续工作", "comment": "保持当前目录" },
-      { "cmd": "clear", "comment": "等价命令" }
-    ],
-    "tags": ["iTerm", "清屏"] },
-  { "id": "term-cmd-opt-d", "cmd": "Cmd+Opt+D", "cat": "terminal", "desc": "打开新终端窗口",
-    "syntax": "Cmd+Opt+D",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Opt+D", "comment": "新建终端窗口" },
-      { "cmd": "Cmd+N", "comment": "新建窗口(继承目录)" },
-      { "cmd": "Cmd+T", "comment": "新建标签页" }
-    ],
-    "tags": ["iTerm", "窗口"] },
-  { "id": "term-cmd-shift-w", "cmd": "Cmd+Shift+W", "cat": "terminal", "desc": "关闭整个窗口",
-    "syntax": "Cmd+Shift+W",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+W", "comment": "关闭整个终端窗口" },
-      { "cmd": "Cmd+Shift+W 连按", "comment": "关闭多个窗口" }
-    ],
-    "tags": ["iTerm", "窗口", "关闭"] },
-  { "id": "term-clear", "cmd": "clear", "cat": "terminal", "desc": "清屏命令",
-    "syntax": "clear",
-    "args": [],
-    "examples": [
-      { "cmd": "clear", "comment": "清空屏幕" },
-      { "cmd": "clear && ls", "comment": "清屏后列目录" },
-      { "cmd": "alias c=clear", "comment": "给 clear 起别名" },
-      { "cmd": "Ctrl+L", "comment": "快捷键清屏" }
-    ],
-    "tags": ["清屏"] },
-  { "id": "term-ctrl-opt-cmd-v", "cmd": "Ctrl+Opt+Cmd+V", "cat": "terminal", "desc": "打开粘贴历史(iTerm)",
-    "syntax": "Ctrl+Opt+Cmd+V",
-    "args": [],
-    "examples": [
-      { "cmd": "Ctrl+Opt+Cmd+V", "comment": "打开粘贴历史面板" },
-      { "cmd": "Ctrl+Opt+Cmd+V 选择后 Enter", "comment": "粘贴历史内容" }
-    ],
-    "tags": ["iTerm", "粘贴", "历史"] },
-  { "id": "term-cmd-shift-enter", "cmd": "Cmd+Shift+Enter", "cat": "terminal", "desc": "最大化当前标签(iTerm)",
-    "syntax": "Cmd+Shift+Enter (再按还原)",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+Enter", "comment": "最大化当前标签" },
-      { "cmd": "Cmd+Shift+Enter 再按", "comment": "还原分屏布局" }
-    ],
-    "tags": ["iTerm", "全屏"] },
-  { "id": "term-opt-cmd-12", "cmd": "Opt+Cmd+1~9", "cat": "terminal", "desc": "在分屏窗格间切换焦点(iTerm)",
-    "syntax": "Opt+Cmd+1 ～ 9",
-    "args": [],
-    "examples": [
-      { "cmd": "Opt+Cmd+1", "comment": "切到第 1 个窗格" },
-      { "cmd": "Opt+Cmd+2", "comment": "切到第 2 个窗格" },
-      { "cmd": "Cmd+Opt+方向键", "comment": "按方向切换窗格" }
-    ],
-    "tags": ["iTerm", "分屏"] },
-  { "id": "term-cmd-shift-j", "cmd": "Cmd+Shift+J", "cat": "terminal", "desc": "分割窗格焦点跟随鼠标(iTerm)",
-    "syntax": "Cmd+Shift+J (切换开关)",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+J", "comment": "开启焦点跟随鼠标" },
-      { "cmd": "Cmd+Shift+J 再按", "comment": "关闭跟随" }
-    ],
-    "tags": ["iTerm", "分屏"] }
-]
+{
+  "cat": "terminal",
+  "label": "终端快捷键",
+  "order": 5,
+  "commands": [
+    {
+      "id": "term-ctrl-c",
+      "cmd": "Ctrl+C",
+      "cat": "terminal",
+      "desc": "中断当前命令",
+      "syntax": "Ctrl+C",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+C",
+          "comment": "中断卡住的命令"
+        },
+        {
+          "cmd": "Ctrl+C",
+          "comment": "退出交互程序(如 vim 卡死时)"
+        },
+        {
+          "cmd": "Ctrl+C 两次",
+          "comment": "强制退出顽固进程"
+        },
+        {
+          "cmd": "kill -INT <pid>",
+          "comment": "向后台进程发中断信号"
+        }
+      ],
+      "tags": [
+        "中断",
+        "快捷键"
+      ]
+    },
+    {
+      "id": "term-ctrl-l",
+      "cmd": "Ctrl+L",
+      "cat": "terminal",
+      "desc": "清屏",
+      "syntax": "Ctrl+L",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+L",
+          "comment": "清屏但保留历史滚动"
+        },
+        {
+          "cmd": "clear",
+          "comment": "等价命令"
+        },
+        {
+          "cmd": "clear && pwd",
+          "comment": "清屏后重新显示目录"
+        }
+      ],
+      "tags": [
+        "清屏",
+        "快捷键"
+      ]
+    },
+    {
+      "id": "term-ctrl-a",
+      "cmd": "Ctrl+A",
+      "cat": "terminal",
+      "desc": "光标移到行首",
+      "syntax": "Ctrl+A",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+A",
+          "comment": "跳到行首修改命令"
+        },
+        {
+          "cmd": "Ctrl+A 然后 Ctrl+K",
+          "comment": "清除整行命令"
+        },
+        {
+          "cmd": "Ctrl+A 然后输入 sudo",
+          "comment": "行首补 sudo"
+        },
+        {
+          "cmd": "Ctrl+E",
+          "comment": "回到行尾"
+        }
+      ],
+      "tags": [
+        "光标"
+      ]
+    },
+    {
+      "id": "term-ctrl-e",
+      "cmd": "Ctrl+E",
+      "cat": "terminal",
+      "desc": "光标移到行尾",
+      "syntax": "Ctrl+E",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+E",
+          "comment": "跳到行尾追加参数"
+        },
+        {
+          "cmd": "Ctrl+E 然后输入 2>&1",
+          "comment": "行尾追加重定向"
+        },
+        {
+          "cmd": "Ctrl+E 然后 Enter",
+          "comment": "快速执行命令"
+        }
+      ],
+      "tags": [
+        "光标"
+      ]
+    },
+    {
+      "id": "term-ctrl-u",
+      "cmd": "Ctrl+U",
+      "cat": "terminal",
+      "desc": "删除光标前所有字符",
+      "syntax": "Ctrl+U",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+U",
+          "comment": "清空整行(光标前)"
+        },
+        {
+          "cmd": "Ctrl+U 重新输入",
+          "comment": "输错命令快速重来"
+        },
+        {
+          "cmd": "Ctrl+U 然后 Ctrl+Y",
+          "comment": "剪切后粘贴恢复"
+        }
+      ],
+      "tags": [
+        "编辑"
+      ]
+    },
+    {
+      "id": "term-ctrl-w",
+      "cmd": "Ctrl+W",
+      "cat": "terminal",
+      "desc": "删除光标前一个词",
+      "syntax": "Ctrl+W",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+W",
+          "comment": "删掉上一个单词"
+        },
+        {
+          "cmd": "Ctrl+W 连按",
+          "comment": "逐个删除路径段"
+        },
+        {
+          "cmd": "kubectl get pods Ctrl+W",
+          "comment": "删掉最后一个参数"
+        }
+      ],
+      "tags": [
+        "编辑"
+      ]
+    },
+    {
+      "id": "term-ctrl-r",
+      "cmd": "Ctrl+R",
+      "cat": "terminal",
+      "desc": "反向搜索命令历史",
+      "syntax": "Ctrl+R",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+R 输入 kubectl",
+          "comment": "搜索历史中的 kubectl"
+        },
+        {
+          "cmd": "Ctrl+R 再按 Ctrl+R",
+          "comment": "继续向前匹配"
+        },
+        {
+          "cmd": "Ctrl+R 找到后 Enter",
+          "comment": "直接执行找到的命令"
+        },
+        {
+          "cmd": "Ctrl+R 找到后 ← →",
+          "comment": "调出后编辑再执行"
+        }
+      ],
+      "tags": [
+        "历史",
+        "搜索"
+      ]
+    },
+    {
+      "id": "term-ctrl-z",
+      "cmd": "Ctrl+Z",
+      "cat": "terminal",
+      "desc": "挂起当前进程(可 fg 恢复)",
+      "syntax": "Ctrl+Z  →  fg / bg",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+Z",
+          "comment": "挂起 vim 回终端"
+        },
+        {
+          "cmd": "Ctrl+Z 然后 fg",
+          "comment": "恢复前台继续"
+        },
+        {
+          "cmd": "Ctrl+Z 然后 bg",
+          "comment": "转后台运行"
+        },
+        {
+          "cmd": "jobs",
+          "comment": "查看挂起任务"
+        }
+      ],
+      "tags": [
+        "进程",
+        "挂起"
+      ]
+    },
+    {
+      "id": "term-tab",
+      "cmd": "Tab",
+      "cat": "terminal",
+      "desc": "命令/文件名自动补全",
+      "syntax": "Tab (连按两次列出候选)",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kub<Tab>",
+          "comment": "补全为 kubectl"
+        },
+        {
+          "cmd": "cd Doc<Tab>",
+          "comment": "补全目录名"
+        },
+        {
+          "cmd": "Tab 连按两次",
+          "comment": "列出所有候选"
+        },
+        {
+          "cmd": "Alt+Esc 或 Esc Esc",
+          "comment": "zsh 中批量补全"
+        }
+      ],
+      "tags": [
+        "补全"
+      ]
+    },
+    {
+      "id": "term-double-bang",
+      "cmd": "!!",
+      "cat": "terminal",
+      "desc": "执行上一条命令",
+      "syntax": "!!",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "!!",
+          "comment": "重复上一条命令"
+        },
+        {
+          "cmd": "sudo !!",
+          "comment": "用 sudo 重跑上一条"
+        },
+        {
+          "cmd": "!kubectl",
+          "comment": "执行最近以 kubectl 开头的命令"
+        },
+        {
+          "cmd": "!$",
+          "comment": "取上一条命令最后一个参数"
+        }
+      ],
+      "tags": [
+        "历史"
+      ]
+    },
+    {
+      "id": "term-cmd-t",
+      "cmd": "Cmd+T",
+      "cat": "terminal",
+      "desc": "新建标签页",
+      "syntax": "Cmd+T",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+T",
+          "comment": "新建标签页"
+        },
+        {
+          "cmd": "Cmd+T 然后 Cmd+2",
+          "comment": "新建并切到第 2 个标签"
+        },
+        {
+          "cmd": "Cmd+N",
+          "comment": "新建窗口"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "标签"
+      ]
+    },
+    {
+      "id": "term-cmd-d",
+      "cmd": "Cmd+D",
+      "cat": "terminal",
+      "desc": "垂直分屏",
+      "syntax": "Cmd+D",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+D",
+          "comment": "垂直分屏"
+        },
+        {
+          "cmd": "Cmd+D 再 Cmd+D",
+          "comment": "继续分屏"
+        },
+        {
+          "cmd": "Opt+Cmd+D",
+          "comment": "关闭当前分屏窗格"
+        },
+        {
+          "cmd": "Cmd+Opt+方向键",
+          "comment": "切换窗格焦点"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "分屏"
+      ]
+    },
+    {
+      "id": "term-cmd-arrow",
+      "cmd": "Cmd+←/→",
+      "cat": "terminal",
+      "desc": "切换相邻标签页",
+      "syntax": "Cmd+← / Cmd+→",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+→",
+          "comment": "切到下一个标签"
+        },
+        {
+          "cmd": "Cmd+←",
+          "comment": "切到上一个标签"
+        },
+        {
+          "cmd": "Cmd+数字",
+          "comment": "直接跳到指定标签"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "标签"
+      ]
+    },
+    {
+      "id": "term-cmd-f",
+      "cmd": "Cmd+F",
+      "cat": "terminal",
+      "desc": "在终端输出中查找",
+      "syntax": "Cmd+F",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+F 输入 error",
+          "comment": "在历史输出中搜 error"
+        },
+        {
+          "cmd": "Cmd+F 然后 Enter",
+          "comment": "跳转下一个匹配"
+        },
+        {
+          "cmd": "Cmd+Shift+F",
+          "comment": "全屏查找(输入焦点不回终端)"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "查找"
+      ]
+    },
+    {
+      "id": "term-cmd-shift-d",
+      "cmd": "Cmd+Shift+D",
+      "cat": "terminal",
+      "desc": "水平分屏",
+      "syntax": "Cmd+Shift+D",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+D",
+          "comment": "上下水平分屏"
+        },
+        {
+          "cmd": "Cmd+Shift+D 后 Cmd+D",
+          "comment": "混合分屏布局"
+        },
+        {
+          "cmd": "Opt+Cmd+D",
+          "comment": "关闭当前窗格"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "分屏"
+      ]
+    },
+    {
+      "id": "term-cmd-num",
+      "cmd": "Cmd+1~9",
+      "cat": "terminal",
+      "desc": "跳转到第 N 个标签页",
+      "syntax": "Cmd+1 ～ Cmd+9",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+1",
+          "comment": "跳到第 1 个标签"
+        },
+        {
+          "cmd": "Cmd+9",
+          "comment": "跳到第 9 个标签"
+        },
+        {
+          "cmd": "Cmd+0",
+          "comment": "跳到第 10 个标签"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "标签"
+      ]
+    },
+    {
+      "id": "term-cmd-w",
+      "cmd": "Cmd+W",
+      "cat": "terminal",
+      "desc": "关闭当前标签页",
+      "syntax": "Cmd+W",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+W",
+          "comment": "关闭当前标签"
+        },
+        {
+          "cmd": "Cmd+W 误关后 Cmd+Shift+T",
+          "comment": "恢复误关的标签"
+        },
+        {
+          "cmd": "Cmd+Shift+W",
+          "comment": "关闭整个窗口"
+        }
+      ],
+      "tags": [
+        "标签",
+        "关闭"
+      ]
+    },
+    {
+      "id": "term-cmd-shift-t",
+      "cmd": "Cmd+Shift+T",
+      "cat": "terminal",
+      "desc": "恢复最近关闭的标签",
+      "syntax": "Cmd+Shift+T",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+T",
+          "comment": "恢复最近关闭标签"
+        },
+        {
+          "cmd": "Cmd+Shift+T 连按",
+          "comment": "依次恢复多个标签"
+        }
+      ],
+      "tags": [
+        "标签"
+      ]
+    },
+    {
+      "id": "term-cmd-c-v",
+      "cmd": "Cmd+C / Cmd+V",
+      "cat": "terminal",
+      "desc": "复制/粘贴(选中即复制需开启)",
+      "syntax": "Cmd+C / Cmd+V",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "选中文本后 Cmd+C",
+          "comment": "复制选中内容"
+        },
+        {
+          "cmd": "Cmd+V",
+          "comment": "粘贴剪贴板"
+        },
+        {
+          "cmd": "选中文本自动复制",
+          "comment": "开启选中即复制偏好"
+        },
+        {
+          "cmd": "Cmd+Shift+V",
+          "comment": "粘贴并自动执行"
+        }
+      ],
+      "tags": [
+        "复制",
+        "粘贴"
+      ]
+    },
+    {
+      "id": "term-ctrl-d",
+      "cmd": "Ctrl+D",
+      "cat": "terminal",
+      "desc": "退出当前 shell",
+      "syntax": "Ctrl+D",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+D",
+          "comment": "退出登录 shell"
+        },
+        {
+          "cmd": "Ctrl+D",
+          "comment": "结束标准输入(EOF)"
+        },
+        {
+          "cmd": "ssh 会话内 Ctrl+D",
+          "comment": "退出远程连接"
+        },
+        {
+          "cmd": "exit",
+          "comment": "等价命令"
+        }
+      ],
+      "tags": [
+        "退出",
+        "快捷键"
+      ]
+    },
+    {
+      "id": "term-ctrl-k",
+      "cmd": "Ctrl+K",
+      "cat": "terminal",
+      "desc": "删除光标到行尾",
+      "syntax": "Ctrl+K",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+K",
+          "comment": "删除光标后内容"
+        },
+        {
+          "cmd": "Ctrl+A 然后 Ctrl+K",
+          "comment": "清空整行"
+        },
+        {
+          "cmd": "Ctrl+K 然后 Ctrl+Y",
+          "comment": "剪切粘贴恢复"
+        }
+      ],
+      "tags": [
+        "编辑"
+      ]
+    },
+    {
+      "id": "term-ctrl-y",
+      "cmd": "Ctrl+Y",
+      "cat": "terminal",
+      "desc": "粘贴最近删除的内容",
+      "syntax": "Ctrl+Y",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+U 然后 Ctrl+Y",
+          "comment": "剪切整行再粘贴"
+        },
+        {
+          "cmd": "Ctrl+K 然后 Ctrl+Y",
+          "comment": "剪切行尾再粘贴"
+        },
+        {
+          "cmd": "Ctrl+W 然后 Ctrl+Y",
+          "comment": "剪词再粘贴"
+        }
+      ],
+      "tags": [
+        "编辑",
+        "粘贴"
+      ]
+    },
+    {
+      "id": "term-ctrl-pn",
+      "cmd": "Ctrl+P/N",
+      "cat": "terminal",
+      "desc": "上/下一条历史命令",
+      "syntax": "Ctrl+P(上) / Ctrl+N(下)",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+P",
+          "comment": "上一条历史(同 ↑)"
+        },
+        {
+          "cmd": "Ctrl+N",
+          "comment": "下一条历史(同 ↓)"
+        },
+        {
+          "cmd": "Ctrl+P 连按",
+          "comment": "逐条回溯历史"
+        }
+      ],
+      "tags": [
+        "历史"
+      ]
+    },
+    {
+      "id": "term-alt-arrow",
+      "cmd": "Alt+←/→",
+      "cat": "terminal",
+      "desc": "按词移动光标",
+      "syntax": "Alt+← / Alt+→",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Alt+→",
+          "comment": "跳到下一个词"
+        },
+        {
+          "cmd": "Alt+←",
+          "comment": "回到上一个词"
+        },
+        {
+          "cmd": "Alt+← 后 Ctrl+W",
+          "comment": "定位后删词"
+        }
+      ],
+      "tags": [
+        "光标",
+        "编辑"
+      ]
+    },
+    {
+      "id": "term-cmd-shift-i",
+      "cmd": "Cmd+Shift+I",
+      "cat": "terminal",
+      "desc": "全屏当前标签页",
+      "syntax": "Cmd+Shift+I",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+I",
+          "comment": "全屏当前标签"
+        },
+        {
+          "cmd": "Cmd+Shift+I 再按",
+          "comment": "还原窗口"
+        },
+        {
+          "cmd": "Cmd+Opt+E",
+          "comment": "全屏所有标签"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "全屏"
+      ]
+    },
+    {
+      "id": "term-cmd-semicolon",
+      "cmd": "Cmd+;",
+      "cat": "terminal",
+      "desc": "自动补全历史命令",
+      "syntax": "Cmd+; (连按循环候选)",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "输入 docker 后 Cmd+;",
+          "comment": "补全 docker 历史命令"
+        },
+        {
+          "cmd": "Cmd+; 连按",
+          "comment": "循环切换候选"
+        },
+        {
+          "cmd": "Cmd+; 选中后 Enter",
+          "comment": "执行候选命令"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "补全",
+        "历史"
+      ]
+    },
+    {
+      "id": "term-cmd-shift-h",
+      "cmd": "Cmd+Shift+H",
+      "cat": "terminal",
+      "desc": "打开历史命令面板",
+      "syntax": "Cmd+Shift+H",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+H",
+          "comment": "打开命令历史面板"
+        },
+        {
+          "cmd": "Cmd+Shift+H 搜索后 Enter",
+          "comment": "搜索并执行历史命令"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "历史"
+      ]
+    },
+    {
+      "id": "term-cmd-shift-e",
+      "cmd": "Cmd+Shift+E",
+      "cat": "terminal",
+      "desc": "显示命令时间戳",
+      "syntax": "Cmd+Shift+E (切换开关)",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+E",
+          "comment": "开启时间戳显示"
+        },
+        {
+          "cmd": "Cmd+Shift+E 再按",
+          "comment": "关闭时间戳"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "时间"
+      ]
+    },
+    {
+      "id": "term-cmd-opt-e",
+      "cmd": "Cmd+Opt+E",
+      "cat": "terminal",
+      "desc": "全屏所有标签页",
+      "syntax": "Cmd+Opt+E",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Opt+E",
+          "comment": "所有标签全屏(网格)"
+        },
+        {
+          "cmd": "Cmd+Opt+E 再按",
+          "comment": "还原窗口"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "全屏"
+      ]
+    },
+    {
+      "id": "term-cmd-opt-arrow",
+      "cmd": "Cmd+Opt+←/→",
+      "cat": "terminal",
+      "desc": "切换终端窗口",
+      "syntax": "Cmd+Opt+← / Cmd+Opt+→",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Opt+→",
+          "comment": "切到下一个窗口"
+        },
+        {
+          "cmd": "Cmd+Opt+←",
+          "comment": "切到上一个窗口"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "窗口"
+      ]
+    },
+    {
+      "id": "term-cmd-shift-f",
+      "cmd": "Cmd+Shift+F",
+      "cat": "terminal",
+      "desc": "全屏查找",
+      "syntax": "Cmd+Shift+F",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+F",
+          "comment": "全屏查找面板"
+        },
+        {
+          "cmd": "Cmd+Shift+F 输入后 Enter",
+          "comment": "跳转匹配"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "查找"
+      ]
+    },
+    {
+      "id": "term-cmd-k",
+      "cmd": "Cmd+K",
+      "cat": "terminal",
+      "desc": "清屏(iTerm)",
+      "syntax": "Cmd+K",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+K",
+          "comment": "清空终端内容"
+        },
+        {
+          "cmd": "Cmd+K 清屏后继续工作",
+          "comment": "保持当前目录"
+        },
+        {
+          "cmd": "clear",
+          "comment": "等价命令"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "清屏"
+      ]
+    },
+    {
+      "id": "term-cmd-opt-d",
+      "cmd": "Cmd+Opt+D",
+      "cat": "terminal",
+      "desc": "打开新终端窗口",
+      "syntax": "Cmd+Opt+D",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Opt+D",
+          "comment": "新建终端窗口"
+        },
+        {
+          "cmd": "Cmd+N",
+          "comment": "新建窗口(继承目录)"
+        },
+        {
+          "cmd": "Cmd+T",
+          "comment": "新建标签页"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "窗口"
+      ]
+    },
+    {
+      "id": "term-cmd-shift-w",
+      "cmd": "Cmd+Shift+W",
+      "cat": "terminal",
+      "desc": "关闭整个窗口",
+      "syntax": "Cmd+Shift+W",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+W",
+          "comment": "关闭整个终端窗口"
+        },
+        {
+          "cmd": "Cmd+Shift+W 连按",
+          "comment": "关闭多个窗口"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "窗口",
+        "关闭"
+      ]
+    },
+    {
+      "id": "term-clear",
+      "cmd": "clear",
+      "cat": "terminal",
+      "desc": "清屏命令",
+      "syntax": "clear",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "clear",
+          "comment": "清空屏幕"
+        },
+        {
+          "cmd": "clear && ls",
+          "comment": "清屏后列目录"
+        },
+        {
+          "cmd": "alias c=clear",
+          "comment": "给 clear 起别名"
+        },
+        {
+          "cmd": "Ctrl+L",
+          "comment": "快捷键清屏"
+        }
+      ],
+      "tags": [
+        "清屏"
+      ]
+    },
+    {
+      "id": "term-ctrl-opt-cmd-v",
+      "cmd": "Ctrl+Opt+Cmd+V",
+      "cat": "terminal",
+      "desc": "打开粘贴历史(iTerm)",
+      "syntax": "Ctrl+Opt+Cmd+V",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Ctrl+Opt+Cmd+V",
+          "comment": "打开粘贴历史面板"
+        },
+        {
+          "cmd": "Ctrl+Opt+Cmd+V 选择后 Enter",
+          "comment": "粘贴历史内容"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "粘贴",
+        "历史"
+      ]
+    },
+    {
+      "id": "term-cmd-shift-enter",
+      "cmd": "Cmd+Shift+Enter",
+      "cat": "terminal",
+      "desc": "最大化当前标签(iTerm)",
+      "syntax": "Cmd+Shift+Enter (再按还原)",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+Enter",
+          "comment": "最大化当前标签"
+        },
+        {
+          "cmd": "Cmd+Shift+Enter 再按",
+          "comment": "还原分屏布局"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "全屏"
+      ]
+    },
+    {
+      "id": "term-opt-cmd-12",
+      "cmd": "Opt+Cmd+1~9",
+      "cat": "terminal",
+      "desc": "在分屏窗格间切换焦点(iTerm)",
+      "syntax": "Opt+Cmd+1 ～ 9",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Opt+Cmd+1",
+          "comment": "切到第 1 个窗格"
+        },
+        {
+          "cmd": "Opt+Cmd+2",
+          "comment": "切到第 2 个窗格"
+        },
+        {
+          "cmd": "Cmd+Opt+方向键",
+          "comment": "按方向切换窗格"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "分屏"
+      ]
+    },
+    {
+      "id": "term-cmd-shift-j",
+      "cmd": "Cmd+Shift+J",
+      "cat": "terminal",
+      "desc": "分割窗格焦点跟随鼠标(iTerm)",
+      "syntax": "Cmd+Shift+J (切换开关)",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+J",
+          "comment": "开启焦点跟随鼠标"
+        },
+        {
+          "cmd": "Cmd+Shift+J 再按",
+          "comment": "关闭跟随"
+        }
+      ],
+      "tags": [
+        "iTerm",
+        "分屏"
+      ]
+    }
+  ]
+}

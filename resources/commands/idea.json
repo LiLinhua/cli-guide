@@ -1,309 +1,905 @@
-[
-  { "id": "idea-search-everywhere", "cmd": "Shift Shift", "cat": "idea", "desc": "全局搜索(Search Everywhere)",
-    "syntax": "Shift 连按两次",
-    "args": [],
-    "examples": [
-      { "cmd": "Shift 连按两次 输入类名", "comment": "全局搜类/文件/动作" },
-      { "cmd": "Shift 连按两次 输入 Ctrl+Enter", "comment": "搜文件名" },
-      { "cmd": "Shift 连按两次 输入 /action", "comment": "只搜动作" },
-      { "cmd": "Shift 连按两次 输入 #member", "comment": "搜成员方法" }
-    ],
-    "tags": ["idea", "搜索"] },
-  { "id": "idea-find-class", "cmd": "Cmd+O", "cat": "idea", "desc": "查找类",
-    "syntax": "Cmd+O",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+O 输入类名", "comment": "按名字找类" },
-      { "cmd": "Cmd+O 输入 UserService", "comment": "跳转 Service 类" },
-      { "cmd": "Cmd+O 支持驼峰缩写", "comment": "US 可匹配 UserService" },
-      { "cmd": "Cmd+O 两次", "comment": "搜索项目外类" }
-    ],
-    "tags": ["idea", "导航"] },
-  { "id": "idea-generate", "cmd": "Cmd+N", "cat": "idea", "desc": "生成代码(构造器/Getter/Setter)",
-    "syntax": "Cmd+N (编辑器内)",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+N 选 Getter and Setter", "comment": "生成访问器" },
-      { "cmd": "Cmd+N 选 Constructor", "comment": "生成构造器" },
-      { "cmd": "Cmd+N 选 Override Methods", "comment": "生成重写方法" },
-      { "cmd": "Cmd+N 选 equals/hashCode", "comment": "生成比较方法" },
-      { "cmd": "Cmd+N 选 toString", "comment": "生成字符串表示" }
-    ],
-    "tags": ["idea", "生成"] },
-  { "id": "idea-find-action", "cmd": "Cmd+Shift+A", "cat": "idea", "desc": "查找动作(命令面板)",
-    "syntax": "Cmd+Shift+A",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+A 输入 Format", "comment": "找格式化动作" },
-      { "cmd": "Cmd+Shift+A 输入 New Class", "comment": "新建类" },
-      { "cmd": "Cmd+Shift+A 输入 Settings", "comment": "打开设置" },
-      { "cmd": "Cmd+Shift+A 输入 Run", "comment": "运行配置" }
-    ],
-    "tags": ["idea", "动作"] },
-  { "id": "idea-find-file", "cmd": "Cmd+Shift+O", "cat": "idea", "desc": "查找文件",
-    "syntax": "Cmd+Shift+O",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+O 输入文件名", "comment": "按名字找文件" },
-      { "cmd": "Cmd+Shift+O 输入 index.html", "comment": "跳转 HTML 文件" },
-      { "cmd": "Cmd+Shift+O 输入 pom.xml", "comment": "找构建文件" },
-      { "cmd": "Cmd+Shift+O 输入 *.sql", "comment": "按后缀过滤" }
-    ],
-    "tags": ["idea", "文件"] },
-  { "id": "idea-recent-files", "cmd": "Cmd+E", "cat": "idea", "desc": "最近打开的文件",
-    "syntax": "Cmd+E",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+E 上下选择", "comment": "切换最近文件" },
-      { "cmd": "Cmd+E 再输入关键字", "comment": "过滤最近文件" },
-      { "cmd": "Cmd+E 回车", "comment": "打开选中文件" }
-    ],
-    "tags": ["idea", "最近"] },
-  { "id": "idea-recent-locations", "cmd": "Cmd+Shift+E", "cat": "idea", "desc": "最近编辑的位置",
-    "syntax": "Cmd+Shift+E",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+E", "comment": "查看最近编辑位置" },
-      { "cmd": "Cmd+Shift+E 回车", "comment": "跳回最近编辑点" },
-      { "cmd": "Cmd+Shift+E 选历史版本", "comment": "回到指定编辑状态" }
-    ],
-    "tags": ["idea", "最近"] },
-  { "id": "idea-quick-fix", "cmd": "Alt+Enter", "cat": "idea", "desc": "显示快速修复",
-    "syntax": "Alt+Enter",
-    "args": [],
-    "examples": [
-      { "cmd": "光标放红色波浪线上 Alt+Enter", "comment": "修复编译错误" },
-      { "cmd": "Alt+Enter 选 Create Class", "comment": "快速创建缺失类" },
-      { "cmd": "Alt+Enter 选 Import", "comment": "快速导入缺失依赖" },
-      { "cmd": "Alt+Enter 选 Suppress", "comment": "忽略告警" },
-      { "cmd": "光标放黄色高亮处 Alt+Enter", "comment": "应用建议优化" }
-    ],
-    "tags": ["idea", "修复"] },
-  { "id": "idea-format", "cmd": "Cmd+Opt+L", "cat": "idea", "desc": "格式化代码",
-    "syntax": "Cmd+Opt+L",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Opt+L", "comment": "格式化当前文件" },
-      { "cmd": "选中代码后 Cmd+Opt+L", "comment": "只格式化选区" },
-      { "cmd": "Cmd+Opt+L 然后选 Whole file", "comment": "选择格式化范围" },
-      { "cmd": "Ctrl+Alt+Shift+L", "comment": "格式化并优化导入" }
-    ],
-    "tags": ["idea", "格式"] },
-  { "id": "idea-comment-line", "cmd": "Cmd+/", "cat": "idea", "desc": "行注释切换",
-    "syntax": "Cmd+/",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+/", "comment": "当前行加注释" },
-      { "cmd": "选中多行 Cmd+/", "comment": "批量行注释" },
-      { "cmd": "再按 Cmd+/", "comment": "取消注释" }
-    ],
-    "tags": ["idea", "注释"] },
-  { "id": "idea-comment-block", "cmd": "Cmd+Opt+/", "cat": "idea", "desc": "块注释切换",
-    "syntax": "Cmd+Opt+/",
-    "args": [],
-    "examples": [
-      { "cmd": "选中代码 Cmd+Opt+/", "comment": "块注释" },
-      { "cmd": "再按 Cmd+Opt+/", "comment": "取消块注释" }
-    ],
-    "tags": ["idea", "注释"] },
-  { "id": "idea-duplicate-line", "cmd": "Cmd+D", "cat": "idea", "desc": "复制当前行",
-    "syntax": "Cmd+D",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+D", "comment": "复制当前行到下方" },
-      { "cmd": "选中文本 Cmd+D", "comment": "复制选中内容" },
-      { "cmd": "Cmd+D 连按", "comment": "快速复制多行" }
-    ],
-    "tags": ["idea", "编辑"] },
-  { "id": "idea-delete-line", "cmd": "Cmd+Backspace", "cat": "idea", "desc": "删除当前行",
-    "syntax": "Cmd+Backspace / Cmd+Delete",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Backspace", "comment": "删除当前行" },
-      { "cmd": "选中多行 Cmd+Backspace", "comment": "批量删除" },
-      { "cmd": "Cmd+Backspace 连按", "comment": "连续删行" }
-    ],
-    "tags": ["idea", "编辑"] },
-  { "id": "idea-move-line", "cmd": "Opt+Shift+↑/↓", "cat": "idea", "desc": "上下移动行",
-    "syntax": "Opt+Shift+↑ / Opt+Shift+↓",
-    "args": [],
-    "examples": [
-      { "cmd": "Opt+Shift+↓", "comment": "当前行下移" },
-      { "cmd": "Opt+Shift+↑", "comment": "当前行上移" },
-      { "cmd": "选中多行移动", "comment": "整块移动" }
-    ],
-    "tags": ["idea", "编辑"] },
-  { "id": "idea-param-info", "cmd": "Cmd+P", "cat": "idea", "desc": "显示参数提示",
-    "syntax": "Cmd+P",
-    "args": [],
-    "examples": [
-      { "cmd": "方法调用处 Cmd+P", "comment": "查看参数列表" },
-      { "cmd": "Cmd+P 高亮当前参数", "comment": "定位正在填的参数" },
-      { "cmd": "Cmd+P 再按", "comment": "切换参数提示模式" }
-    ],
-    "tags": ["idea", "提示"] },
-  { "id": "idea-goto-declaration", "cmd": "Cmd+B", "cat": "idea", "desc": "跳转到声明",
-    "syntax": "Cmd+B (Cmd+点击)",
-    "args": [],
-    "examples": [
-      { "cmd": "光标放变量上 Cmd+B", "comment": "跳转变量声明" },
-      { "cmd": "光标放方法上 Cmd+B", "comment": "跳转方法定义" },
-      { "cmd": "Cmd+点击调用处", "comment": "等价操作" },
-      { "cmd": "Cmd+B 再 Cmd+Opt+←", "comment": "跳转后返回" }
-    ],
-    "tags": ["idea", "导航"] },
-  { "id": "idea-goto-implementation", "cmd": "Cmd+Opt+B", "cat": "idea", "desc": "跳转到实现",
-    "syntax": "Cmd+Opt+B",
-    "args": [],
-    "examples": [
-      { "cmd": "接口方法上 Cmd+Opt+B", "comment": "跳转到实现类" },
-      { "cmd": "抽象方法上 Cmd+Opt+B", "comment": "列出所有实现" },
-      { "cmd": "Cmd+Opt+B 选实现", "comment": "多实现时选择" }
-    ],
-    "tags": ["idea", "导航"] },
-  { "id": "idea-file-structure", "cmd": "Cmd+F12", "cat": "idea", "desc": "文件结构弹窗",
-    "syntax": "Cmd+F12",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+F12", "comment": "弹出文件结构" },
-      { "cmd": "Cmd+F12 输入方法名", "comment": "快速过滤方法" },
-      { "cmd": "Cmd+F12 回车", "comment": "跳到选中成员" },
-      { "cmd": "Cmd+F12 选字段", "comment": "查看字段列表" }
-    ],
-    "tags": ["idea", "结构"] },
-  { "id": "idea-highlight-usage", "cmd": "Cmd+Shift+F7", "cat": "idea", "desc": "高亮所有用法",
-    "syntax": "Cmd+Shift+F7",
-    "args": [],
-    "examples": [
-      { "cmd": "光标放变量上 Cmd+Shift+F7", "comment": "高亮全部引用" },
-      { "cmd": "Cmd+Shift+F7 后 Esc", "comment": "取消高亮" },
-      { "cmd": "F3 在引用间切换", "comment": "逐个跳转" }
-    ],
-    "tags": ["idea", "高亮"] },
-  { "id": "idea-next-occurrence", "cmd": "Cmd+G", "cat": "idea", "desc": "下一个/上一个出现处",
-    "syntax": "Cmd+G (下一个) / Cmd+Shift+G (上一个)",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+G", "comment": "下一个出现处" },
-      { "cmd": "Cmd+Shift+G", "comment": "上一个出现处" },
-      { "cmd": "高亮后 Cmd+G", "comment": "沿引用逐个浏览" }
-    ],
-    "tags": ["idea", "导航"] },
-  { "id": "idea-last-edit", "cmd": "Cmd+Shift+Backspace", "cat": "idea", "desc": "回到上次编辑位置",
-    "syntax": "Cmd+Shift+Backspace",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+Backspace", "comment": "跳回上次编辑处" },
-      { "cmd": "连按", "comment": "在编辑位置间切换" }
-    ],
-    "tags": ["idea", "编辑"] },
-  { "id": "idea-back-forward", "cmd": "Cmd+Opt+←/→", "cat": "idea", "desc": "后退/前进导航",
-    "syntax": "Cmd+Opt+← (后退) / Cmd+Opt+→ (前进)",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Opt+←", "comment": "后退到上一个位置" },
-      { "cmd": "Cmd+Opt+→", "comment": "前进" },
-      { "cmd": "跳转定义后 Cmd+Opt+←", "comment": "返回调用处" }
-    ],
-    "tags": ["idea", "导航"] },
-  { "id": "idea-maximize-editor", "cmd": "Cmd+Shift+F12", "cat": "idea", "desc": "最大化编辑器",
-    "syntax": "Cmd+Shift+F12",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Shift+F12", "comment": "隐藏所有工具窗格" },
-      { "cmd": "再按 Cmd+Shift+F12", "comment": "恢复窗格" }
-    ],
-    "tags": ["idea", "窗口"] },
-  { "id": "idea-intention", "cmd": "Opt+Enter", "cat": "idea", "desc": "显示意图动作",
-    "syntax": "Opt+Enter",
-    "args": [],
-    "examples": [
-      { "cmd": "光标放代码上 Opt+Enter", "comment": "显示上下文动作" },
-      { "cmd": "字符串处 Opt+Enter", "comment": "格式化/语言注入" },
-      { "cmd": "Test 注解处 Opt+Enter", "comment": "创建测试" }
-    ],
-    "tags": ["idea", "动作"] },
-  { "id": "idea-close-tab", "cmd": "Cmd+W", "cat": "idea", "desc": "关闭当前标签页",
-    "syntax": "Cmd+W",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+W", "comment": "关闭当前标签" },
-      { "cmd": "Cmd+Shift+W", "comment": "关闭最近关闭的标签" },
-      { "cmd": "Cmd+Alt+S 关闭其他标签", "comment": "右键菜单选项" }
-    ],
-    "tags": ["idea", "标签"] },
-  { "id": "idea-rename", "cmd": "Shift+F6", "cat": "idea", "desc": "重命名(全局引用)",
-    "syntax": "Shift+F6",
-    "args": [],
-    "examples": [
-      { "cmd": "光标放变量上 Shift+F6", "comment": "重命名变量(全局)" },
-      { "cmd": "光标放方法上 Shift+F6", "comment": "重命名方法" },
-      { "cmd": "Shift+F6 勾选预览", "comment": "预览全部引用" },
-      { "cmd": "Shift+F6 改类名", "comment": "自动改文件名" }
-    ],
-    "tags": ["idea", "重构"] },
-  { "id": "idea-extract-variable", "cmd": "Cmd+Opt+V", "cat": "idea", "desc": "提取变量",
-    "syntax": "Cmd+Opt+V",
-    "args": [],
-    "examples": [
-      { "cmd": "选中表达式 Cmd+Opt+V", "comment": "提取为变量" },
-      { "cmd": "选中重复表达式提取", "comment": "消除重复代码" },
-      { "cmd": "Cmd+Opt+V 输入变量名", "comment": "命名变量" }
-    ],
-    "tags": ["idea", "重构"] },
-  { "id": "idea-extract-method", "cmd": "Cmd+Opt+M", "cat": "idea", "desc": "提取方法",
-    "syntax": "Cmd+Opt+M",
-    "args": [],
-    "examples": [
-      { "cmd": "选中代码块 Cmd+Opt+M", "comment": "提取为方法" },
-      { "cmd": "Cmd+Opt+M 自动检测参数", "comment": "自动生成签名" },
-      { "cmd": "Cmd+Opt+M 勾选委托", "comment": "保留原方法委托" }
-    ],
-    "tags": ["idea", "重构"] },
-  { "id": "idea-toggle-case", "cmd": "Cmd+Shift+U", "cat": "idea", "desc": "大小写切换",
-    "syntax": "Cmd+Shift+U",
-    "args": [],
-    "examples": [
-      { "cmd": "选中文本 Cmd+Shift+U", "comment": "切换大小写" },
-      { "cmd": "光标放词上 Cmd+Shift+U", "comment": "切换当前词" },
-      { "cmd": "再按 Cmd+Shift+U", "comment": "还原" }
-    ],
-    "tags": ["idea", "编辑"] },
-  { "id": "idea-optimize-imports", "cmd": "Cmd+Opt+O", "cat": "idea", "desc": "优化导入",
-    "syntax": "Cmd+Opt+O",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Opt+O", "comment": "清理未使用导入" },
-      { "cmd": "Ctrl+Alt+Shift+L", "comment": "格式化并优化导入" },
-      { "cmd": "编辑时自动优化", "comment": "可在设置中开启" }
-    ],
-    "tags": ["idea", "导入"] },
-  { "id": "idea-complete-statement", "cmd": "Cmd+Shift+Enter", "cat": "idea", "desc": "补全语句",
-    "syntax": "Cmd+Shift+Enter",
-    "args": [],
-    "examples": [
-      { "cmd": "if 后 Cmd+Shift+Enter", "comment": "补全语句结构" },
-      { "cmd": "方法调用后 Cmd+Shift+Enter", "comment": "自动加分号" },
-      { "cmd": "return 处 Cmd+Shift+Enter", "comment": "补全返回值" }
-    ],
-    "tags": ["idea", "补全"] },
-  { "id": "idea-surround-with", "cmd": "Cmd+Opt+T", "cat": "idea", "desc": "环绕代码",
-    "syntax": "Cmd+Opt+T",
-    "args": [],
-    "examples": [
-      { "cmd": "选中代码 Cmd+Opt+T 选 try/catch", "comment": "包裹异常处理" },
-      { "cmd": "Cmd+Opt+T 选 if", "comment": "包裹条件判断" },
-      { "cmd": "Cmd+Opt+T 选 synchronized", "comment": "包裹同步块" },
-      { "cmd": "Cmd+Opt+T 选 for", "comment": "包裹循环" }
-    ],
-    "tags": ["idea", "编辑"] },
-  { "id": "idea-inspect-code", "cmd": "Cmd+Opt+Shift+I", "cat": "idea", "desc": "检查当前文件",
-    "syntax": "Cmd+Opt+Shift+I",
-    "args": [],
-    "examples": [
-      { "cmd": "Cmd+Opt+Shift+I", "comment": "检查当前文件问题" },
-      { "cmd": "Cmd+Opt+Shift+I 选 Profile", "comment": "按方案检查" },
-      { "cmd": "查看 Inspections 结果", "comment": "逐条修复告警" }
-    ],
-    "tags": ["idea", "检查"] }
-]
+{
+  "cat": "idea",
+  "label": "IDEA 快捷键",
+  "order": 13,
+  "commands": [
+    {
+      "id": "idea-search-everywhere",
+      "cmd": "Shift Shift",
+      "cat": "idea",
+      "desc": "全局搜索(Search Everywhere)",
+      "syntax": "Shift 连按两次",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Shift 连按两次 输入类名",
+          "comment": "全局搜类/文件/动作"
+        },
+        {
+          "cmd": "Shift 连按两次 输入 Ctrl+Enter",
+          "comment": "搜文件名"
+        },
+        {
+          "cmd": "Shift 连按两次 输入 /action",
+          "comment": "只搜动作"
+        },
+        {
+          "cmd": "Shift 连按两次 输入 #member",
+          "comment": "搜成员方法"
+        }
+      ],
+      "tags": [
+        "idea",
+        "搜索"
+      ]
+    },
+    {
+      "id": "idea-find-class",
+      "cmd": "Cmd+O",
+      "cat": "idea",
+      "desc": "查找类",
+      "syntax": "Cmd+O",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+O 输入类名",
+          "comment": "按名字找类"
+        },
+        {
+          "cmd": "Cmd+O 输入 UserService",
+          "comment": "跳转 Service 类"
+        },
+        {
+          "cmd": "Cmd+O 支持驼峰缩写",
+          "comment": "US 可匹配 UserService"
+        },
+        {
+          "cmd": "Cmd+O 两次",
+          "comment": "搜索项目外类"
+        }
+      ],
+      "tags": [
+        "idea",
+        "导航"
+      ]
+    },
+    {
+      "id": "idea-generate",
+      "cmd": "Cmd+N",
+      "cat": "idea",
+      "desc": "生成代码(构造器/Getter/Setter)",
+      "syntax": "Cmd+N (编辑器内)",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+N 选 Getter and Setter",
+          "comment": "生成访问器"
+        },
+        {
+          "cmd": "Cmd+N 选 Constructor",
+          "comment": "生成构造器"
+        },
+        {
+          "cmd": "Cmd+N 选 Override Methods",
+          "comment": "生成重写方法"
+        },
+        {
+          "cmd": "Cmd+N 选 equals/hashCode",
+          "comment": "生成比较方法"
+        },
+        {
+          "cmd": "Cmd+N 选 toString",
+          "comment": "生成字符串表示"
+        }
+      ],
+      "tags": [
+        "idea",
+        "生成"
+      ]
+    },
+    {
+      "id": "idea-find-action",
+      "cmd": "Cmd+Shift+A",
+      "cat": "idea",
+      "desc": "查找动作(命令面板)",
+      "syntax": "Cmd+Shift+A",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+A 输入 Format",
+          "comment": "找格式化动作"
+        },
+        {
+          "cmd": "Cmd+Shift+A 输入 New Class",
+          "comment": "新建类"
+        },
+        {
+          "cmd": "Cmd+Shift+A 输入 Settings",
+          "comment": "打开设置"
+        },
+        {
+          "cmd": "Cmd+Shift+A 输入 Run",
+          "comment": "运行配置"
+        }
+      ],
+      "tags": [
+        "idea",
+        "动作"
+      ]
+    },
+    {
+      "id": "idea-find-file",
+      "cmd": "Cmd+Shift+O",
+      "cat": "idea",
+      "desc": "查找文件",
+      "syntax": "Cmd+Shift+O",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+O 输入文件名",
+          "comment": "按名字找文件"
+        },
+        {
+          "cmd": "Cmd+Shift+O 输入 index.html",
+          "comment": "跳转 HTML 文件"
+        },
+        {
+          "cmd": "Cmd+Shift+O 输入 pom.xml",
+          "comment": "找构建文件"
+        },
+        {
+          "cmd": "Cmd+Shift+O 输入 *.sql",
+          "comment": "按后缀过滤"
+        }
+      ],
+      "tags": [
+        "idea",
+        "文件"
+      ]
+    },
+    {
+      "id": "idea-recent-files",
+      "cmd": "Cmd+E",
+      "cat": "idea",
+      "desc": "最近打开的文件",
+      "syntax": "Cmd+E",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+E 上下选择",
+          "comment": "切换最近文件"
+        },
+        {
+          "cmd": "Cmd+E 再输入关键字",
+          "comment": "过滤最近文件"
+        },
+        {
+          "cmd": "Cmd+E 回车",
+          "comment": "打开选中文件"
+        }
+      ],
+      "tags": [
+        "idea",
+        "最近"
+      ]
+    },
+    {
+      "id": "idea-recent-locations",
+      "cmd": "Cmd+Shift+E",
+      "cat": "idea",
+      "desc": "最近编辑的位置",
+      "syntax": "Cmd+Shift+E",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+E",
+          "comment": "查看最近编辑位置"
+        },
+        {
+          "cmd": "Cmd+Shift+E 回车",
+          "comment": "跳回最近编辑点"
+        },
+        {
+          "cmd": "Cmd+Shift+E 选历史版本",
+          "comment": "回到指定编辑状态"
+        }
+      ],
+      "tags": [
+        "idea",
+        "最近"
+      ]
+    },
+    {
+      "id": "idea-quick-fix",
+      "cmd": "Alt+Enter",
+      "cat": "idea",
+      "desc": "显示快速修复",
+      "syntax": "Alt+Enter",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "光标放红色波浪线上 Alt+Enter",
+          "comment": "修复编译错误"
+        },
+        {
+          "cmd": "Alt+Enter 选 Create Class",
+          "comment": "快速创建缺失类"
+        },
+        {
+          "cmd": "Alt+Enter 选 Import",
+          "comment": "快速导入缺失依赖"
+        },
+        {
+          "cmd": "Alt+Enter 选 Suppress",
+          "comment": "忽略告警"
+        },
+        {
+          "cmd": "光标放黄色高亮处 Alt+Enter",
+          "comment": "应用建议优化"
+        }
+      ],
+      "tags": [
+        "idea",
+        "修复"
+      ]
+    },
+    {
+      "id": "idea-format",
+      "cmd": "Cmd+Opt+L",
+      "cat": "idea",
+      "desc": "格式化代码",
+      "syntax": "Cmd+Opt+L",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Opt+L",
+          "comment": "格式化当前文件"
+        },
+        {
+          "cmd": "选中代码后 Cmd+Opt+L",
+          "comment": "只格式化选区"
+        },
+        {
+          "cmd": "Cmd+Opt+L 然后选 Whole file",
+          "comment": "选择格式化范围"
+        },
+        {
+          "cmd": "Ctrl+Alt+Shift+L",
+          "comment": "格式化并优化导入"
+        }
+      ],
+      "tags": [
+        "idea",
+        "格式"
+      ]
+    },
+    {
+      "id": "idea-comment-line",
+      "cmd": "Cmd+/",
+      "cat": "idea",
+      "desc": "行注释切换",
+      "syntax": "Cmd+/",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+/",
+          "comment": "当前行加注释"
+        },
+        {
+          "cmd": "选中多行 Cmd+/",
+          "comment": "批量行注释"
+        },
+        {
+          "cmd": "再按 Cmd+/",
+          "comment": "取消注释"
+        }
+      ],
+      "tags": [
+        "idea",
+        "注释"
+      ]
+    },
+    {
+      "id": "idea-comment-block",
+      "cmd": "Cmd+Opt+/",
+      "cat": "idea",
+      "desc": "块注释切换",
+      "syntax": "Cmd+Opt+/",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "选中代码 Cmd+Opt+/",
+          "comment": "块注释"
+        },
+        {
+          "cmd": "再按 Cmd+Opt+/",
+          "comment": "取消块注释"
+        }
+      ],
+      "tags": [
+        "idea",
+        "注释"
+      ]
+    },
+    {
+      "id": "idea-duplicate-line",
+      "cmd": "Cmd+D",
+      "cat": "idea",
+      "desc": "复制当前行",
+      "syntax": "Cmd+D",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+D",
+          "comment": "复制当前行到下方"
+        },
+        {
+          "cmd": "选中文本 Cmd+D",
+          "comment": "复制选中内容"
+        },
+        {
+          "cmd": "Cmd+D 连按",
+          "comment": "快速复制多行"
+        }
+      ],
+      "tags": [
+        "idea",
+        "编辑"
+      ]
+    },
+    {
+      "id": "idea-delete-line",
+      "cmd": "Cmd+Backspace",
+      "cat": "idea",
+      "desc": "删除当前行",
+      "syntax": "Cmd+Backspace / Cmd+Delete",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Backspace",
+          "comment": "删除当前行"
+        },
+        {
+          "cmd": "选中多行 Cmd+Backspace",
+          "comment": "批量删除"
+        },
+        {
+          "cmd": "Cmd+Backspace 连按",
+          "comment": "连续删行"
+        }
+      ],
+      "tags": [
+        "idea",
+        "编辑"
+      ]
+    },
+    {
+      "id": "idea-move-line",
+      "cmd": "Opt+Shift+↑/↓",
+      "cat": "idea",
+      "desc": "上下移动行",
+      "syntax": "Opt+Shift+↑ / Opt+Shift+↓",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Opt+Shift+↓",
+          "comment": "当前行下移"
+        },
+        {
+          "cmd": "Opt+Shift+↑",
+          "comment": "当前行上移"
+        },
+        {
+          "cmd": "选中多行移动",
+          "comment": "整块移动"
+        }
+      ],
+      "tags": [
+        "idea",
+        "编辑"
+      ]
+    },
+    {
+      "id": "idea-param-info",
+      "cmd": "Cmd+P",
+      "cat": "idea",
+      "desc": "显示参数提示",
+      "syntax": "Cmd+P",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "方法调用处 Cmd+P",
+          "comment": "查看参数列表"
+        },
+        {
+          "cmd": "Cmd+P 高亮当前参数",
+          "comment": "定位正在填的参数"
+        },
+        {
+          "cmd": "Cmd+P 再按",
+          "comment": "切换参数提示模式"
+        }
+      ],
+      "tags": [
+        "idea",
+        "提示"
+      ]
+    },
+    {
+      "id": "idea-goto-declaration",
+      "cmd": "Cmd+B",
+      "cat": "idea",
+      "desc": "跳转到声明",
+      "syntax": "Cmd+B (Cmd+点击)",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "光标放变量上 Cmd+B",
+          "comment": "跳转变量声明"
+        },
+        {
+          "cmd": "光标放方法上 Cmd+B",
+          "comment": "跳转方法定义"
+        },
+        {
+          "cmd": "Cmd+点击调用处",
+          "comment": "等价操作"
+        },
+        {
+          "cmd": "Cmd+B 再 Cmd+Opt+←",
+          "comment": "跳转后返回"
+        }
+      ],
+      "tags": [
+        "idea",
+        "导航"
+      ]
+    },
+    {
+      "id": "idea-goto-implementation",
+      "cmd": "Cmd+Opt+B",
+      "cat": "idea",
+      "desc": "跳转到实现",
+      "syntax": "Cmd+Opt+B",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "接口方法上 Cmd+Opt+B",
+          "comment": "跳转到实现类"
+        },
+        {
+          "cmd": "抽象方法上 Cmd+Opt+B",
+          "comment": "列出所有实现"
+        },
+        {
+          "cmd": "Cmd+Opt+B 选实现",
+          "comment": "多实现时选择"
+        }
+      ],
+      "tags": [
+        "idea",
+        "导航"
+      ]
+    },
+    {
+      "id": "idea-file-structure",
+      "cmd": "Cmd+F12",
+      "cat": "idea",
+      "desc": "文件结构弹窗",
+      "syntax": "Cmd+F12",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+F12",
+          "comment": "弹出文件结构"
+        },
+        {
+          "cmd": "Cmd+F12 输入方法名",
+          "comment": "快速过滤方法"
+        },
+        {
+          "cmd": "Cmd+F12 回车",
+          "comment": "跳到选中成员"
+        },
+        {
+          "cmd": "Cmd+F12 选字段",
+          "comment": "查看字段列表"
+        }
+      ],
+      "tags": [
+        "idea",
+        "结构"
+      ]
+    },
+    {
+      "id": "idea-highlight-usage",
+      "cmd": "Cmd+Shift+F7",
+      "cat": "idea",
+      "desc": "高亮所有用法",
+      "syntax": "Cmd+Shift+F7",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "光标放变量上 Cmd+Shift+F7",
+          "comment": "高亮全部引用"
+        },
+        {
+          "cmd": "Cmd+Shift+F7 后 Esc",
+          "comment": "取消高亮"
+        },
+        {
+          "cmd": "F3 在引用间切换",
+          "comment": "逐个跳转"
+        }
+      ],
+      "tags": [
+        "idea",
+        "高亮"
+      ]
+    },
+    {
+      "id": "idea-next-occurrence",
+      "cmd": "Cmd+G",
+      "cat": "idea",
+      "desc": "下一个/上一个出现处",
+      "syntax": "Cmd+G (下一个) / Cmd+Shift+G (上一个)",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+G",
+          "comment": "下一个出现处"
+        },
+        {
+          "cmd": "Cmd+Shift+G",
+          "comment": "上一个出现处"
+        },
+        {
+          "cmd": "高亮后 Cmd+G",
+          "comment": "沿引用逐个浏览"
+        }
+      ],
+      "tags": [
+        "idea",
+        "导航"
+      ]
+    },
+    {
+      "id": "idea-last-edit",
+      "cmd": "Cmd+Shift+Backspace",
+      "cat": "idea",
+      "desc": "回到上次编辑位置",
+      "syntax": "Cmd+Shift+Backspace",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+Backspace",
+          "comment": "跳回上次编辑处"
+        },
+        {
+          "cmd": "连按",
+          "comment": "在编辑位置间切换"
+        }
+      ],
+      "tags": [
+        "idea",
+        "编辑"
+      ]
+    },
+    {
+      "id": "idea-back-forward",
+      "cmd": "Cmd+Opt+←/→",
+      "cat": "idea",
+      "desc": "后退/前进导航",
+      "syntax": "Cmd+Opt+← (后退) / Cmd+Opt+→ (前进)",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Opt+←",
+          "comment": "后退到上一个位置"
+        },
+        {
+          "cmd": "Cmd+Opt+→",
+          "comment": "前进"
+        },
+        {
+          "cmd": "跳转定义后 Cmd+Opt+←",
+          "comment": "返回调用处"
+        }
+      ],
+      "tags": [
+        "idea",
+        "导航"
+      ]
+    },
+    {
+      "id": "idea-maximize-editor",
+      "cmd": "Cmd+Shift+F12",
+      "cat": "idea",
+      "desc": "最大化编辑器",
+      "syntax": "Cmd+Shift+F12",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Shift+F12",
+          "comment": "隐藏所有工具窗格"
+        },
+        {
+          "cmd": "再按 Cmd+Shift+F12",
+          "comment": "恢复窗格"
+        }
+      ],
+      "tags": [
+        "idea",
+        "窗口"
+      ]
+    },
+    {
+      "id": "idea-intention",
+      "cmd": "Opt+Enter",
+      "cat": "idea",
+      "desc": "显示意图动作",
+      "syntax": "Opt+Enter",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "光标放代码上 Opt+Enter",
+          "comment": "显示上下文动作"
+        },
+        {
+          "cmd": "字符串处 Opt+Enter",
+          "comment": "格式化/语言注入"
+        },
+        {
+          "cmd": "Test 注解处 Opt+Enter",
+          "comment": "创建测试"
+        }
+      ],
+      "tags": [
+        "idea",
+        "动作"
+      ]
+    },
+    {
+      "id": "idea-close-tab",
+      "cmd": "Cmd+W",
+      "cat": "idea",
+      "desc": "关闭当前标签页",
+      "syntax": "Cmd+W",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+W",
+          "comment": "关闭当前标签"
+        },
+        {
+          "cmd": "Cmd+Shift+W",
+          "comment": "关闭最近关闭的标签"
+        },
+        {
+          "cmd": "Cmd+Alt+S 关闭其他标签",
+          "comment": "右键菜单选项"
+        }
+      ],
+      "tags": [
+        "idea",
+        "标签"
+      ]
+    },
+    {
+      "id": "idea-rename",
+      "cmd": "Shift+F6",
+      "cat": "idea",
+      "desc": "重命名(全局引用)",
+      "syntax": "Shift+F6",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "光标放变量上 Shift+F6",
+          "comment": "重命名变量(全局)"
+        },
+        {
+          "cmd": "光标放方法上 Shift+F6",
+          "comment": "重命名方法"
+        },
+        {
+          "cmd": "Shift+F6 勾选预览",
+          "comment": "预览全部引用"
+        },
+        {
+          "cmd": "Shift+F6 改类名",
+          "comment": "自动改文件名"
+        }
+      ],
+      "tags": [
+        "idea",
+        "重构"
+      ]
+    },
+    {
+      "id": "idea-extract-variable",
+      "cmd": "Cmd+Opt+V",
+      "cat": "idea",
+      "desc": "提取变量",
+      "syntax": "Cmd+Opt+V",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "选中表达式 Cmd+Opt+V",
+          "comment": "提取为变量"
+        },
+        {
+          "cmd": "选中重复表达式提取",
+          "comment": "消除重复代码"
+        },
+        {
+          "cmd": "Cmd+Opt+V 输入变量名",
+          "comment": "命名变量"
+        }
+      ],
+      "tags": [
+        "idea",
+        "重构"
+      ]
+    },
+    {
+      "id": "idea-extract-method",
+      "cmd": "Cmd+Opt+M",
+      "cat": "idea",
+      "desc": "提取方法",
+      "syntax": "Cmd+Opt+M",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "选中代码块 Cmd+Opt+M",
+          "comment": "提取为方法"
+        },
+        {
+          "cmd": "Cmd+Opt+M 自动检测参数",
+          "comment": "自动生成签名"
+        },
+        {
+          "cmd": "Cmd+Opt+M 勾选委托",
+          "comment": "保留原方法委托"
+        }
+      ],
+      "tags": [
+        "idea",
+        "重构"
+      ]
+    },
+    {
+      "id": "idea-toggle-case",
+      "cmd": "Cmd+Shift+U",
+      "cat": "idea",
+      "desc": "大小写切换",
+      "syntax": "Cmd+Shift+U",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "选中文本 Cmd+Shift+U",
+          "comment": "切换大小写"
+        },
+        {
+          "cmd": "光标放词上 Cmd+Shift+U",
+          "comment": "切换当前词"
+        },
+        {
+          "cmd": "再按 Cmd+Shift+U",
+          "comment": "还原"
+        }
+      ],
+      "tags": [
+        "idea",
+        "编辑"
+      ]
+    },
+    {
+      "id": "idea-optimize-imports",
+      "cmd": "Cmd+Opt+O",
+      "cat": "idea",
+      "desc": "优化导入",
+      "syntax": "Cmd+Opt+O",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Opt+O",
+          "comment": "清理未使用导入"
+        },
+        {
+          "cmd": "Ctrl+Alt+Shift+L",
+          "comment": "格式化并优化导入"
+        },
+        {
+          "cmd": "编辑时自动优化",
+          "comment": "可在设置中开启"
+        }
+      ],
+      "tags": [
+        "idea",
+        "导入"
+      ]
+    },
+    {
+      "id": "idea-complete-statement",
+      "cmd": "Cmd+Shift+Enter",
+      "cat": "idea",
+      "desc": "补全语句",
+      "syntax": "Cmd+Shift+Enter",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "if 后 Cmd+Shift+Enter",
+          "comment": "补全语句结构"
+        },
+        {
+          "cmd": "方法调用后 Cmd+Shift+Enter",
+          "comment": "自动加分号"
+        },
+        {
+          "cmd": "return 处 Cmd+Shift+Enter",
+          "comment": "补全返回值"
+        }
+      ],
+      "tags": [
+        "idea",
+        "补全"
+      ]
+    },
+    {
+      "id": "idea-surround-with",
+      "cmd": "Cmd+Opt+T",
+      "cat": "idea",
+      "desc": "环绕代码",
+      "syntax": "Cmd+Opt+T",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "选中代码 Cmd+Opt+T 选 try/catch",
+          "comment": "包裹异常处理"
+        },
+        {
+          "cmd": "Cmd+Opt+T 选 if",
+          "comment": "包裹条件判断"
+        },
+        {
+          "cmd": "Cmd+Opt+T 选 synchronized",
+          "comment": "包裹同步块"
+        },
+        {
+          "cmd": "Cmd+Opt+T 选 for",
+          "comment": "包裹循环"
+        }
+      ],
+      "tags": [
+        "idea",
+        "编辑"
+      ]
+    },
+    {
+      "id": "idea-inspect-code",
+      "cmd": "Cmd+Opt+Shift+I",
+      "cat": "idea",
+      "desc": "检查当前文件",
+      "syntax": "Cmd+Opt+Shift+I",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "Cmd+Opt+Shift+I",
+          "comment": "检查当前文件问题"
+        },
+        {
+          "cmd": "Cmd+Opt+Shift+I 选 Profile",
+          "comment": "按方案检查"
+        },
+        {
+          "cmd": "查看 Inspections 结果",
+          "comment": "逐条修复告警"
+        }
+      ],
+      "tags": [
+        "idea",
+        "检查"
+      ]
+    }
+  ]
+}

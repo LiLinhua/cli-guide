@@ -37,7 +37,7 @@ check('十三分类齐全', new Set(cmds.map(c => c.cat)).size === 13);
 check('three UMD 已内联', html.includes('WebGLRenderer'));
 check('web shim 已内联(window.cliGuide)', html.includes('window.cliGuide'));
 check('桌宠模块已内联', html.includes('骷髅头骨桌宠'));
-check('面板模块已内联', html.includes('CAT_LABELS'));
+check('面板模块已内联', html.includes('renderCats'));
 check('入口模块已内联', html.includes('DOMContentLoaded'));
 
 /* 5. 脚本内容无 HTML 闭合泄漏 */
@@ -47,6 +47,14 @@ check('无未转义闭合泄漏', !/<\/script><\/script>/.test(html));
 
 /* 6. 覆盖样式生效(面板常驻居中 + 移除桌宠) */
 check('Web 覆盖样式已注入', html.includes('#pet-root { display: none') && html.includes('#panel-root {'));
+
+/* 7. 分类元数据内联 */
+const mc = html.match(/window\.__CATEGORIES__ = (\[.*?\]);\n<\/script>/s);
+check('__CATEGORIES__ 已内联', !!mc);
+let cats = [];
+if (mc) { try { cats = JSON.parse(mc[1]); } catch (e) { check('__CATEGORIES__ JSON 可解析', false); } }
+check('13 个分类齐全且带 key/label', cats.length === 13 && cats.every(c => c.key && c.label));
+check('分类顺序 linux 最前', cats[0] && cats[0].key === 'linux');
 
 fs.unlinkSync(out);
 console.log(fail === 0 ? '\n===== 全部通过 =====' : '\n===== 存在 ' + fail + ' 个失败 =====');

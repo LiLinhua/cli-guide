@@ -1,241 +1,855 @@
-[
-  { "id": "kafka-server-start", "cmd": "kafka-server-start", "cat": "kafka", "desc": "启动 Kafka broker",
-    "syntax": "kafka-server-start <server.properties> [-daemon]",
-    "args": [ { "name": "-daemon", "desc": "后台运行" } ],
-    "examples": [
-      { "cmd": "kafka-server-start -daemon config/server.properties", "comment": "后台启动 broker" },
-      { "cmd": "kafka-server-start config/server.properties", "comment": "前台启动(看日志)" },
-      { "cmd": "kafka-server-start -daemon config/server-1.properties", "comment": "多 broker 集群启动" },
-      { "cmd": "kafka-server-start -daemon config/server.properties > /tmp/kafka.log 2>&1 &", "comment": "自定义日志启动" },
-      { "cmd": "kafka-server-start -daemon config/server.properties -override log.retention.hours=72", "comment": "启动时覆盖配置" }
-    ],
-    "tags": ["kafka", "broker", "启动"] },
-  { "id": "kafka-server-stop", "cmd": "kafka-server-stop", "cat": "kafka", "desc": "停止 Kafka broker",
-    "syntax": "kafka-server-stop", "args": [],
-    "examples": [
-      { "cmd": "kafka-server-stop", "comment": "优雅停止所有 broker" },
-      { "cmd": "kill -TERM $(cat /tmp/kafka.pid)", "comment": "按 PID 优雅停止" },
-      { "cmd": "jps -l | grep kafka", "comment": "查找 Kafka 进程" },
-      { "cmd": "kafka-server-stop; sleep 3; pgrep -f kafka.Kafka || echo stopped", "comment": "停止后确认退出" }
-    ],
-    "tags": ["kafka", "broker", "停止"] },
-  { "id": "kafka-topics-create", "cmd": "kafka-topics --create", "cat": "kafka", "desc": "创建主题",
-    "syntax": "kafka-topics --create --topic <name> --bootstrap-server <host:port> [--partitions N] [--replication-factor N]",
-    "args": [ { "name": "--partitions", "desc": "分区数" }, { "name": "--replication-factor", "desc": "副本数" } ],
-    "examples": [
-      { "cmd": "kafka-topics --create --topic orders --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1", "comment": "创建 3 分区主题" },
-      { "cmd": "kafka-topics --create --topic orders --bootstrap-server localhost:9092 --partitions 6 --replication-factor 3 --config retention.ms=86400000", "comment": "生产级配置创建" },
-      { "cmd": "kafka-topics --create --topic compact-topic --bootstrap-server localhost:9092 --config cleanup.policy=compact", "comment": "紧凑日志主题" },
-      { "cmd": "kafka-topics --create --topic orders --bootstrap-server localhost:9092 --if-not-exists", "comment": "存在则跳过" },
-      { "cmd": "kafka-topics --create --topic events --bootstrap-server localhost:9092 --replica-assignment 0:1,1:2,2:0", "comment": "手动指定副本分布" }
-    ],
-    "tags": ["kafka", "主题"] },
-  { "id": "kafka-topics-list", "cmd": "kafka-topics --list", "cat": "kafka", "desc": "列出所有主题",
-    "syntax": "kafka-topics --list --bootstrap-server <host:port>", "args": [],
-    "examples": [
-      { "cmd": "kafka-topics --list --bootstrap-server localhost:9092", "comment": "查看全部主题名" },
-      { "cmd": "kafka-topics --list --bootstrap-server localhost:9092 --exclude-internal", "comment": "排除内部主题" },
-      { "cmd": "kafka-topics --list --bootstrap-server localhost:9092 | grep orders", "comment": "按名过滤" },
-      { "cmd": "kafka-topics --list --bootstrap-server localhost:9092 | wc -l", "comment": "统计主题数量" }
-    ],
-    "tags": ["kafka", "主题", "列表"] },
-  { "id": "kafka-topics-describe", "cmd": "kafka-topics --describe", "cat": "kafka", "desc": "查看主题详情",
-    "syntax": "kafka-topics --describe --topic <name> --bootstrap-server <host:port>",
-    "args": [ { "name": "--topic", "desc": "指定主题" } ],
-    "examples": [
-      { "cmd": "kafka-topics --describe --topic orders --bootstrap-server localhost:9092", "comment": "查看分区与副本分布" },
-      { "cmd": "kafka-topics --describe --bootstrap-server localhost:9092", "comment": "查看全部主题详情" },
-      { "cmd": "kafka-topics --describe --topic orders --bootstrap-server localhost:9092 --under-replicated-partitions", "comment": "只找副本不足的分区" },
-      { "cmd": "kafka-topics --describe --topic orders --bootstrap-server localhost:9092 | head -20", "comment": "只查 Leader 分布" }
-    ],
-    "tags": ["kafka", "主题", "监控"] },
-  { "id": "kafka-topics-alter", "cmd": "kafka-topics --alter", "cat": "kafka", "desc": "修改主题配置",
-    "syntax": "kafka-topics --alter --topic <name> --partitions N --bootstrap-server <host:port>",
-    "args": [ { "name": "--partitions", "desc": "新分区数(只能增加)" } ],
-    "examples": [
-      { "cmd": "kafka-topics --alter --topic orders --partitions 6 --bootstrap-server localhost:9092", "comment": "扩容到 6 分区" },
-      { "cmd": "kafka-topics --alter --topic orders --config retention.ms=604800000 --bootstrap-server localhost:9092", "comment": "改保留时间为 7 天" },
-      { "cmd": "kafka-topics --alter --topic orders --delete-config retention.ms --bootstrap-server localhost:9092", "comment": "删除自定义配置" },
-      { "cmd": "kafka-topics --alter --topic orders --partitions 12 --bootstrap-server localhost:9092 --validate-only", "comment": "只校验不执行" }
-    ],
-    "tags": ["kafka", "主题"] },
-  { "id": "kafka-topics-delete", "cmd": "kafka-topics --delete", "cat": "kafka", "desc": "删除主题",
-    "syntax": "kafka-topics --delete --topic <name> --bootstrap-server <host:port>", "args": [],
-    "examples": [
-      { "cmd": "kafka-topics --delete --topic orders --bootstrap-server localhost:9092", "comment": "删除 orders 主题(需开启删除开关)" },
-      { "cmd": "kafka-topics --delete --topic orders --bootstrap-server localhost:9092 && kafka-topics --list --bootstrap-server localhost:9092", "comment": "删除后确认列表" },
-      { "cmd": "kafka-topics --delete --topic orders --bootstrap-server localhost:9092 --if-exists", "comment": "存在才删除" }
-    ],
-    "tags": ["kafka", "主题", "删除"] },
-  { "id": "kafka-console-producer", "cmd": "kafka-console-producer", "cat": "kafka", "desc": "命令行生产消息",
-    "syntax": "kafka-console-producer --topic <name> --bootstrap-server <host:port>",
-    "args": [ { "name": "--property key.separator=:", "desc": "键值分隔符" } ],
-    "examples": [
-      { "cmd": "echo 'hello kafka' | kafka-console-producer --topic orders --bootstrap-server localhost:9092", "comment": "发送一条消息" },
-      { "cmd": "kafka-console-producer --topic orders --bootstrap-server localhost:9092", "comment": "交互式逐行发送" },
-      { "cmd": "cat data.txt | kafka-console-producer --topic orders --bootstrap-server localhost:9092", "comment": "批量发送文件内容" },
-      { "cmd": "echo 'key1:value1' | kafka-console-producer --topic orders --bootstrap-server localhost:9092 --property key.separator=: --property parse.key=true", "comment": "带键发送消息" },
-      { "cmd": "seq 1 100 | kafka-console-producer --topic orders --bootstrap-server localhost:9092 --property compression.type=gzip", "comment": "gzip 压缩发送 100 条" },
-      { "cmd": "echo '{\"id\":1}' | kafka-console-producer --topic orders --bootstrap-server localhost:9092 --producer-property acks=all", "comment": "全副本确认发送" }
-    ],
-    "tags": ["kafka", "生产"] },
-  { "id": "kafka-console-consumer", "cmd": "kafka-console-consumer", "cat": "kafka", "desc": "命令行消费消息",
-    "syntax": "kafka-console-consumer --topic <name> --bootstrap-server <host:port> [--from-beginning] [--group <g>]",
-    "args": [ { "name": "--from-beginning", "desc": "从头开始读" }, { "name": "--group", "desc": "指定消费组" } ],
-    "examples": [
-      { "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --from-beginning", "comment": "从头消费所有消息" },
-      { "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --group debug-app", "comment": "按消费组消费" },
-      { "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --property print.key=true --property key.separator=' | '", "comment": "打印键值对" },
-      { "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --partition 0 --offset 100", "comment": "指定分区偏移消费" },
-      { "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --max-messages 10", "comment": "只消费 10 条退出" },
-      { "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --timeout-ms 5000", "comment": "无消息 5 秒后退出" }
-    ],
-    "tags": ["kafka", "消费"] },
-  { "id": "kafka-consumer-groups-list", "cmd": "kafka-consumer-groups --list", "cat": "kafka", "desc": "列出消费组",
-    "syntax": "kafka-consumer-groups --list --bootstrap-server <host:port>", "args": [],
-    "examples": [
-      { "cmd": "kafka-consumer-groups --list --bootstrap-server localhost:9092", "comment": "查看所有消费组" },
-      { "cmd": "kafka-consumer-groups --list --bootstrap-server localhost:9092 --state stable", "comment": "只列运行稳定的组" },
-      { "cmd": "kafka-consumer-groups --list --bootstrap-server localhost:9092 | grep my-app", "comment": "按应用名过滤" }
-    ],
-    "tags": ["kafka", "消费组"] },
-  { "id": "kafka-consumer-groups-describe", "cmd": "kafka-consumer-groups --describe", "cat": "kafka", "desc": "查看消费组详情",
-    "syntax": "kafka-consumer-groups --describe --group <g> --bootstrap-server <host:port>",
-    "args": [ { "name": "--group", "desc": "消费组名" } ],
-    "examples": [
-      { "cmd": "kafka-consumer-groups --describe --group my-app --bootstrap-server localhost:9092", "comment": "查看滞后量(LAG)" },
-      { "cmd": "kafka-consumer-groups --describe --group my-app --bootstrap-server localhost:9092 --members", "comment": "查看组成员与分配" },
-      { "cmd": "kafka-consumer-groups --describe --group my-app --bootstrap-server localhost:9092 --state", "comment": "查看组状态" },
-      { "cmd": "kafka-consumer-groups --describe --group my-app --bootstrap-server localhost:9092 | awk 'NR>2 && $6!=0'", "comment": "筛选有滞后的分区" }
-    ],
-    "tags": ["kafka", "消费组", "监控"] },
-  { "id": "kafka-consumer-groups-reset", "cmd": "kafka-consumer-groups --reset-offsets", "cat": "kafka", "desc": "重置消费偏移",
-    "syntax": "kafka-consumer-groups --reset-offsets --group <g> --topic <t> --to-earliest --execute --bootstrap-server <host:port>",
-    "args": [ { "name": "--to-earliest", "desc": "重置到最早" }, { "name": "--execute", "desc": "执行(不加只预览)" } ],
-    "examples": [
-      { "cmd": "kafka-consumer-groups --reset-offsets --group my-app --topic orders --to-earliest --execute --bootstrap-server localhost:9092", "comment": "消费组从头重放" },
-      { "cmd": "kafka-consumer-groups --reset-offsets --group my-app --topic orders --to-offset 1000 --execute --bootstrap-server localhost:9092", "comment": "重置到指定偏移" },
-      { "cmd": "kafka-consumer-groups --reset-offsets --group my-app --topic orders --to-latest --bootstrap-server localhost:9092", "comment": "预览重置到最新(不执行)" },
-      { "cmd": "kafka-consumer-groups --reset-offsets --group my-app --topic orders --shift-by -500 --execute --bootstrap-server localhost:9092", "comment": "回退 500 条重消费" },
-      { "cmd": "kafka-consumer-groups --reset-offsets --group my-app --topic orders --to-datetime 2026-08-13T00:00:00.000 --execute --bootstrap-server localhost:9092", "comment": "重置到指定时间点" }
-    ],
-    "tags": ["kafka", "消费组", "运维"] },
-  { "id": "kafka-configs-alter", "cmd": "kafka-configs --alter", "cat": "kafka", "desc": "修改主题/broker 配置",
-    "syntax": "kafka-configs --alter --entity-type topics --entity-name <t> --add-config <k=v> --bootstrap-server <host:port>",
-    "args": [ { "name": "--add-config", "desc": "添加配置项" } ],
-    "examples": [
-      { "cmd": "kafka-configs --alter --entity-type topics --entity-name orders --add-config retention.ms=86400000 --bootstrap-server localhost:9092", "comment": "消息保留 1 天" },
-      { "cmd": "kafka-configs --alter --entity-type topics --entity-name orders --add-config max.message.bytes=10485760 --bootstrap-server localhost:9092", "comment": "单条消息上限 10MB" },
-      { "cmd": "kafka-configs --alter --entity-type topics --entity-name orders --delete-config retention.ms --bootstrap-server localhost:9092", "comment": "删除配置恢复默认" },
-      { "cmd": "kafka-configs --alter --entity-type brokers --entity-name 0 --add-config log.retention.hours=24 --bootstrap-server localhost:9092", "comment": "改 broker 级保留时间" },
-      { "cmd": "kafka-configs --alter --entity-type topics --entity-name orders --add-config cleanup.policy=compact --bootstrap-server localhost:9092", "comment": "切换为紧凑日志" }
-    ],
-    "tags": ["kafka", "配置"] },
-  { "id": "kafka-configs-describe", "cmd": "kafka-configs --describe", "cat": "kafka", "desc": "查看实体配置",
-    "syntax": "kafka-configs --describe --entity-type topics --entity-name <t> --bootstrap-server <host:port>", "args": [],
-    "examples": [
-      { "cmd": "kafka-configs --describe --entity-type topics --entity-name orders --bootstrap-server localhost:9092", "comment": "查看主题覆盖配置" },
-      { "cmd": "kafka-configs --describe --entity-type brokers --bootstrap-server localhost:9092", "comment": "查看全部 broker 配置" },
-      { "cmd": "kafka-configs --describe --entity-type clients --bootstrap-server localhost:9092", "comment": "查看客户端配额" },
-      { "cmd": "kafka-configs --describe --entity-type topics --bootstrap-server localhost:9092 --entity-default", "comment": "查看默认配置" }
-    ],
-    "tags": ["kafka", "配置"] },
-  { "id": "kafka-acls", "cmd": "kafka-acls", "cat": "kafka", "desc": "管理访问控制列表",
-    "syntax": "kafka-acls --add --allow-principal User:<name> --operation Read --topic <t> --bootstrap-server <host:port>",
-    "args": [ { "name": "--add", "desc": "添加 ACL" }, { "name": "--list", "desc": "列出 ACL" } ],
-    "examples": [
-      { "cmd": "kafka-acls --add --allow-principal User:alice --operation Read --topic orders --bootstrap-server localhost:9092", "comment": "给 alice 读权限" },
-      { "cmd": "kafka-acls --add --allow-principal User:producer --operation Write --topic orders --bootstrap-server localhost:9092", "comment": "给生产者写权限" },
-      { "cmd": "kafka-acls --add --allow-principal User:admin --operation All --topic '*' --bootstrap-server localhost:9092", "comment": "管理员全部主题权限" },
-      { "cmd": "kafka-acls --remove --allow-principal User:alice --operation Read --topic orders --bootstrap-server localhost:9092", "comment": "撤销读权限" },
-      { "cmd": "kafka-acls --list --bootstrap-server localhost:9092", "comment": "列出全部 ACL" }
-    ],
-    "tags": ["kafka", "权限"] },
-  { "id": "kafka-reassign-partitions", "cmd": "kafka-reassign-partitions", "cat": "kafka", "desc": "分区副本重分配",
-    "syntax": "kafka-reassign-partitions --reassignment-json-file <file.json> --execute --bootstrap-server <host:port>",
-    "args": [ { "name": "--execute", "desc": "执行" }, { "name": "--verify", "desc": "校验结果" } ],
-    "examples": [
-      { "cmd": "kafka-reassign-partitions --reassignment-json-file plan.json --execute --bootstrap-server localhost:9092", "comment": "按计划迁移分区" },
-      { "cmd": "kafka-reassign-partitions --reassignment-json-file plan.json --verify --bootstrap-server localhost:9092", "comment": "校验迁移进度" },
-      { "cmd": "kafka-reassign-partitions --reassignment-json-file plan.json --bootstrap-server localhost:9092", "comment": "预览迁移方案" },
-      { "cmd": "kafka-reassign-partitions --generate --topics-to-move-json-file topics.json --broker-list 1,2,3 --bootstrap-server localhost:9092", "comment": "自动生成迁移方案" },
-      { "cmd": "kafka-reassign-partitions --reassignment-json-file plan.json --execute --bootstrap-server localhost:9092 --throttle 50000000", "comment": "限速执行(50MB/s)" }
-    ],
-    "tags": ["kafka", "运维"] },
-  { "id": "kafka-dump-log", "cmd": "kafka-dump-log", "cat": "kafka", "desc": "解析日志文件内容",
-    "syntax": "kafka-dump-log --files <log-dir>/<partition>/00000000000000000000.log",
-    "args": [ { "name": "--print-data-log", "desc": "打印消息内容" } ],
-    "examples": [
-      { "cmd": "kafka-dump-log --files /tmp/kafka-logs/orders-0/00000000000000000000.log --print-data-log", "comment": "查看分区日志消息" },
-      { "cmd": "kafka-dump-log --files /tmp/kafka-logs/orders-0/00000000000000000000.log", "comment": "只看日志索引信息" },
-      { "cmd": "kafka-dump-log --files /tmp/kafka-logs/orders-0/00000000000000000000.log --deep-iteration", "comment": "深度迭代校验消息" },
-      { "cmd": "kafka-dump-log --files /tmp/kafka-logs/orders-0/00000000000000000000.log --print-data-log --key-decoder-class org.apache.kafka.common.serialization.StringDeserializer", "comment": "字符串解码查看键" }
-    ],
-    "tags": ["kafka", "调试"] },
-  { "id": "kafka-get-offsets", "cmd": "kafka-get-offsets", "cat": "kafka", "desc": "获取分区最新偏移",
-    "syntax": "kafka-get-offsets --topic <t> --bootstrap-server <host:port>",
-    "args": [ { "name": "--time -1", "desc": "最新偏移" } ],
-    "examples": [
-      { "cmd": "kafka-get-offsets --topic orders --bootstrap-server localhost:9092", "comment": "查看各分区最新偏移" },
-      { "cmd": "kafka-get-offsets --topic orders --bootstrap-server localhost:9092 --time -1", "comment": "显式指定最新偏移" },
-      { "cmd": "kafka-get-offsets --topic orders --bootstrap-server localhost:9092 --time -2", "comment": "查看各分区最早偏移" },
-      { "cmd": "kafka-get-offsets --topic orders --bootstrap-server localhost:9092 --time 1755000000000", "comment": "查指定时间戳后的偏移" }
-    ],
-    "tags": ["kafka", "监控"] },
-  { "id": "kafka-verifiable-producer", "cmd": "kafka-verifiable-producer", "cat": "kafka", "desc": "验证生产者连通性",
-    "syntax": "kafka-verifiable-producer --topic <t> --max-messages N --bootstrap-server <host:port>", "args": [],
-    "examples": [
-      { "cmd": "kafka-verifiable-producer --topic orders --max-messages 1000 --bootstrap-server localhost:9092", "comment": "压测生产 1000 条" },
-      { "cmd": "kafka-verifiable-producer --topic orders --max-messages 100 --throughput 100 --bootstrap-server localhost:9092", "comment": "限速 100 条/秒测试" },
-      { "cmd": "kafka-verifiable-producer --topic orders --max-messages 1000 --value-prefix test- --bootstrap-server localhost:9092", "comment": "带前缀值测试" },
-      { "cmd": "kafka-verifiable-producer --topic orders --max-messages 500 --acks all --bootstrap-server localhost:9092", "comment": "全副本确认压测" }
-    ],
-    "tags": ["kafka", "测试"] },
-  { "id": "kafka-mirror-maker", "cmd": "kafka-mirror-maker", "cat": "kafka", "desc": "跨集群镜像数据",
-    "syntax": "kafka-mirror-maker --consumer.config <c.conf> --producer.config <p.conf> --whitelist <topic-regex>", "args": [],
-    "examples": [
-      { "cmd": "kafka-mirror-maker --consumer.config consumer.conf --producer.config producer.conf --whitelist 'orders.*'", "comment": "镜像 orders 主题到另一集群" },
-      { "cmd": "kafka-mirror-maker --consumer.config consumer.conf --producer.config producer.conf --whitelist 'orders|payments'", "comment": "镜像多个主题" },
-      { "cmd": "kafka-mirror-maker --consumer.config consumer.conf --producer.config producer.conf --whitelist '.*' --num.streams 4", "comment": "4 线程镜像全部主题" },
-      { "cmd": "kafka-mirror-maker --consumer.config consumer.conf --producer.config producer.conf --whitelist 'orders.*' --abort.on.send.failure true", "comment": "发送失败即中止" }
-    ],
-    "tags": ["kafka", "复制"] },
-  { "id": "kafka-broker-api-versions", "cmd": "kafka-broker-api-versions", "cat": "kafka", "desc": "查看 broker API 版本",
-    "syntax": "kafka-broker-api-versions --bootstrap-server <host:port>", "args": [],
-    "examples": [
-      { "cmd": "kafka-broker-api-versions --bootstrap-server localhost:9092", "comment": "验证 broker 连通与版本" },
-      { "cmd": "kafka-broker-api-versions --bootstrap-server localhost:9092 | head -5", "comment": "只看前几个 API" },
-      { "cmd": "kafka-broker-api-versions --bootstrap-server localhost:9092 | grep -i 'MAX_VERSION' | wc -l", "comment": "统计 API 数量" },
-      { "cmd": "kafka-broker-api-versions --bootstrap-server 10.0.0.1:9092,10.0.0.2:9092 --command-config admin.conf", "comment": "带认证连接多 broker" }
-    ],
-    "tags": ["kafka", "监控"] },
-  { "id": "kafka-run-class", "cmd": "kafka-run-class", "cat": "kafka", "desc": "运行 Kafka 工具类",
-    "syntax": "kafka-run-class <class-name> [args]",
-    "args": [],
-    "examples": [
-      { "cmd": "kafka-run-class kafka.tools.GetOffsetShell --topic orders --broker-list localhost:9092", "comment": "用 GetOffsetShell 查偏移" },
-      { "cmd": "kafka-run-class kafka.tools.GetOffsetShell --topic orders --time -1 --broker-list localhost:9092", "comment": "查各分区最新偏移" },
-      { "cmd": "kafka-run-class kafka.tools.VerifiableLog4jAppender --topic logs --broker-list localhost:9092 --message-count 100", "comment": "测试 Log4j 接入" },
-      { "cmd": "kafka-run-class kafka.tools.ReassignPartitionsTool --help", "comment": "查看工具帮助" },
-      { "cmd": "kafka-run-class kafka.tools.DumpLogSegments --files /tmp/kafka-logs/orders-0/00000000000000000000.log", "comment": "DumpLogSegments 解析日志" }
-    ],
-    "tags": ["kafka", "工具"] },
-  { "id": "kafka-verifiable-consumer", "cmd": "kafka-verifiable-consumer", "cat": "kafka", "desc": "验证消费者连通性",
-    "syntax": "kafka-verifiable-consumer --topic <t> --group-id <g> --max-messages N --bootstrap-server <host:port>", "args": [],
-    "examples": [
-      { "cmd": "kafka-verifiable-consumer --topic orders --group-id test --max-messages 100 --bootstrap-server localhost:9092", "comment": "验证消费链路" },
-      { "cmd": "kafka-verifiable-consumer --topic orders --group-id test --max-messages 100 --verbose --bootstrap-server localhost:9092", "comment": "详细模式查看消费详情" },
-      { "cmd": "kafka-verifiable-consumer --topic orders --group-id test --max-messages 100 --session-timeout 20000 --bootstrap-server localhost:9092", "comment": "调整会话超时测试" },
-      { "cmd": "kafka-verifiable-consumer --topic orders --group-id test --max-messages 50 --from-latest --bootstrap-server localhost:9092", "comment": "只消费新消息" }
-    ],
-    "tags": ["kafka", "测试"] },
-  { "id": "kafka-log-dirs", "cmd": "kafka-log-dirs", "cat": "kafka", "desc": "查看 broker 日志目录分布",
-    "syntax": "kafka-log-dirs --describe --bootstrap-server <host:port>", "args": [],
-    "examples": [
-      { "cmd": "kafka-log-dirs --describe --bootstrap-server localhost:9092", "comment": "查看各 broker 磁盘占用" },
-      { "cmd": "kafka-log-dirs --describe --topic-list orders --bootstrap-server localhost:9092", "comment": "只看指定主题分布" },
-      { "cmd": "kafka-log-dirs --describe --broker-list 1,2 --bootstrap-server localhost:9092", "comment": "只看指定 broker" },
-      { "cmd": "kafka-log-dirs --describe --bootstrap-server localhost:9092 | grep -A3 -i error", "comment": "检查异常目录" }
-    ],
-    "tags": ["kafka", "监控"] }
-]
+{
+  "cat": "kafka",
+  "label": "kafka 命令",
+  "order": 8,
+  "commands": [
+    {
+      "id": "kafka-server-start",
+      "cmd": "kafka-server-start",
+      "cat": "kafka",
+      "desc": "启动 Kafka broker",
+      "syntax": "kafka-server-start <server.properties> [-daemon]",
+      "args": [
+        {
+          "name": "-daemon",
+          "desc": "后台运行"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-server-start -daemon config/server.properties",
+          "comment": "后台启动 broker"
+        },
+        {
+          "cmd": "kafka-server-start config/server.properties",
+          "comment": "前台启动(看日志)"
+        },
+        {
+          "cmd": "kafka-server-start -daemon config/server-1.properties",
+          "comment": "多 broker 集群启动"
+        },
+        {
+          "cmd": "kafka-server-start -daemon config/server.properties > /tmp/kafka.log 2>&1 &",
+          "comment": "自定义日志启动"
+        },
+        {
+          "cmd": "kafka-server-start -daemon config/server.properties -override log.retention.hours=72",
+          "comment": "启动时覆盖配置"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "broker",
+        "启动"
+      ]
+    },
+    {
+      "id": "kafka-server-stop",
+      "cmd": "kafka-server-stop",
+      "cat": "kafka",
+      "desc": "停止 Kafka broker",
+      "syntax": "kafka-server-stop",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-server-stop",
+          "comment": "优雅停止所有 broker"
+        },
+        {
+          "cmd": "kill -TERM $(cat /tmp/kafka.pid)",
+          "comment": "按 PID 优雅停止"
+        },
+        {
+          "cmd": "jps -l | grep kafka",
+          "comment": "查找 Kafka 进程"
+        },
+        {
+          "cmd": "kafka-server-stop; sleep 3; pgrep -f kafka.Kafka || echo stopped",
+          "comment": "停止后确认退出"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "broker",
+        "停止"
+      ]
+    },
+    {
+      "id": "kafka-topics-create",
+      "cmd": "kafka-topics --create",
+      "cat": "kafka",
+      "desc": "创建主题",
+      "syntax": "kafka-topics --create --topic <name> --bootstrap-server <host:port> [--partitions N] [--replication-factor N]",
+      "args": [
+        {
+          "name": "--partitions",
+          "desc": "分区数"
+        },
+        {
+          "name": "--replication-factor",
+          "desc": "副本数"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-topics --create --topic orders --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1",
+          "comment": "创建 3 分区主题"
+        },
+        {
+          "cmd": "kafka-topics --create --topic orders --bootstrap-server localhost:9092 --partitions 6 --replication-factor 3 --config retention.ms=86400000",
+          "comment": "生产级配置创建"
+        },
+        {
+          "cmd": "kafka-topics --create --topic compact-topic --bootstrap-server localhost:9092 --config cleanup.policy=compact",
+          "comment": "紧凑日志主题"
+        },
+        {
+          "cmd": "kafka-topics --create --topic orders --bootstrap-server localhost:9092 --if-not-exists",
+          "comment": "存在则跳过"
+        },
+        {
+          "cmd": "kafka-topics --create --topic events --bootstrap-server localhost:9092 --replica-assignment 0:1,1:2,2:0",
+          "comment": "手动指定副本分布"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "主题"
+      ]
+    },
+    {
+      "id": "kafka-topics-list",
+      "cmd": "kafka-topics --list",
+      "cat": "kafka",
+      "desc": "列出所有主题",
+      "syntax": "kafka-topics --list --bootstrap-server <host:port>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-topics --list --bootstrap-server localhost:9092",
+          "comment": "查看全部主题名"
+        },
+        {
+          "cmd": "kafka-topics --list --bootstrap-server localhost:9092 --exclude-internal",
+          "comment": "排除内部主题"
+        },
+        {
+          "cmd": "kafka-topics --list --bootstrap-server localhost:9092 | grep orders",
+          "comment": "按名过滤"
+        },
+        {
+          "cmd": "kafka-topics --list --bootstrap-server localhost:9092 | wc -l",
+          "comment": "统计主题数量"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "主题",
+        "列表"
+      ]
+    },
+    {
+      "id": "kafka-topics-describe",
+      "cmd": "kafka-topics --describe",
+      "cat": "kafka",
+      "desc": "查看主题详情",
+      "syntax": "kafka-topics --describe --topic <name> --bootstrap-server <host:port>",
+      "args": [
+        {
+          "name": "--topic",
+          "desc": "指定主题"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-topics --describe --topic orders --bootstrap-server localhost:9092",
+          "comment": "查看分区与副本分布"
+        },
+        {
+          "cmd": "kafka-topics --describe --bootstrap-server localhost:9092",
+          "comment": "查看全部主题详情"
+        },
+        {
+          "cmd": "kafka-topics --describe --topic orders --bootstrap-server localhost:9092 --under-replicated-partitions",
+          "comment": "只找副本不足的分区"
+        },
+        {
+          "cmd": "kafka-topics --describe --topic orders --bootstrap-server localhost:9092 | head -20",
+          "comment": "只查 Leader 分布"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "主题",
+        "监控"
+      ]
+    },
+    {
+      "id": "kafka-topics-alter",
+      "cmd": "kafka-topics --alter",
+      "cat": "kafka",
+      "desc": "修改主题配置",
+      "syntax": "kafka-topics --alter --topic <name> --partitions N --bootstrap-server <host:port>",
+      "args": [
+        {
+          "name": "--partitions",
+          "desc": "新分区数(只能增加)"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-topics --alter --topic orders --partitions 6 --bootstrap-server localhost:9092",
+          "comment": "扩容到 6 分区"
+        },
+        {
+          "cmd": "kafka-topics --alter --topic orders --config retention.ms=604800000 --bootstrap-server localhost:9092",
+          "comment": "改保留时间为 7 天"
+        },
+        {
+          "cmd": "kafka-topics --alter --topic orders --delete-config retention.ms --bootstrap-server localhost:9092",
+          "comment": "删除自定义配置"
+        },
+        {
+          "cmd": "kafka-topics --alter --topic orders --partitions 12 --bootstrap-server localhost:9092 --validate-only",
+          "comment": "只校验不执行"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "主题"
+      ]
+    },
+    {
+      "id": "kafka-topics-delete",
+      "cmd": "kafka-topics --delete",
+      "cat": "kafka",
+      "desc": "删除主题",
+      "syntax": "kafka-topics --delete --topic <name> --bootstrap-server <host:port>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-topics --delete --topic orders --bootstrap-server localhost:9092",
+          "comment": "删除 orders 主题(需开启删除开关)"
+        },
+        {
+          "cmd": "kafka-topics --delete --topic orders --bootstrap-server localhost:9092 && kafka-topics --list --bootstrap-server localhost:9092",
+          "comment": "删除后确认列表"
+        },
+        {
+          "cmd": "kafka-topics --delete --topic orders --bootstrap-server localhost:9092 --if-exists",
+          "comment": "存在才删除"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "主题",
+        "删除"
+      ]
+    },
+    {
+      "id": "kafka-console-producer",
+      "cmd": "kafka-console-producer",
+      "cat": "kafka",
+      "desc": "命令行生产消息",
+      "syntax": "kafka-console-producer --topic <name> --bootstrap-server <host:port>",
+      "args": [
+        {
+          "name": "--property key.separator=:",
+          "desc": "键值分隔符"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "echo 'hello kafka' | kafka-console-producer --topic orders --bootstrap-server localhost:9092",
+          "comment": "发送一条消息"
+        },
+        {
+          "cmd": "kafka-console-producer --topic orders --bootstrap-server localhost:9092",
+          "comment": "交互式逐行发送"
+        },
+        {
+          "cmd": "cat data.txt | kafka-console-producer --topic orders --bootstrap-server localhost:9092",
+          "comment": "批量发送文件内容"
+        },
+        {
+          "cmd": "echo 'key1:value1' | kafka-console-producer --topic orders --bootstrap-server localhost:9092 --property key.separator=: --property parse.key=true",
+          "comment": "带键发送消息"
+        },
+        {
+          "cmd": "seq 1 100 | kafka-console-producer --topic orders --bootstrap-server localhost:9092 --property compression.type=gzip",
+          "comment": "gzip 压缩发送 100 条"
+        },
+        {
+          "cmd": "echo '{\"id\":1}' | kafka-console-producer --topic orders --bootstrap-server localhost:9092 --producer-property acks=all",
+          "comment": "全副本确认发送"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "生产"
+      ]
+    },
+    {
+      "id": "kafka-console-consumer",
+      "cmd": "kafka-console-consumer",
+      "cat": "kafka",
+      "desc": "命令行消费消息",
+      "syntax": "kafka-console-consumer --topic <name> --bootstrap-server <host:port> [--from-beginning] [--group <g>]",
+      "args": [
+        {
+          "name": "--from-beginning",
+          "desc": "从头开始读"
+        },
+        {
+          "name": "--group",
+          "desc": "指定消费组"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --from-beginning",
+          "comment": "从头消费所有消息"
+        },
+        {
+          "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --group debug-app",
+          "comment": "按消费组消费"
+        },
+        {
+          "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --property print.key=true --property key.separator=' | '",
+          "comment": "打印键值对"
+        },
+        {
+          "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --partition 0 --offset 100",
+          "comment": "指定分区偏移消费"
+        },
+        {
+          "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --max-messages 10",
+          "comment": "只消费 10 条退出"
+        },
+        {
+          "cmd": "kafka-console-consumer --topic orders --bootstrap-server localhost:9092 --timeout-ms 5000",
+          "comment": "无消息 5 秒后退出"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "消费"
+      ]
+    },
+    {
+      "id": "kafka-consumer-groups-list",
+      "cmd": "kafka-consumer-groups --list",
+      "cat": "kafka",
+      "desc": "列出消费组",
+      "syntax": "kafka-consumer-groups --list --bootstrap-server <host:port>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-consumer-groups --list --bootstrap-server localhost:9092",
+          "comment": "查看所有消费组"
+        },
+        {
+          "cmd": "kafka-consumer-groups --list --bootstrap-server localhost:9092 --state stable",
+          "comment": "只列运行稳定的组"
+        },
+        {
+          "cmd": "kafka-consumer-groups --list --bootstrap-server localhost:9092 | grep my-app",
+          "comment": "按应用名过滤"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "消费组"
+      ]
+    },
+    {
+      "id": "kafka-consumer-groups-describe",
+      "cmd": "kafka-consumer-groups --describe",
+      "cat": "kafka",
+      "desc": "查看消费组详情",
+      "syntax": "kafka-consumer-groups --describe --group <g> --bootstrap-server <host:port>",
+      "args": [
+        {
+          "name": "--group",
+          "desc": "消费组名"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-consumer-groups --describe --group my-app --bootstrap-server localhost:9092",
+          "comment": "查看滞后量(LAG)"
+        },
+        {
+          "cmd": "kafka-consumer-groups --describe --group my-app --bootstrap-server localhost:9092 --members",
+          "comment": "查看组成员与分配"
+        },
+        {
+          "cmd": "kafka-consumer-groups --describe --group my-app --bootstrap-server localhost:9092 --state",
+          "comment": "查看组状态"
+        },
+        {
+          "cmd": "kafka-consumer-groups --describe --group my-app --bootstrap-server localhost:9092 | awk 'NR>2 && $6!=0'",
+          "comment": "筛选有滞后的分区"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "消费组",
+        "监控"
+      ]
+    },
+    {
+      "id": "kafka-consumer-groups-reset",
+      "cmd": "kafka-consumer-groups --reset-offsets",
+      "cat": "kafka",
+      "desc": "重置消费偏移",
+      "syntax": "kafka-consumer-groups --reset-offsets --group <g> --topic <t> --to-earliest --execute --bootstrap-server <host:port>",
+      "args": [
+        {
+          "name": "--to-earliest",
+          "desc": "重置到最早"
+        },
+        {
+          "name": "--execute",
+          "desc": "执行(不加只预览)"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-consumer-groups --reset-offsets --group my-app --topic orders --to-earliest --execute --bootstrap-server localhost:9092",
+          "comment": "消费组从头重放"
+        },
+        {
+          "cmd": "kafka-consumer-groups --reset-offsets --group my-app --topic orders --to-offset 1000 --execute --bootstrap-server localhost:9092",
+          "comment": "重置到指定偏移"
+        },
+        {
+          "cmd": "kafka-consumer-groups --reset-offsets --group my-app --topic orders --to-latest --bootstrap-server localhost:9092",
+          "comment": "预览重置到最新(不执行)"
+        },
+        {
+          "cmd": "kafka-consumer-groups --reset-offsets --group my-app --topic orders --shift-by -500 --execute --bootstrap-server localhost:9092",
+          "comment": "回退 500 条重消费"
+        },
+        {
+          "cmd": "kafka-consumer-groups --reset-offsets --group my-app --topic orders --to-datetime 2026-08-13T00:00:00.000 --execute --bootstrap-server localhost:9092",
+          "comment": "重置到指定时间点"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "消费组",
+        "运维"
+      ]
+    },
+    {
+      "id": "kafka-configs-alter",
+      "cmd": "kafka-configs --alter",
+      "cat": "kafka",
+      "desc": "修改主题/broker 配置",
+      "syntax": "kafka-configs --alter --entity-type topics --entity-name <t> --add-config <k=v> --bootstrap-server <host:port>",
+      "args": [
+        {
+          "name": "--add-config",
+          "desc": "添加配置项"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-configs --alter --entity-type topics --entity-name orders --add-config retention.ms=86400000 --bootstrap-server localhost:9092",
+          "comment": "消息保留 1 天"
+        },
+        {
+          "cmd": "kafka-configs --alter --entity-type topics --entity-name orders --add-config max.message.bytes=10485760 --bootstrap-server localhost:9092",
+          "comment": "单条消息上限 10MB"
+        },
+        {
+          "cmd": "kafka-configs --alter --entity-type topics --entity-name orders --delete-config retention.ms --bootstrap-server localhost:9092",
+          "comment": "删除配置恢复默认"
+        },
+        {
+          "cmd": "kafka-configs --alter --entity-type brokers --entity-name 0 --add-config log.retention.hours=24 --bootstrap-server localhost:9092",
+          "comment": "改 broker 级保留时间"
+        },
+        {
+          "cmd": "kafka-configs --alter --entity-type topics --entity-name orders --add-config cleanup.policy=compact --bootstrap-server localhost:9092",
+          "comment": "切换为紧凑日志"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "配置"
+      ]
+    },
+    {
+      "id": "kafka-configs-describe",
+      "cmd": "kafka-configs --describe",
+      "cat": "kafka",
+      "desc": "查看实体配置",
+      "syntax": "kafka-configs --describe --entity-type topics --entity-name <t> --bootstrap-server <host:port>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-configs --describe --entity-type topics --entity-name orders --bootstrap-server localhost:9092",
+          "comment": "查看主题覆盖配置"
+        },
+        {
+          "cmd": "kafka-configs --describe --entity-type brokers --bootstrap-server localhost:9092",
+          "comment": "查看全部 broker 配置"
+        },
+        {
+          "cmd": "kafka-configs --describe --entity-type clients --bootstrap-server localhost:9092",
+          "comment": "查看客户端配额"
+        },
+        {
+          "cmd": "kafka-configs --describe --entity-type topics --bootstrap-server localhost:9092 --entity-default",
+          "comment": "查看默认配置"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "配置"
+      ]
+    },
+    {
+      "id": "kafka-acls",
+      "cmd": "kafka-acls",
+      "cat": "kafka",
+      "desc": "管理访问控制列表",
+      "syntax": "kafka-acls --add --allow-principal User:<name> --operation Read --topic <t> --bootstrap-server <host:port>",
+      "args": [
+        {
+          "name": "--add",
+          "desc": "添加 ACL"
+        },
+        {
+          "name": "--list",
+          "desc": "列出 ACL"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-acls --add --allow-principal User:alice --operation Read --topic orders --bootstrap-server localhost:9092",
+          "comment": "给 alice 读权限"
+        },
+        {
+          "cmd": "kafka-acls --add --allow-principal User:producer --operation Write --topic orders --bootstrap-server localhost:9092",
+          "comment": "给生产者写权限"
+        },
+        {
+          "cmd": "kafka-acls --add --allow-principal User:admin --operation All --topic '*' --bootstrap-server localhost:9092",
+          "comment": "管理员全部主题权限"
+        },
+        {
+          "cmd": "kafka-acls --remove --allow-principal User:alice --operation Read --topic orders --bootstrap-server localhost:9092",
+          "comment": "撤销读权限"
+        },
+        {
+          "cmd": "kafka-acls --list --bootstrap-server localhost:9092",
+          "comment": "列出全部 ACL"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "权限"
+      ]
+    },
+    {
+      "id": "kafka-reassign-partitions",
+      "cmd": "kafka-reassign-partitions",
+      "cat": "kafka",
+      "desc": "分区副本重分配",
+      "syntax": "kafka-reassign-partitions --reassignment-json-file <file.json> --execute --bootstrap-server <host:port>",
+      "args": [
+        {
+          "name": "--execute",
+          "desc": "执行"
+        },
+        {
+          "name": "--verify",
+          "desc": "校验结果"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-reassign-partitions --reassignment-json-file plan.json --execute --bootstrap-server localhost:9092",
+          "comment": "按计划迁移分区"
+        },
+        {
+          "cmd": "kafka-reassign-partitions --reassignment-json-file plan.json --verify --bootstrap-server localhost:9092",
+          "comment": "校验迁移进度"
+        },
+        {
+          "cmd": "kafka-reassign-partitions --reassignment-json-file plan.json --bootstrap-server localhost:9092",
+          "comment": "预览迁移方案"
+        },
+        {
+          "cmd": "kafka-reassign-partitions --generate --topics-to-move-json-file topics.json --broker-list 1,2,3 --bootstrap-server localhost:9092",
+          "comment": "自动生成迁移方案"
+        },
+        {
+          "cmd": "kafka-reassign-partitions --reassignment-json-file plan.json --execute --bootstrap-server localhost:9092 --throttle 50000000",
+          "comment": "限速执行(50MB/s)"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "运维"
+      ]
+    },
+    {
+      "id": "kafka-dump-log",
+      "cmd": "kafka-dump-log",
+      "cat": "kafka",
+      "desc": "解析日志文件内容",
+      "syntax": "kafka-dump-log --files <log-dir>/<partition>/00000000000000000000.log",
+      "args": [
+        {
+          "name": "--print-data-log",
+          "desc": "打印消息内容"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-dump-log --files /tmp/kafka-logs/orders-0/00000000000000000000.log --print-data-log",
+          "comment": "查看分区日志消息"
+        },
+        {
+          "cmd": "kafka-dump-log --files /tmp/kafka-logs/orders-0/00000000000000000000.log",
+          "comment": "只看日志索引信息"
+        },
+        {
+          "cmd": "kafka-dump-log --files /tmp/kafka-logs/orders-0/00000000000000000000.log --deep-iteration",
+          "comment": "深度迭代校验消息"
+        },
+        {
+          "cmd": "kafka-dump-log --files /tmp/kafka-logs/orders-0/00000000000000000000.log --print-data-log --key-decoder-class org.apache.kafka.common.serialization.StringDeserializer",
+          "comment": "字符串解码查看键"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "调试"
+      ]
+    },
+    {
+      "id": "kafka-get-offsets",
+      "cmd": "kafka-get-offsets",
+      "cat": "kafka",
+      "desc": "获取分区最新偏移",
+      "syntax": "kafka-get-offsets --topic <t> --bootstrap-server <host:port>",
+      "args": [
+        {
+          "name": "--time -1",
+          "desc": "最新偏移"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "kafka-get-offsets --topic orders --bootstrap-server localhost:9092",
+          "comment": "查看各分区最新偏移"
+        },
+        {
+          "cmd": "kafka-get-offsets --topic orders --bootstrap-server localhost:9092 --time -1",
+          "comment": "显式指定最新偏移"
+        },
+        {
+          "cmd": "kafka-get-offsets --topic orders --bootstrap-server localhost:9092 --time -2",
+          "comment": "查看各分区最早偏移"
+        },
+        {
+          "cmd": "kafka-get-offsets --topic orders --bootstrap-server localhost:9092 --time 1755000000000",
+          "comment": "查指定时间戳后的偏移"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "监控"
+      ]
+    },
+    {
+      "id": "kafka-verifiable-producer",
+      "cmd": "kafka-verifiable-producer",
+      "cat": "kafka",
+      "desc": "验证生产者连通性",
+      "syntax": "kafka-verifiable-producer --topic <t> --max-messages N --bootstrap-server <host:port>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-verifiable-producer --topic orders --max-messages 1000 --bootstrap-server localhost:9092",
+          "comment": "压测生产 1000 条"
+        },
+        {
+          "cmd": "kafka-verifiable-producer --topic orders --max-messages 100 --throughput 100 --bootstrap-server localhost:9092",
+          "comment": "限速 100 条/秒测试"
+        },
+        {
+          "cmd": "kafka-verifiable-producer --topic orders --max-messages 1000 --value-prefix test- --bootstrap-server localhost:9092",
+          "comment": "带前缀值测试"
+        },
+        {
+          "cmd": "kafka-verifiable-producer --topic orders --max-messages 500 --acks all --bootstrap-server localhost:9092",
+          "comment": "全副本确认压测"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "测试"
+      ]
+    },
+    {
+      "id": "kafka-mirror-maker",
+      "cmd": "kafka-mirror-maker",
+      "cat": "kafka",
+      "desc": "跨集群镜像数据",
+      "syntax": "kafka-mirror-maker --consumer.config <c.conf> --producer.config <p.conf> --whitelist <topic-regex>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-mirror-maker --consumer.config consumer.conf --producer.config producer.conf --whitelist 'orders.*'",
+          "comment": "镜像 orders 主题到另一集群"
+        },
+        {
+          "cmd": "kafka-mirror-maker --consumer.config consumer.conf --producer.config producer.conf --whitelist 'orders|payments'",
+          "comment": "镜像多个主题"
+        },
+        {
+          "cmd": "kafka-mirror-maker --consumer.config consumer.conf --producer.config producer.conf --whitelist '.*' --num.streams 4",
+          "comment": "4 线程镜像全部主题"
+        },
+        {
+          "cmd": "kafka-mirror-maker --consumer.config consumer.conf --producer.config producer.conf --whitelist 'orders.*' --abort.on.send.failure true",
+          "comment": "发送失败即中止"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "复制"
+      ]
+    },
+    {
+      "id": "kafka-broker-api-versions",
+      "cmd": "kafka-broker-api-versions",
+      "cat": "kafka",
+      "desc": "查看 broker API 版本",
+      "syntax": "kafka-broker-api-versions --bootstrap-server <host:port>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-broker-api-versions --bootstrap-server localhost:9092",
+          "comment": "验证 broker 连通与版本"
+        },
+        {
+          "cmd": "kafka-broker-api-versions --bootstrap-server localhost:9092 | head -5",
+          "comment": "只看前几个 API"
+        },
+        {
+          "cmd": "kafka-broker-api-versions --bootstrap-server localhost:9092 | grep -i 'MAX_VERSION' | wc -l",
+          "comment": "统计 API 数量"
+        },
+        {
+          "cmd": "kafka-broker-api-versions --bootstrap-server 10.0.0.1:9092,10.0.0.2:9092 --command-config admin.conf",
+          "comment": "带认证连接多 broker"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "监控"
+      ]
+    },
+    {
+      "id": "kafka-run-class",
+      "cmd": "kafka-run-class",
+      "cat": "kafka",
+      "desc": "运行 Kafka 工具类",
+      "syntax": "kafka-run-class <class-name> [args]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-run-class kafka.tools.GetOffsetShell --topic orders --broker-list localhost:9092",
+          "comment": "用 GetOffsetShell 查偏移"
+        },
+        {
+          "cmd": "kafka-run-class kafka.tools.GetOffsetShell --topic orders --time -1 --broker-list localhost:9092",
+          "comment": "查各分区最新偏移"
+        },
+        {
+          "cmd": "kafka-run-class kafka.tools.VerifiableLog4jAppender --topic logs --broker-list localhost:9092 --message-count 100",
+          "comment": "测试 Log4j 接入"
+        },
+        {
+          "cmd": "kafka-run-class kafka.tools.ReassignPartitionsTool --help",
+          "comment": "查看工具帮助"
+        },
+        {
+          "cmd": "kafka-run-class kafka.tools.DumpLogSegments --files /tmp/kafka-logs/orders-0/00000000000000000000.log",
+          "comment": "DumpLogSegments 解析日志"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "工具"
+      ]
+    },
+    {
+      "id": "kafka-verifiable-consumer",
+      "cmd": "kafka-verifiable-consumer",
+      "cat": "kafka",
+      "desc": "验证消费者连通性",
+      "syntax": "kafka-verifiable-consumer --topic <t> --group-id <g> --max-messages N --bootstrap-server <host:port>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-verifiable-consumer --topic orders --group-id test --max-messages 100 --bootstrap-server localhost:9092",
+          "comment": "验证消费链路"
+        },
+        {
+          "cmd": "kafka-verifiable-consumer --topic orders --group-id test --max-messages 100 --verbose --bootstrap-server localhost:9092",
+          "comment": "详细模式查看消费详情"
+        },
+        {
+          "cmd": "kafka-verifiable-consumer --topic orders --group-id test --max-messages 100 --session-timeout 20000 --bootstrap-server localhost:9092",
+          "comment": "调整会话超时测试"
+        },
+        {
+          "cmd": "kafka-verifiable-consumer --topic orders --group-id test --max-messages 50 --from-latest --bootstrap-server localhost:9092",
+          "comment": "只消费新消息"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "测试"
+      ]
+    },
+    {
+      "id": "kafka-log-dirs",
+      "cmd": "kafka-log-dirs",
+      "cat": "kafka",
+      "desc": "查看 broker 日志目录分布",
+      "syntax": "kafka-log-dirs --describe --bootstrap-server <host:port>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "kafka-log-dirs --describe --bootstrap-server localhost:9092",
+          "comment": "查看各 broker 磁盘占用"
+        },
+        {
+          "cmd": "kafka-log-dirs --describe --topic-list orders --bootstrap-server localhost:9092",
+          "comment": "只看指定主题分布"
+        },
+        {
+          "cmd": "kafka-log-dirs --describe --broker-list 1,2 --bootstrap-server localhost:9092",
+          "comment": "只看指定 broker"
+        },
+        {
+          "cmd": "kafka-log-dirs --describe --bootstrap-server localhost:9092 | grep -A3 -i error",
+          "comment": "检查异常目录"
+        }
+      ],
+      "tags": [
+        "kafka",
+        "监控"
+      ]
+    }
+  ]
+}

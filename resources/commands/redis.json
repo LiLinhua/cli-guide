@@ -1,330 +1,989 @@
-[
-  { "id": "redis-server", "cmd": "redis-server", "cat": "redis", "desc": "启动 Redis 服务",
-    "syntax": "redis-server [redis.conf] [--port 6379] [--daemonize yes]",
-    "args": [],
-    "examples": [
-      { "cmd": "redis-server", "comment": "默认配置前台启动" },
-      { "cmd": "redis-server /etc/redis/6379.conf", "comment": "指定配置文件启动" },
-      { "cmd": "redis-server --port 6380 --daemonize yes", "comment": "指定端口后台启动" },
-      { "cmd": "redis-server --port 6380", "comment": "多实例运行" },
-      { "cmd": "redis-cli ping", "comment": "启动后验证连通" }
-    ],
-    "tags": ["redis", "服务"] },
-  { "id": "redis-cli", "cmd": "redis-cli", "cat": "redis", "desc": "连接 Redis 客户端",
-    "syntax": "redis-cli [-h <host>] [-p <port>] [-a <password>]",
-    "args": [],
-    "examples": [
-      { "cmd": "redis-cli", "comment": "连接本机默认端口" },
-      { "cmd": "redis-cli -h 10.0.0.5 -p 6379", "comment": "连接远程实例" },
-      { "cmd": "redis-cli -a mypassword", "comment": "带密码连接" },
-      { "cmd": "redis-cli -n 2", "comment": "连接并选择数据库 2" },
-      { "cmd": "redis-cli --raw get name", "comment": "非交互单条执行" },
-      { "cmd": "redis-cli --scan --pattern 'user:*'", "comment": "非交互遍历键" }
-    ],
-    "tags": ["redis", "客户端"] },
-  { "id": "redis-set", "cmd": "SET", "cat": "redis", "desc": "设置字符串键值",
-    "syntax": "SET <key> <value> [EX <sec>] [NX]",
-    "args": [],
-    "examples": [
-      { "cmd": "SET name '张三'", "comment": "设置字符串" },
-      { "cmd": "SET token abc123 EX 3600", "comment": "带 1 小时过期" },
-      { "cmd": "SET lock 1 NX", "comment": "不存在才设置(分布式锁)" },
-      { "cmd": "SET count 0", "comment": "计数器初始化" },
-      { "cmd": "SET user:1 '{\"name\":\"x\"}'", "comment": "存 JSON 字符串" }
-    ],
-    "tags": ["redis", "字符串"] },
-  { "id": "redis-get", "cmd": "GET", "cat": "redis", "desc": "获取字符串值",
-    "syntax": "GET <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "GET name", "comment": "获取字符串值" },
-      { "cmd": "GET token", "comment": "获取令牌" },
-      { "cmd": "GET user:1", "comment": "获取 JSON 数据" },
-      { "cmd": "GET name | jq .", "comment": "管道解析 JSON" }
-    ],
-    "tags": ["redis", "字符串"] },
-  { "id": "redis-del", "cmd": "DEL", "cat": "redis", "desc": "删除键",
-    "syntax": "DEL <key> [key...]",
-    "args": [],
-    "examples": [
-      { "cmd": "DEL name", "comment": "删除单个键" },
-      { "cmd": "DEL user:1 user:2 token", "comment": "批量删除" },
-      { "cmd": "DEL lock", "comment": "释放分布式锁" },
-      { "cmd": "UNLINK cache:big", "comment": "异步删除大键" }
-    ],
-    "tags": ["redis", "删除"] },
-  { "id": "redis-exists", "cmd": "EXISTS", "cat": "redis", "desc": "判断键是否存在",
-    "syntax": "EXISTS <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "EXISTS name", "comment": "存在返回 1" },
-      { "cmd": "EXISTS a b c", "comment": "统计存在的数量" },
-      { "cmd": "SETNX lock 1 && EXISTS lock", "comment": "锁是否持有" }
-    ],
-    "tags": ["redis", "判断"] },
-  { "id": "redis-expire", "cmd": "EXPIRE", "cat": "redis", "desc": "设置键过期时间",
-    "syntax": "EXPIRE <key> <seconds>",
-    "args": [],
-    "examples": [
-      { "cmd": "EXPIRE token 1800", "comment": "30 分钟后过期" },
-      { "cmd": "EXPIRE session:9f3 86400", "comment": "会话 1 天过期" },
-      { "cmd": "SET code 12345 EX 300", "comment": "验证码 5 分钟有效" },
-      { "cmd": "TTL token", "comment": "确认剩余时间" }
-    ],
-    "tags": ["redis", "过期"] },
-  { "id": "redis-ttl", "cmd": "TTL", "cat": "redis", "desc": "查看剩余生存时间",
-    "syntax": "TTL <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "TTL token", "comment": "剩余秒数(-1 永不过期)" },
-      { "cmd": "TTL code", "comment": "验证码剩余时间" },
-      { "cmd": "TTL session:9f3", "comment": "会话剩余时间" }
-    ],
-    "tags": ["redis", "过期"] },
-  { "id": "redis-persist", "cmd": "PERSIST", "cat": "redis", "desc": "移除过期时间",
-    "syntax": "PERSIST <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "PERSIST token", "comment": "取消过期" },
-      { "cmd": "PERSIST session:9f3", "comment": "会话永不过期" },
-      { "cmd": "TTL token", "comment": "验证为 -1" }
-    ],
-    "tags": ["redis", "过期"] },
-  { "id": "redis-incr", "cmd": "INCR", "cat": "redis", "desc": "自增计数",
-    "syntax": "INCR <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "INCR pageview:home", "comment": "页面访问计数" },
-      { "cmd": "INCR likes:post:100", "comment": "点赞数" },
-      { "cmd": "INCRBY stock:iphone 5", "comment": "按步长增加" },
-      { "cmd": "GET pageview:home", "comment": "查看当前计数" }
-    ],
-    "tags": ["redis", "计数"] },
-  { "id": "redis-decr", "cmd": "DECR", "cat": "redis", "desc": "自减计数",
-    "syntax": "DECR <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "DECR stock:iphone", "comment": "库存减 1" },
-      { "cmd": "DECRBY stock:iphone 3", "comment": "按步长减少" },
-      { "cmd": "DECR quota:user:1", "comment": "配额递减" },
-      { "cmd": "GET stock:iphone", "comment": "查看剩余库存" }
-    ],
-    "tags": ["redis", "计数"] },
-  { "id": "redis-setnx", "cmd": "SETNX", "cat": "redis", "desc": "不存在时设置(分布式锁)",
-    "syntax": "SETNX <key> <value>",
-    "args": [],
-    "examples": [
-      { "cmd": "SETNX lock:order 1", "comment": "抢锁(成功返回 1)" },
-      { "cmd": "SET lock:order 1 EX 10 NX", "comment": "带超时的锁" },
-      { "cmd": "DEL lock:order", "comment": "释放锁" },
-      { "cmd": "SET lock:order uuid EX 10 NX", "comment": "锁值用唯一标识防误删" }
-    ],
-    "tags": ["redis", "锁"] },
-  { "id": "redis-keys", "cmd": "KEYS", "cat": "redis", "desc": "按模式匹配键(慎用)",
-    "syntax": "KEYS <pattern>",
-    "args": [],
-    "examples": [
-      { "cmd": "KEYS user:*", "comment": "匹配 user 前缀(生产慎用)" },
-      { "cmd": "KEYS *cache*", "comment": "包含 cache 的键" },
-      { "cmd": "KEYS ?b*", "comment": "通配单个字符" },
-      { "cmd": "SCAN 0 MATCH user:* COUNT 100", "comment": "生产推荐用 SCAN" }
-    ],
-    "tags": ["redis", "查询"] },
-  { "id": "redis-scan", "cmd": "SCAN", "cat": "redis", "desc": "游标式遍历键",
-    "syntax": "SCAN <cursor> [MATCH <pattern>] [COUNT N]",
-    "args": [],
-    "examples": [
-      { "cmd": "SCAN 0", "comment": "开始遍历(返回新游标)" },
-      { "cmd": "SCAN 0 MATCH user:* COUNT 100", "comment": "匹配前缀遍历" },
-      { "cmd": "redis-cli --scan --pattern 'session:*'", "comment": "CLI 自动迭代" },
-      { "cmd": "redis-cli --scan --pattern 'user:*' | xargs redis-cli del", "comment": "批量删除匹配键" }
-    ],
-    "tags": ["redis", "遍历"] },
-  { "id": "redis-type", "cmd": "TYPE", "cat": "redis", "desc": "查看键类型",
-    "syntax": "TYPE <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "TYPE user:1", "comment": "返回 string/hash/list..." },
-      { "cmd": "TYPE session:9f3", "comment": "确认类型后操作" },
-      { "cmd": "TYPE cache:list", "comment": "判断列表类型" }
-    ],
-    "tags": ["redis", "类型"] },
-  { "id": "redis-hset", "cmd": "HSET", "cat": "redis", "desc": "设置哈希字段",
-    "syntax": "HSET <key> <field> <value>",
-    "args": [],
-    "examples": [
-      { "cmd": "HSET user:1 name '张三'", "comment": "设置单个字段" },
-      { "cmd": "HSET user:1 name '张三' age 30 city '北京'", "comment": "一次设置多字段" },
-      { "cmd": "HSET product:100 stock 99", "comment": "商品库存" },
-      { "cmd": "HGETALL user:1", "comment": "查看全部字段" }
-    ],
-    "tags": ["redis", "哈希"] },
-  { "id": "redis-hget", "cmd": "HGET", "cat": "redis", "desc": "获取哈希字段",
-    "syntax": "HGET <key> <field>",
-    "args": [],
-    "examples": [
-      { "cmd": "HGET user:1 name", "comment": "获取单个字段" },
-      { "cmd": "HGET user:1 age", "comment": "获取年龄字段" },
-      { "cmd": "HMGET user:1 name age", "comment": "批量获取字段" },
-      { "cmd": "HGET product:100 stock", "comment": "查库存" }
-    ],
-    "tags": ["redis", "哈希"] },
-  { "id": "redis-hgetall", "cmd": "HGETALL", "cat": "redis", "desc": "获取全部哈希字段",
-    "syntax": "HGETALL <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "HGETALL user:1", "comment": "取全部字段值" },
-      { "cmd": "HGETALL product:100", "comment": "商品全量信息" },
-      { "cmd": "HKEYS user:1", "comment": "只看字段名" },
-      { "cmd": "HLEN user:1", "comment": "字段数量" }
-    ],
-    "tags": ["redis", "哈希"] },
-  { "id": "redis-lpush", "cmd": "LPUSH", "cat": "redis", "desc": "头部压入列表",
-    "syntax": "LPUSH <key> <value> [value...]",
-    "args": [],
-    "examples": [
-      { "cmd": "LPUSH queue:task task-1", "comment": "任务入队" },
-      { "cmd": "LPUSH logs:app 'error: timeout'", "comment": "日志头部插入" },
-      { "cmd": "RPUSH queue:task task-2", "comment": "尾部入队(FIFO 队列)" },
-      { "cmd": "LRANGE queue:task 0 -1", "comment": "查看队列内容" }
-    ],
-    "tags": ["redis", "列表"] },
-  { "id": "redis-lrange", "cmd": "LRANGE", "cat": "redis", "desc": "取列表区间",
-    "syntax": "LRANGE <key> <start> <stop>",
-    "args": [],
-    "examples": [
-      { "cmd": "LRANGE queue:task 0 -1", "comment": "取全部元素" },
-      { "cmd": "LRANGE queue:task 0 9", "comment": "取前 10 个" },
-      { "cmd": "LRANGE logs:app -5 -1", "comment": "取最后 5 条日志" },
-      { "cmd": "LLEN queue:task", "comment": "队列长度" }
-    ],
-    "tags": ["redis", "列表"] },
-  { "id": "redis-lpop", "cmd": "LPOP/RPOP", "cat": "redis", "desc": "从列表弹出元素",
-    "syntax": "LPOP <key> | RPOP <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "LPOP queue:task", "comment": "头部弹出(栈)" },
-      { "cmd": "RPOP queue:task", "comment": "尾部弹出(FIFO 队列)" },
-      { "cmd": "BLPOP queue:task 5", "comment": "阻塞等待 5 秒弹出" },
-      { "cmd": "LPOP queue:task 3", "comment": "一次弹出 3 个" }
-    ],
-    "tags": ["redis", "列表"] },
-  { "id": "redis-llen", "cmd": "LLEN", "cat": "redis", "desc": "查看列表长度",
-    "syntax": "LLEN <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "LLEN queue:task", "comment": "队列积压量" },
-      { "cmd": "LLEN logs:app", "comment": "日志条数" },
-      { "cmd": "LLEN queue:task > 1000", "comment": "积压告警判断" }
-    ],
-    "tags": ["redis", "列表"] },
-  { "id": "redis-sadd", "cmd": "SADD", "cat": "redis", "desc": "集合添加元素",
-    "syntax": "SADD <key> <member> [member...]",
-    "args": [],
-    "examples": [
-      { "cmd": "SADD tags:post:1 redis", "comment": "文章打标签" },
-      { "cmd": "SADD online:users u1 u2 u3", "comment": "在线用户集合" },
-      { "cmd": "SADD ip:blacklist 1.2.3.4", "comment": "黑名单" },
-      { "cmd": "SMEMBERS tags:post:1", "comment": "查看集合成员" }
-    ],
-    "tags": ["redis", "集合"] },
-  { "id": "redis-smembers", "cmd": "SMEMBERS", "cat": "redis", "desc": "取集合全部元素",
-    "syntax": "SMEMBERS <key>",
-    "args": [],
-    "examples": [
-      { "cmd": "SMEMBERS online:users", "comment": "在线用户列表" },
-      { "cmd": "SISMEMBER ip:blacklist 1.2.3.4", "comment": "判断是否在黑名单" },
-      { "cmd": "SCARD online:users", "comment": "在线人数" },
-      { "cmd": "SREM online:users u1", "comment": "移除成员" }
-    ],
-    "tags": ["redis", "集合"] },
-  { "id": "redis-zadd", "cmd": "ZADD", "cat": "redis", "desc": "有序集合添加(带分数)",
-    "syntax": "ZADD <key> <score> <member> [score member...]",
-    "args": [],
-    "examples": [
-      { "cmd": "ZADD leaderboard 100 '张三'", "comment": "排行榜加人" },
-      { "cmd": "ZADD scores 90 'a' 85 'b' 95 'c'", "comment": "批量添加" },
-      { "cmd": "ZADD leaderboard 150 '张三'", "comment": "更新分数" },
-      { "cmd": "ZINCRBY leaderboard 10 '张三'", "comment": "分数加 10" }
-    ],
-    "tags": ["redis", "有序集合"] },
-  { "id": "redis-zrange", "cmd": "ZRANGE", "cat": "redis", "desc": "取有序集合区间",
-    "syntax": "ZRANGE <key> <start> <stop> [WITHSCORES]",
-    "args": [],
-    "examples": [
-      { "cmd": "ZRANGE leaderboard 0 9 WITHSCORES", "comment": "排行榜前 10" },
-      { "cmd": "ZREVRANGE leaderboard 0 4", "comment": "倒序前 5" },
-      { "cmd": "ZRANGE scores 0 -1", "comment": "全部成员" },
-      { "cmd": "ZSCORE leaderboard '张三'", "comment": "查看单成员分数" }
-    ],
-    "tags": ["redis", "有序集合"] },
-  { "id": "redis-info", "cmd": "INFO", "cat": "redis", "desc": "查看服务信息",
-    "syntax": "INFO [section]",
-    "args": [],
-    "examples": [
-      { "cmd": "INFO", "comment": "查看全部信息" },
-      { "cmd": "INFO memory", "comment": "内存使用情况" },
-      { "cmd": "INFO stats", "comment": "连接与命令统计" },
-      { "cmd": "INFO replication", "comment": "主从复制状态" },
-      { "cmd": "redis-cli --stat", "comment": "实时统计" }
-    ],
-    "tags": ["redis", "监控"] },
-  { "id": "redis-monitor", "cmd": "MONITOR", "cat": "redis", "desc": "实时监听所有命令",
-    "syntax": "MONITOR",
-    "args": [],
-    "examples": [
-      { "cmd": "MONITOR", "comment": "实时看所有命令(慎用)" },
-      { "cmd": "redis-cli monitor | grep 'GET user'", "comment": "过滤指定命令" },
-      { "cmd": "redis-cli monitor | head -20", "comment": "只看前 20 条" }
-    ],
-    "tags": ["redis", "调试"] },
-  { "id": "redis-select", "cmd": "SELECT", "cat": "redis", "desc": "切换数据库",
-    "syntax": "SELECT <index>",
-    "args": [],
-    "examples": [
-      { "cmd": "SELECT 0", "comment": "切到库 0(默认)" },
-      { "cmd": "SELECT 2", "comment": "切到库 2" },
-      { "cmd": "redis-cli -n 2", "comment": "连接时指定库" },
-      { "cmd": "DBSIZE", "comment": "查看当前库键数" }
-    ],
-    "tags": ["redis", "数据库"] },
-  { "id": "redis-flushdb", "cmd": "FLUSHDB", "cat": "redis", "desc": "清空当前库",
-    "syntax": "FLUSHDB",
-    "args": [],
-    "examples": [
-      { "cmd": "FLUSHDB", "comment": "清空当前库(慎用)" },
-      { "cmd": "FLUSHDB ASYNC", "comment": "异步清空不阻塞" },
-      { "cmd": "FLUSHALL", "comment": "清空全部库(极慎用)" }
-    ],
-    "tags": ["redis", "清空"] },
-  { "id": "redis-save", "cmd": "SAVE/BGSAVE", "cat": "redis", "desc": "持久化快照",
-    "syntax": "SAVE | BGSAVE",
-    "args": [],
-    "examples": [
-      { "cmd": "SAVE", "comment": "同步保存快照(阻塞)" },
-      { "cmd": "BGSAVE", "comment": "后台异步保存" },
-      { "cmd": "LASTSAVE", "comment": "上次保存时间" },
-      { "cmd": "CONFIG GET save", "comment": "查看自动保存策略" }
-    ],
-    "tags": ["redis", "持久化"] },
-  { "id": "redis-subscribe", "cmd": "PUBLISH/SUBSCRIBE", "cat": "redis", "desc": "发布订阅消息",
-    "syntax": "PUBLISH <channel> <msg> | SUBSCRIBE <channel>",
-    "args": [],
-    "examples": [
-      { "cmd": "PUBLISH news 'hello'", "comment": "发布消息" },
-      { "cmd": "SUBSCRIBE news", "comment": "订阅频道" },
-      { "cmd": "SUBSCRIBE news alerts", "comment": "订阅多个频道" },
-      { "cmd": "PSUBSCRIBE news.*", "comment": "按模式订阅" }
-    ],
-    "tags": ["redis", "发布订阅"] },
-  { "id": "redis-config-get", "cmd": "CONFIG GET", "cat": "redis", "desc": "查看运行配置",
-    "syntax": "CONFIG GET <pattern>",
-    "args": [],
-    "examples": [
-      { "cmd": "CONFIG GET maxmemory", "comment": "查看内存上限" },
-      { "cmd": "CONFIG GET save", "comment": "持久化策略" },
-      { "cmd": "CONFIG GET *timeout*", "comment": "通配匹配配置" },
-      { "cmd": "CONFIG SET maxmemory 512mb", "comment": "动态修改配置" }
-    ],
-    "tags": ["redis", "配置"] }
-]
+{
+  "cat": "redis",
+  "label": "redis 命令",
+  "order": 11,
+  "commands": [
+    {
+      "id": "redis-server",
+      "cmd": "redis-server",
+      "cat": "redis",
+      "desc": "启动 Redis 服务",
+      "syntax": "redis-server [redis.conf] [--port 6379] [--daemonize yes]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "redis-server",
+          "comment": "默认配置前台启动"
+        },
+        {
+          "cmd": "redis-server /etc/redis/6379.conf",
+          "comment": "指定配置文件启动"
+        },
+        {
+          "cmd": "redis-server --port 6380 --daemonize yes",
+          "comment": "指定端口后台启动"
+        },
+        {
+          "cmd": "redis-server --port 6380",
+          "comment": "多实例运行"
+        },
+        {
+          "cmd": "redis-cli ping",
+          "comment": "启动后验证连通"
+        }
+      ],
+      "tags": [
+        "redis",
+        "服务"
+      ]
+    },
+    {
+      "id": "redis-cli",
+      "cmd": "redis-cli",
+      "cat": "redis",
+      "desc": "连接 Redis 客户端",
+      "syntax": "redis-cli [-h <host>] [-p <port>] [-a <password>]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "redis-cli",
+          "comment": "连接本机默认端口"
+        },
+        {
+          "cmd": "redis-cli -h 10.0.0.5 -p 6379",
+          "comment": "连接远程实例"
+        },
+        {
+          "cmd": "redis-cli -a mypassword",
+          "comment": "带密码连接"
+        },
+        {
+          "cmd": "redis-cli -n 2",
+          "comment": "连接并选择数据库 2"
+        },
+        {
+          "cmd": "redis-cli --raw get name",
+          "comment": "非交互单条执行"
+        },
+        {
+          "cmd": "redis-cli --scan --pattern 'user:*'",
+          "comment": "非交互遍历键"
+        }
+      ],
+      "tags": [
+        "redis",
+        "客户端"
+      ]
+    },
+    {
+      "id": "redis-set",
+      "cmd": "SET",
+      "cat": "redis",
+      "desc": "设置字符串键值",
+      "syntax": "SET <key> <value> [EX <sec>] [NX]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "SET name '张三'",
+          "comment": "设置字符串"
+        },
+        {
+          "cmd": "SET token abc123 EX 3600",
+          "comment": "带 1 小时过期"
+        },
+        {
+          "cmd": "SET lock 1 NX",
+          "comment": "不存在才设置(分布式锁)"
+        },
+        {
+          "cmd": "SET count 0",
+          "comment": "计数器初始化"
+        },
+        {
+          "cmd": "SET user:1 '{\"name\":\"x\"}'",
+          "comment": "存 JSON 字符串"
+        }
+      ],
+      "tags": [
+        "redis",
+        "字符串"
+      ]
+    },
+    {
+      "id": "redis-get",
+      "cmd": "GET",
+      "cat": "redis",
+      "desc": "获取字符串值",
+      "syntax": "GET <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "GET name",
+          "comment": "获取字符串值"
+        },
+        {
+          "cmd": "GET token",
+          "comment": "获取令牌"
+        },
+        {
+          "cmd": "GET user:1",
+          "comment": "获取 JSON 数据"
+        },
+        {
+          "cmd": "GET name | jq .",
+          "comment": "管道解析 JSON"
+        }
+      ],
+      "tags": [
+        "redis",
+        "字符串"
+      ]
+    },
+    {
+      "id": "redis-del",
+      "cmd": "DEL",
+      "cat": "redis",
+      "desc": "删除键",
+      "syntax": "DEL <key> [key...]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "DEL name",
+          "comment": "删除单个键"
+        },
+        {
+          "cmd": "DEL user:1 user:2 token",
+          "comment": "批量删除"
+        },
+        {
+          "cmd": "DEL lock",
+          "comment": "释放分布式锁"
+        },
+        {
+          "cmd": "UNLINK cache:big",
+          "comment": "异步删除大键"
+        }
+      ],
+      "tags": [
+        "redis",
+        "删除"
+      ]
+    },
+    {
+      "id": "redis-exists",
+      "cmd": "EXISTS",
+      "cat": "redis",
+      "desc": "判断键是否存在",
+      "syntax": "EXISTS <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "EXISTS name",
+          "comment": "存在返回 1"
+        },
+        {
+          "cmd": "EXISTS a b c",
+          "comment": "统计存在的数量"
+        },
+        {
+          "cmd": "SETNX lock 1 && EXISTS lock",
+          "comment": "锁是否持有"
+        }
+      ],
+      "tags": [
+        "redis",
+        "判断"
+      ]
+    },
+    {
+      "id": "redis-expire",
+      "cmd": "EXPIRE",
+      "cat": "redis",
+      "desc": "设置键过期时间",
+      "syntax": "EXPIRE <key> <seconds>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "EXPIRE token 1800",
+          "comment": "30 分钟后过期"
+        },
+        {
+          "cmd": "EXPIRE session:9f3 86400",
+          "comment": "会话 1 天过期"
+        },
+        {
+          "cmd": "SET code 12345 EX 300",
+          "comment": "验证码 5 分钟有效"
+        },
+        {
+          "cmd": "TTL token",
+          "comment": "确认剩余时间"
+        }
+      ],
+      "tags": [
+        "redis",
+        "过期"
+      ]
+    },
+    {
+      "id": "redis-ttl",
+      "cmd": "TTL",
+      "cat": "redis",
+      "desc": "查看剩余生存时间",
+      "syntax": "TTL <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "TTL token",
+          "comment": "剩余秒数(-1 永不过期)"
+        },
+        {
+          "cmd": "TTL code",
+          "comment": "验证码剩余时间"
+        },
+        {
+          "cmd": "TTL session:9f3",
+          "comment": "会话剩余时间"
+        }
+      ],
+      "tags": [
+        "redis",
+        "过期"
+      ]
+    },
+    {
+      "id": "redis-persist",
+      "cmd": "PERSIST",
+      "cat": "redis",
+      "desc": "移除过期时间",
+      "syntax": "PERSIST <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "PERSIST token",
+          "comment": "取消过期"
+        },
+        {
+          "cmd": "PERSIST session:9f3",
+          "comment": "会话永不过期"
+        },
+        {
+          "cmd": "TTL token",
+          "comment": "验证为 -1"
+        }
+      ],
+      "tags": [
+        "redis",
+        "过期"
+      ]
+    },
+    {
+      "id": "redis-incr",
+      "cmd": "INCR",
+      "cat": "redis",
+      "desc": "自增计数",
+      "syntax": "INCR <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "INCR pageview:home",
+          "comment": "页面访问计数"
+        },
+        {
+          "cmd": "INCR likes:post:100",
+          "comment": "点赞数"
+        },
+        {
+          "cmd": "INCRBY stock:iphone 5",
+          "comment": "按步长增加"
+        },
+        {
+          "cmd": "GET pageview:home",
+          "comment": "查看当前计数"
+        }
+      ],
+      "tags": [
+        "redis",
+        "计数"
+      ]
+    },
+    {
+      "id": "redis-decr",
+      "cmd": "DECR",
+      "cat": "redis",
+      "desc": "自减计数",
+      "syntax": "DECR <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "DECR stock:iphone",
+          "comment": "库存减 1"
+        },
+        {
+          "cmd": "DECRBY stock:iphone 3",
+          "comment": "按步长减少"
+        },
+        {
+          "cmd": "DECR quota:user:1",
+          "comment": "配额递减"
+        },
+        {
+          "cmd": "GET stock:iphone",
+          "comment": "查看剩余库存"
+        }
+      ],
+      "tags": [
+        "redis",
+        "计数"
+      ]
+    },
+    {
+      "id": "redis-setnx",
+      "cmd": "SETNX",
+      "cat": "redis",
+      "desc": "不存在时设置(分布式锁)",
+      "syntax": "SETNX <key> <value>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "SETNX lock:order 1",
+          "comment": "抢锁(成功返回 1)"
+        },
+        {
+          "cmd": "SET lock:order 1 EX 10 NX",
+          "comment": "带超时的锁"
+        },
+        {
+          "cmd": "DEL lock:order",
+          "comment": "释放锁"
+        },
+        {
+          "cmd": "SET lock:order uuid EX 10 NX",
+          "comment": "锁值用唯一标识防误删"
+        }
+      ],
+      "tags": [
+        "redis",
+        "锁"
+      ]
+    },
+    {
+      "id": "redis-keys",
+      "cmd": "KEYS",
+      "cat": "redis",
+      "desc": "按模式匹配键(慎用)",
+      "syntax": "KEYS <pattern>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "KEYS user:*",
+          "comment": "匹配 user 前缀(生产慎用)"
+        },
+        {
+          "cmd": "KEYS *cache*",
+          "comment": "包含 cache 的键"
+        },
+        {
+          "cmd": "KEYS ?b*",
+          "comment": "通配单个字符"
+        },
+        {
+          "cmd": "SCAN 0 MATCH user:* COUNT 100",
+          "comment": "生产推荐用 SCAN"
+        }
+      ],
+      "tags": [
+        "redis",
+        "查询"
+      ]
+    },
+    {
+      "id": "redis-scan",
+      "cmd": "SCAN",
+      "cat": "redis",
+      "desc": "游标式遍历键",
+      "syntax": "SCAN <cursor> [MATCH <pattern>] [COUNT N]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "SCAN 0",
+          "comment": "开始遍历(返回新游标)"
+        },
+        {
+          "cmd": "SCAN 0 MATCH user:* COUNT 100",
+          "comment": "匹配前缀遍历"
+        },
+        {
+          "cmd": "redis-cli --scan --pattern 'session:*'",
+          "comment": "CLI 自动迭代"
+        },
+        {
+          "cmd": "redis-cli --scan --pattern 'user:*' | xargs redis-cli del",
+          "comment": "批量删除匹配键"
+        }
+      ],
+      "tags": [
+        "redis",
+        "遍历"
+      ]
+    },
+    {
+      "id": "redis-type",
+      "cmd": "TYPE",
+      "cat": "redis",
+      "desc": "查看键类型",
+      "syntax": "TYPE <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "TYPE user:1",
+          "comment": "返回 string/hash/list..."
+        },
+        {
+          "cmd": "TYPE session:9f3",
+          "comment": "确认类型后操作"
+        },
+        {
+          "cmd": "TYPE cache:list",
+          "comment": "判断列表类型"
+        }
+      ],
+      "tags": [
+        "redis",
+        "类型"
+      ]
+    },
+    {
+      "id": "redis-hset",
+      "cmd": "HSET",
+      "cat": "redis",
+      "desc": "设置哈希字段",
+      "syntax": "HSET <key> <field> <value>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "HSET user:1 name '张三'",
+          "comment": "设置单个字段"
+        },
+        {
+          "cmd": "HSET user:1 name '张三' age 30 city '北京'",
+          "comment": "一次设置多字段"
+        },
+        {
+          "cmd": "HSET product:100 stock 99",
+          "comment": "商品库存"
+        },
+        {
+          "cmd": "HGETALL user:1",
+          "comment": "查看全部字段"
+        }
+      ],
+      "tags": [
+        "redis",
+        "哈希"
+      ]
+    },
+    {
+      "id": "redis-hget",
+      "cmd": "HGET",
+      "cat": "redis",
+      "desc": "获取哈希字段",
+      "syntax": "HGET <key> <field>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "HGET user:1 name",
+          "comment": "获取单个字段"
+        },
+        {
+          "cmd": "HGET user:1 age",
+          "comment": "获取年龄字段"
+        },
+        {
+          "cmd": "HMGET user:1 name age",
+          "comment": "批量获取字段"
+        },
+        {
+          "cmd": "HGET product:100 stock",
+          "comment": "查库存"
+        }
+      ],
+      "tags": [
+        "redis",
+        "哈希"
+      ]
+    },
+    {
+      "id": "redis-hgetall",
+      "cmd": "HGETALL",
+      "cat": "redis",
+      "desc": "获取全部哈希字段",
+      "syntax": "HGETALL <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "HGETALL user:1",
+          "comment": "取全部字段值"
+        },
+        {
+          "cmd": "HGETALL product:100",
+          "comment": "商品全量信息"
+        },
+        {
+          "cmd": "HKEYS user:1",
+          "comment": "只看字段名"
+        },
+        {
+          "cmd": "HLEN user:1",
+          "comment": "字段数量"
+        }
+      ],
+      "tags": [
+        "redis",
+        "哈希"
+      ]
+    },
+    {
+      "id": "redis-lpush",
+      "cmd": "LPUSH",
+      "cat": "redis",
+      "desc": "头部压入列表",
+      "syntax": "LPUSH <key> <value> [value...]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "LPUSH queue:task task-1",
+          "comment": "任务入队"
+        },
+        {
+          "cmd": "LPUSH logs:app 'error: timeout'",
+          "comment": "日志头部插入"
+        },
+        {
+          "cmd": "RPUSH queue:task task-2",
+          "comment": "尾部入队(FIFO 队列)"
+        },
+        {
+          "cmd": "LRANGE queue:task 0 -1",
+          "comment": "查看队列内容"
+        }
+      ],
+      "tags": [
+        "redis",
+        "列表"
+      ]
+    },
+    {
+      "id": "redis-lrange",
+      "cmd": "LRANGE",
+      "cat": "redis",
+      "desc": "取列表区间",
+      "syntax": "LRANGE <key> <start> <stop>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "LRANGE queue:task 0 -1",
+          "comment": "取全部元素"
+        },
+        {
+          "cmd": "LRANGE queue:task 0 9",
+          "comment": "取前 10 个"
+        },
+        {
+          "cmd": "LRANGE logs:app -5 -1",
+          "comment": "取最后 5 条日志"
+        },
+        {
+          "cmd": "LLEN queue:task",
+          "comment": "队列长度"
+        }
+      ],
+      "tags": [
+        "redis",
+        "列表"
+      ]
+    },
+    {
+      "id": "redis-lpop",
+      "cmd": "LPOP/RPOP",
+      "cat": "redis",
+      "desc": "从列表弹出元素",
+      "syntax": "LPOP <key> | RPOP <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "LPOP queue:task",
+          "comment": "头部弹出(栈)"
+        },
+        {
+          "cmd": "RPOP queue:task",
+          "comment": "尾部弹出(FIFO 队列)"
+        },
+        {
+          "cmd": "BLPOP queue:task 5",
+          "comment": "阻塞等待 5 秒弹出"
+        },
+        {
+          "cmd": "LPOP queue:task 3",
+          "comment": "一次弹出 3 个"
+        }
+      ],
+      "tags": [
+        "redis",
+        "列表"
+      ]
+    },
+    {
+      "id": "redis-llen",
+      "cmd": "LLEN",
+      "cat": "redis",
+      "desc": "查看列表长度",
+      "syntax": "LLEN <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "LLEN queue:task",
+          "comment": "队列积压量"
+        },
+        {
+          "cmd": "LLEN logs:app",
+          "comment": "日志条数"
+        },
+        {
+          "cmd": "LLEN queue:task > 1000",
+          "comment": "积压告警判断"
+        }
+      ],
+      "tags": [
+        "redis",
+        "列表"
+      ]
+    },
+    {
+      "id": "redis-sadd",
+      "cmd": "SADD",
+      "cat": "redis",
+      "desc": "集合添加元素",
+      "syntax": "SADD <key> <member> [member...]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "SADD tags:post:1 redis",
+          "comment": "文章打标签"
+        },
+        {
+          "cmd": "SADD online:users u1 u2 u3",
+          "comment": "在线用户集合"
+        },
+        {
+          "cmd": "SADD ip:blacklist 1.2.3.4",
+          "comment": "黑名单"
+        },
+        {
+          "cmd": "SMEMBERS tags:post:1",
+          "comment": "查看集合成员"
+        }
+      ],
+      "tags": [
+        "redis",
+        "集合"
+      ]
+    },
+    {
+      "id": "redis-smembers",
+      "cmd": "SMEMBERS",
+      "cat": "redis",
+      "desc": "取集合全部元素",
+      "syntax": "SMEMBERS <key>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "SMEMBERS online:users",
+          "comment": "在线用户列表"
+        },
+        {
+          "cmd": "SISMEMBER ip:blacklist 1.2.3.4",
+          "comment": "判断是否在黑名单"
+        },
+        {
+          "cmd": "SCARD online:users",
+          "comment": "在线人数"
+        },
+        {
+          "cmd": "SREM online:users u1",
+          "comment": "移除成员"
+        }
+      ],
+      "tags": [
+        "redis",
+        "集合"
+      ]
+    },
+    {
+      "id": "redis-zadd",
+      "cmd": "ZADD",
+      "cat": "redis",
+      "desc": "有序集合添加(带分数)",
+      "syntax": "ZADD <key> <score> <member> [score member...]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "ZADD leaderboard 100 '张三'",
+          "comment": "排行榜加人"
+        },
+        {
+          "cmd": "ZADD scores 90 'a' 85 'b' 95 'c'",
+          "comment": "批量添加"
+        },
+        {
+          "cmd": "ZADD leaderboard 150 '张三'",
+          "comment": "更新分数"
+        },
+        {
+          "cmd": "ZINCRBY leaderboard 10 '张三'",
+          "comment": "分数加 10"
+        }
+      ],
+      "tags": [
+        "redis",
+        "有序集合"
+      ]
+    },
+    {
+      "id": "redis-zrange",
+      "cmd": "ZRANGE",
+      "cat": "redis",
+      "desc": "取有序集合区间",
+      "syntax": "ZRANGE <key> <start> <stop> [WITHSCORES]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "ZRANGE leaderboard 0 9 WITHSCORES",
+          "comment": "排行榜前 10"
+        },
+        {
+          "cmd": "ZREVRANGE leaderboard 0 4",
+          "comment": "倒序前 5"
+        },
+        {
+          "cmd": "ZRANGE scores 0 -1",
+          "comment": "全部成员"
+        },
+        {
+          "cmd": "ZSCORE leaderboard '张三'",
+          "comment": "查看单成员分数"
+        }
+      ],
+      "tags": [
+        "redis",
+        "有序集合"
+      ]
+    },
+    {
+      "id": "redis-info",
+      "cmd": "INFO",
+      "cat": "redis",
+      "desc": "查看服务信息",
+      "syntax": "INFO [section]",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "INFO",
+          "comment": "查看全部信息"
+        },
+        {
+          "cmd": "INFO memory",
+          "comment": "内存使用情况"
+        },
+        {
+          "cmd": "INFO stats",
+          "comment": "连接与命令统计"
+        },
+        {
+          "cmd": "INFO replication",
+          "comment": "主从复制状态"
+        },
+        {
+          "cmd": "redis-cli --stat",
+          "comment": "实时统计"
+        }
+      ],
+      "tags": [
+        "redis",
+        "监控"
+      ]
+    },
+    {
+      "id": "redis-monitor",
+      "cmd": "MONITOR",
+      "cat": "redis",
+      "desc": "实时监听所有命令",
+      "syntax": "MONITOR",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "MONITOR",
+          "comment": "实时看所有命令(慎用)"
+        },
+        {
+          "cmd": "redis-cli monitor | grep 'GET user'",
+          "comment": "过滤指定命令"
+        },
+        {
+          "cmd": "redis-cli monitor | head -20",
+          "comment": "只看前 20 条"
+        }
+      ],
+      "tags": [
+        "redis",
+        "调试"
+      ]
+    },
+    {
+      "id": "redis-select",
+      "cmd": "SELECT",
+      "cat": "redis",
+      "desc": "切换数据库",
+      "syntax": "SELECT <index>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "SELECT 0",
+          "comment": "切到库 0(默认)"
+        },
+        {
+          "cmd": "SELECT 2",
+          "comment": "切到库 2"
+        },
+        {
+          "cmd": "redis-cli -n 2",
+          "comment": "连接时指定库"
+        },
+        {
+          "cmd": "DBSIZE",
+          "comment": "查看当前库键数"
+        }
+      ],
+      "tags": [
+        "redis",
+        "数据库"
+      ]
+    },
+    {
+      "id": "redis-flushdb",
+      "cmd": "FLUSHDB",
+      "cat": "redis",
+      "desc": "清空当前库",
+      "syntax": "FLUSHDB",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "FLUSHDB",
+          "comment": "清空当前库(慎用)"
+        },
+        {
+          "cmd": "FLUSHDB ASYNC",
+          "comment": "异步清空不阻塞"
+        },
+        {
+          "cmd": "FLUSHALL",
+          "comment": "清空全部库(极慎用)"
+        }
+      ],
+      "tags": [
+        "redis",
+        "清空"
+      ]
+    },
+    {
+      "id": "redis-save",
+      "cmd": "SAVE/BGSAVE",
+      "cat": "redis",
+      "desc": "持久化快照",
+      "syntax": "SAVE | BGSAVE",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "SAVE",
+          "comment": "同步保存快照(阻塞)"
+        },
+        {
+          "cmd": "BGSAVE",
+          "comment": "后台异步保存"
+        },
+        {
+          "cmd": "LASTSAVE",
+          "comment": "上次保存时间"
+        },
+        {
+          "cmd": "CONFIG GET save",
+          "comment": "查看自动保存策略"
+        }
+      ],
+      "tags": [
+        "redis",
+        "持久化"
+      ]
+    },
+    {
+      "id": "redis-subscribe",
+      "cmd": "PUBLISH/SUBSCRIBE",
+      "cat": "redis",
+      "desc": "发布订阅消息",
+      "syntax": "PUBLISH <channel> <msg> | SUBSCRIBE <channel>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "PUBLISH news 'hello'",
+          "comment": "发布消息"
+        },
+        {
+          "cmd": "SUBSCRIBE news",
+          "comment": "订阅频道"
+        },
+        {
+          "cmd": "SUBSCRIBE news alerts",
+          "comment": "订阅多个频道"
+        },
+        {
+          "cmd": "PSUBSCRIBE news.*",
+          "comment": "按模式订阅"
+        }
+      ],
+      "tags": [
+        "redis",
+        "发布订阅"
+      ]
+    },
+    {
+      "id": "redis-config-get",
+      "cmd": "CONFIG GET",
+      "cat": "redis",
+      "desc": "查看运行配置",
+      "syntax": "CONFIG GET <pattern>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "CONFIG GET maxmemory",
+          "comment": "查看内存上限"
+        },
+        {
+          "cmd": "CONFIG GET save",
+          "comment": "持久化策略"
+        },
+        {
+          "cmd": "CONFIG GET *timeout*",
+          "comment": "通配匹配配置"
+        },
+        {
+          "cmd": "CONFIG SET maxmemory 512mb",
+          "comment": "动态修改配置"
+        }
+      ],
+      "tags": [
+        "redis",
+        "配置"
+      ]
+    }
+  ]
+}

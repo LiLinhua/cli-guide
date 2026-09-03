@@ -44,12 +44,11 @@
 
       window.cliGuide.onWindowState((st) => this.setState(st));
 
-      const data = await window.cliGuide.loadCommands();
-      this.allCommands = data;
-      window.CommandStore.setData(data);
-      const cats = [...new Set(data.map(c => c.cat))];
-      this.panel.setData(data);
-      this.panel.renderCats(cats);
+      const { commands, categories } = await window.cliGuide.loadCommands();
+      this.allCommands = commands;
+      window.CommandStore.setData(commands);
+      this.panel.setData(commands);
+      this.panel.renderCats(categories);
       this.applyFilter('');
 
       // 右键菜单

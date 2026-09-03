@@ -29,7 +29,7 @@
   }
 
   window.cliGuide = {
-    loadCommands: () => Promise.resolve(window.__COMMANDS__ || []),
+    loadCommands: () => Promise.resolve({ commands: window.__COMMANDS__ || [], categories: window.__CATEGORIES__ || [] }),
     getConfig: () => Promise.resolve(cfg),
     saveConfig: (partial) => {
       Object.assign(cfg, partial);

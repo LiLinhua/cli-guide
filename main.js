@@ -4,7 +4,7 @@ const { app, BrowserWindow, globalShortcut, Tray, Menu, clipboard, ipcMain, scre
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
-const { loadBuiltinCommands, loadUserCommands, mergeCommands } = require('./lib/commands');
+const { loadBuiltinCommands, loadUserCommands, mergeCommands, mergeCategories } = require('./lib/commands');
 const { defaultCompactBounds, computeExpandedBounds, computeStealthBounds, computeMenuBounds, interpolate, PET_W, PET_H, STEALTH_SIZE } = require('./lib/layout');
 
 const USER_DIR = path.join(os.homedir(), '.cli-guide');
@@ -31,11 +31,11 @@ function saveConfig(cfg) {
   fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2));
 }
 
-/* ---------- 用户数据目录初始化(首次复制内置库) ---------- */
+/* ---------- 用户数据目录初始化(首次复制内置库与说明文档) ---------- */
 function ensureUserData() {
   fs.mkdirSync(USER_CMDS_DIR, { recursive: true });
   const builtinDir = path.join(__dirname, 'resources', 'commands');
-  for (const f of fs.readdirSync(builtinDir).filter(x => x.endsWith('.json'))) {
+  for (const f of fs.readdirSync(builtinDir).filter(x => x.endsWith('.json') || x === 'README.md')) {
     const target = path.join(USER_CMDS_DIR, f);
     if (!fs.existsSync(target)) fs.copyFileSync(path.join(builtinDir, f), target);
   }
@@ -133,8 +133,11 @@ function broadcast() { if (win) win.webContents.send('window:state', state); }
 /* ---------- IPC ---------- */
 ipcMain.handle('commands:load', () => {
   ensureUserData();
-  const all = mergeCommands(loadBuiltinCommands(__dirname), loadUserCommands(USER_CMDS_DIR));
-  return all;
+  const builtin = loadBuiltinCommands(__dirname);
+  const user = loadUserCommands(USER_CMDS_DIR);
+  const commands = mergeCommands(builtin.commands, user.commands);
+  const categories = mergeCategories(builtin.categories, user.categories, commands);
+  return { commands, categories };
 });
 ipcMain.handle('config:get', () => loadConfig());
 ipcMain.handle('config:save', (_e, partial) => saveConfig({ ...loadConfig(), ...partial }));

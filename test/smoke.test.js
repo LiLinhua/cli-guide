@@ -55,8 +55,9 @@ global.cancelAnimationFrame = () => {};
 let copiedText = '';
 global.cliGuide = {
   loadCommands: async () => {
-    const { loadBuiltinCommands } = require('../lib/commands');
-    return loadBuiltinCommands(ROOT);
+    const { loadBuiltinCommands, mergeCategories } = require('../lib/commands');
+    const { commands, categories } = loadBuiltinCommands(ROOT);
+    return { commands, categories: mergeCategories(categories, [], commands) };
   },
   copyText: async (t) => { copiedText = t; },
   togglePanel: async () => {}, hidePanel: async () => {}, dragMove: async () => {},

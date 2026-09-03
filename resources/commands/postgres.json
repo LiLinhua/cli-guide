@@ -1,273 +1,921 @@
-[
-  { "id": "psql-connect", "cmd": "psql", "cat": "postgres", "desc": "连接 PostgreSQL 客户端",
-    "syntax": "psql -U <user> -h <host> -d <db>",
-    "args": [ { "name": "-U", "desc": "用户名" }, { "name": "-h", "desc": "主机" }, { "name": "-d", "desc": "数据库" } ],
-    "examples": [
-      { "cmd": "psql -U postgres -d mydb", "comment": "连接本地 mydb" },
-      { "cmd": "psql -U app -h 10.0.0.5 -p 5433 -d appdb", "comment": "远程指定端口连接" },
-      { "cmd": "psql -U postgres", "comment": "连接默认库 postgres" },
-      { "cmd": "psql postgresql://app:secret@10.0.0.5:5433/appdb", "comment": "连接串方式连接" },
-      { "cmd": "psql -U postgres -d mydb -w", "comment": "免密码连接(信任认证)" }
-    ],
-    "tags": ["postgres", "psql"] },
-  { "id": "psql-exec", "cmd": "psql -c", "cat": "postgres", "desc": "直接执行 SQL 后退出",
-    "syntax": "psql -U <user> -d <db> -c \"<sql>\"",
-    "args": [],
-    "examples": [
-      { "cmd": "psql -U postgres -d mydb -c 'SELECT version();'", "comment": "查版本不进入交互" },
-      { "cmd": "psql -U postgres -d mydb -c 'SELECT count(*) FROM users;'", "comment": "统计行数" },
-      { "cmd": "psql -U postgres -d mydb -c 'CREATE INDEX idx_email ON users(email);'", "comment": "一行建索引" },
-      { "cmd": "psql -U postgres -d mydb -c 'TRUNCATE logs;'", "comment": "清空表数据" },
-      { "cmd": "psql -U postgres -d mydb -c 'UPDATE users SET status=1 WHERE id=100;'", "comment": "单条更新" },
-      { "cmd": "psql -U postgres -d mydb -c '\\dt' -c '\\du'", "comment": "一次执行多条元命令" }
-    ],
-    "tags": ["postgres", "psql"] },
-  { "id": "psql-list-db", "cmd": "psql \\l", "cat": "postgres", "desc": "列出所有数据库",
-    "syntax": "psql -l",
-    "args": [],
-    "examples": [
-      { "cmd": "psql -U postgres -l", "comment": "查看全部数据库" },
-      { "cmd": "psql -U postgres -d mydb -c '\\l'", "comment": "会话内列出" },
-      { "cmd": "psql -U postgres -lq", "comment": "安静模式快速列出" },
-      { "cmd": "SELECT datname FROM pg_database;", "comment": "用 SQL 查数据库列表" }
-    ],
-    "tags": ["postgres", "psql"] },
-  { "id": "psql-list-tables", "cmd": "psql \\dt", "cat": "postgres", "desc": "列出当前库的表",
-    "syntax": "\\dt",
-    "args": [],
-    "examples": [
-      { "cmd": "psql -d mydb -c '\\dt'", "comment": "查看 mydb 的表" },
-      { "cmd": "\\dt", "comment": "列出当前库全部表" },
-      { "cmd": "\\dt user*", "comment": "按模式过滤表名" },
-      { "cmd": "\\dt+", "comment": "含大小与描述信息" },
-      { "cmd": "\\dT", "comment": "列出自定义类型" }
-    ],
-    "tags": ["postgres", "psql"] },
-  { "id": "psql-describe", "cmd": "psql \\d table", "cat": "postgres", "desc": "查看表结构",
-    "syntax": "\\d <table>",
-    "args": [],
-    "examples": [
-      { "cmd": "psql -d mydb -c '\\d users'", "comment": "查看 users 表结构" },
-      { "cmd": "\\d+ users", "comment": "含约束与索引详情" },
-      { "cmd": "\\d orders", "comment": "查看列/类型/默认值" },
-      { "cmd": "\\di", "comment": "只列索引" },
-      { "cmd": "\\dv", "comment": "只列视图" },
-      { "cmd": "\\df", "comment": "列出函数" }
-    ],
-    "tags": ["postgres", "psql"] },
-  { "id": "psql-users", "cmd": "psql \\du", "cat": "postgres", "desc": "列出所有用户",
-    "syntax": "\\du", "args": [],
-    "examples": [
-      { "cmd": "psql -U postgres -c '\\du'", "comment": "查看角色列表" },
-      { "cmd": "\\du dev", "comment": "查看指定用户" },
-      { "cmd": "SELECT rolname, rolsuper FROM pg_roles;", "comment": "用 SQL 查角色" },
-      { "cmd": "\\dg", "comment": "按组查看角色" }
-    ],
-    "tags": ["postgres", "psql"] },
-  { "id": "psql-expanded", "cmd": "psql \\x", "cat": "postgres", "desc": "扩展显示模式",
-    "syntax": "\\x",
-    "args": [],
-    "examples": [
-      { "cmd": "psql -d mydb -c '\\x' -c 'SELECT * FROM users LIMIT 1;'", "comment": "竖排显示宽表" },
-      { "cmd": "\\x", "comment": "切换扩展显示开关" },
-      { "cmd": "\\x on", "comment": "强制竖排显示" },
-      { "cmd": "\\x auto", "comment": "宽表自动竖排" },
-      { "cmd": "psql -d mydb -x -c 'SELECT * FROM orders LIMIT 1;'", "comment": "命令行参数直接启用" }
-    ],
-    "tags": ["postgres", "psql"] },
-  { "id": "psql-connect-db", "cmd": "psql \\c", "cat": "postgres", "desc": "切换数据库",
-    "syntax": "\\c <db>",
-    "args": [],
-    "examples": [
-      { "cmd": "psql -c '\\c otherdb'", "comment": "会话内切库" },
-      { "cmd": "\\c appdb", "comment": "切到 appdb" },
-      { "cmd": "\\c appdb app_user", "comment": "切库并换用户" },
-      { "cmd": "\\c appdb app_user 10.0.0.5 5433", "comment": "切到远程库" }
-    ],
-    "tags": ["postgres", "psql"] },
-  { "id": "psql-run-file", "cmd": "psql \\i", "cat": "postgres", "desc": "执行 SQL 脚本文件",
-    "syntax": "\\i <file.sql>",
-    "args": [],
-    "examples": [
-      { "cmd": "psql -U postgres -d mydb -f init.sql", "comment": "执行初始化脚本" },
-      { "cmd": "\\i migrations/001_create_users.sql", "comment": "会话内执行迁移文件" },
-      { "cmd": "psql -U postgres -d mydb -f backup.sql", "comment": "导入 SQL 备份" },
-      { "cmd": "psql -U postgres -d mydb -f schema.sql --set ON_ERROR_STOP=1", "comment": "出错即停" },
-      { "cmd": "psql -U postgres -d mydb -f data.sql -q", "comment": "安静模式执行" }
-    ],
-    "tags": ["postgres", "psql"] },
-  { "id": "createdb", "cmd": "createdb", "cat": "postgres", "desc": "创建数据库",
-    "syntax": "createdb -U <user> <db>",
-    "args": [ { "name": "-O", "desc": "指定属主" } ],
-    "examples": [
-      { "cmd": "createdb -U postgres mydb", "comment": "创建 mydb" },
-      { "cmd": "createdb -U postgres -O app appdb", "comment": "指定属主创建" },
-      { "cmd": "createdb -U postgres -E UTF8 -T template0 mydb", "comment": "指定编码创建" },
-      { "cmd": "createdb -U postgres --locale=zh_CN.UTF-8 mydb", "comment": "指定区域创建" },
-      { "cmd": "createdb -U postgres -T template1 testdb", "comment": "基于模板创建" }
-    ],
-    "tags": ["postgres", "管理"] },
-  { "id": "dropdb", "cmd": "dropdb", "cat": "postgres", "desc": "删除数据库",
-    "syntax": "dropdb -U <user> <db>",
-    "args": [],
-    "examples": [
-      { "cmd": "dropdb -U postgres olddb", "comment": "删除旧库(慎用)" },
-      { "cmd": "dropdb -U postgres --if-exists tmpdb", "comment": "存在才删" },
-      { "cmd": "dropdb -U postgres -f appdb", "comment": "强制删除(断连接)" },
-      { "cmd": "DROP DATABASE appdb;", "comment": "SQL 方式删除" }
-    ],
-    "tags": ["postgres", "管理"] },
-  { "id": "createuser", "cmd": "createuser", "cat": "postgres", "desc": "创建用户",
-    "syntax": "createuser -U <user> [--superuser] <name>",
-    "args": [ { "name": "-P", "desc": "设置密码" }, { "name": "-s", "desc": "超级用户" } ],
-    "examples": [
-      { "cmd": "createuser -U postgres -P dev", "comment": "创建带密码的 dev 用户" },
-      { "cmd": "createuser -U postgres -s admin", "comment": "创建超级用户" },
-      { "cmd": "createuser -U postgres -P -e reader", "comment": "创建并回显 SQL" },
-      { "cmd": "createuser -U postgres -P --createdb app", "comment": "带建库权限" },
-      { "cmd": "CREATE USER dev WITH PASSWORD 'secret' CREATEDB;", "comment": "SQL 方式创建" }
-    ],
-    "tags": ["postgres", "管理"] },
-  { "id": "dropuser", "cmd": "dropuser", "cat": "postgres", "desc": "删除用户",
-    "syntax": "dropuser -U <user> <name>",
-    "args": [],
-    "examples": [
-      { "cmd": "dropuser -U postgres dev", "comment": "删除 dev 用户" },
-      { "cmd": "dropuser -U postgres --if-exists tmp_user", "comment": "存在才删" },
-      { "cmd": "DROP USER dev;", "comment": "SQL 方式删除" },
-      { "cmd": "REASSIGN OWNED BY dev TO postgres; DROP USER dev;", "comment": "转移对象后删除" }
-    ],
-    "tags": ["postgres", "管理"] },
-  { "id": "pg-dump", "cmd": "pg_dump", "cat": "postgres", "desc": "备份数据库",
-    "syntax": "pg_dump -U <user> -d <db> > backup.sql",
-    "args": [ { "name": "-Fc", "desc": "自定义压缩格式" }, { "name": "-t", "desc": "只备份指定表" } ],
-    "examples": [
-      { "cmd": "pg_dump -U postgres -d mydb -Fc -f mydb.dump", "comment": "压缩格式备份" },
-      { "cmd": "pg_dump -U postgres -d mydb > backup.sql", "comment": "纯 SQL 备份" },
-      { "cmd": "pg_dump -U postgres -d mydb -t users -t orders > part.sql", "comment": "只备份指定表" },
-      { "cmd": "pg_dump -U postgres -d mydb --schema-only > schema.sql", "comment": "只备份结构" },
-      { "cmd": "pg_dump -U postgres -d mydb --data-only > data.sql", "comment": "只备份数据" },
-      { "cmd": "pg_dump -U postgres -d mydb -Fc | gzip > mydb.dump.gz", "comment": "管道压缩备份" },
-      { "cmd": "pg_dump -U postgres -d mydb --exclude-table=logs > clean.sql", "comment": "排除日志表备份" }
-    ],
-    "tags": ["postgres", "备份"] },
-  { "id": "pg-restore", "cmd": "pg_restore", "cat": "postgres", "desc": "恢复数据库",
-    "syntax": "pg_restore -U <user> -d <db> <file.dump>",
-    "args": [ { "name": "--clean", "desc": "先删后建" }, { "name": "-j", "desc": "并行度" } ],
-    "examples": [
-      { "cmd": "pg_restore -U postgres -d mydb --clean mydb.dump", "comment": "清空后恢复" },
-      { "cmd": "pg_restore -U postgres -d mydb -j 4 mydb.dump", "comment": "4 并行加速恢复" },
-      { "cmd": "pg_restore -U postgres -d mydb -t users mydb.dump", "comment": "只恢复单表" },
-      { "cmd": "pg_restore -U postgres -d mydb --list mydb.dump", "comment": "预览恢复内容清单" },
-      { "cmd": "pg_restore -U postgres -d mydb -Fc --no-owner mydb.dump", "comment": "不恢复属主" },
-      { "cmd": "psql -U postgres -d mydb -f backup.sql", "comment": "恢复纯 SQL 备份" }
-    ],
-    "tags": ["postgres", "恢复"] },
-  { "id": "pg-ctl-status", "cmd": "pg_ctl status", "cat": "postgres", "desc": "查看服务状态",
-    "syntax": "pg_ctl -D <data-dir> status",
-    "args": [],
-    "examples": [
-      { "cmd": "pg_ctl -D /usr/local/var/postgresql status", "comment": "查看数据目录状态" },
-      { "cmd": "pg_ctl -D /usr/local/var/postgresql@14 status", "comment": "查看 14 版本状态" },
-      { "cmd": "ps aux | grep postgres", "comment": "从进程角度确认运行" },
-      { "cmd": "pg_isready -h localhost -p 5432", "comment": "探测端口就绪状态" }
-    ],
-    "tags": ["postgres", "服务"] },
-  { "id": "pg-ctl-control", "cmd": "pg_ctl start/stop/reload", "cat": "postgres", "desc": "启停/重载服务",
-    "syntax": "pg_ctl -D <data-dir> <start|stop|reload>",
-    "args": [],
-    "examples": [
-      { "cmd": "pg_ctl -D /usr/local/var/postgresql reload", "comment": "重载配置不停服" },
-      { "cmd": "pg_ctl -D /usr/local/var/postgresql start", "comment": "启动服务" },
-      { "cmd": "pg_ctl -D /usr/local/var/postgresql stop -m fast", "comment": "快速停止(回滚未完成事务)" },
-      { "cmd": "pg_ctl -D /usr/local/var/postgresql restart -m immediate", "comment": "立即重启(紧急)" },
-      { "cmd": "pg_ctl -D /usr/local/var/postgresql stop -m smart", "comment": "等待连接结束再停" }
-    ],
-    "tags": ["postgres", "服务"] },
-  { "id": "vacuumdb", "cmd": "vacuumdb", "cat": "postgres", "desc": "清理并回收空间",
-    "syntax": "vacuumdb -U <user> [--analyze] <db>",
-    "args": [ { "name": "--analyze", "desc": "同时更新统计" } ],
-    "examples": [
-      { "cmd": "vacuumdb -U postgres --analyze mydb", "comment": "清理并更新统计信息" },
-      { "cmd": "vacuumdb -U postgres mydb", "comment": "只清理不分析" },
-      { "cmd": "vacuumdb -U postgres --full -v mydb", "comment": "完全回收并显示详情" },
-      { "cmd": "vacuumdb -U postgres -t users mydb", "comment": "只清理单表" },
-      { "cmd": "vacuumdb -U postgres -a", "comment": "清理所有数据库" }
-    ],
-    "tags": ["postgres", "维护"] },
-  { "id": "reindexdb", "cmd": "reindexdb", "cat": "postgres", "desc": "重建索引",
-    "syntax": "reindexdb -U <user> <db>",
-    "args": [],
-    "examples": [
-      { "cmd": "reindexdb -U postgres mydb", "comment": "重建全部索引" },
-      { "cmd": "reindexdb -U postgres -t users mydb", "comment": "重建单表索引" },
-      { "cmd": "reindexdb -U postgres -i idx_users_email mydb", "comment": "重建单个索引" },
-      { "cmd": "REINDEX TABLE users;", "comment": "SQL 方式重建" }
-    ],
-    "tags": ["postgres", "维护"] },
-  { "id": "pg-explain-analyze", "cmd": "EXPLAIN ANALYZE", "cat": "postgres", "desc": "查看真实执行计划",
-    "syntax": "EXPLAIN ANALYZE <sql>;",
-    "args": [],
-    "examples": [
-      { "cmd": "EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id=1;", "comment": "定位慢查询瓶颈" },
-      { "cmd": "EXPLAIN SELECT * FROM orders WHERE user_id=1;", "comment": "只估算不执行" },
-      { "cmd": "EXPLAIN (ANALYZE, BUFFERS) SELECT count(*) FROM orders;", "comment": "含缓存命中分析" },
-      { "cmd": "EXPLAIN (ANALYZE, FORMAT JSON) SELECT * FROM orders;", "comment": "JSON 格式输出" },
-      { "cmd": "EXPLAIN ANALYZE UPDATE orders SET status=2 WHERE created_at < NOW() - INTERVAL '1 year';", "comment": "分析大更新成本" }
-    ],
-    "tags": ["postgres", "优化"] },
-  { "id": "pg-copy", "cmd": "COPY", "cat": "postgres", "desc": "批量导入导出",
-    "syntax": "COPY <table> FROM '<file.csv>' DELIMITER ',' CSV HEADER;",
-    "args": [],
-    "examples": [
-      { "cmd": "COPY users FROM '/tmp/users.csv' DELIMITER ',' CSV HEADER;", "comment": "批量导入 CSV" },
-      { "cmd": "COPY users TO '/tmp/users_backup.csv' WITH CSV HEADER;", "comment": "导出为 CSV" },
-      { "cmd": "COPY (SELECT * FROM orders WHERE status=1) TO '/tmp/active.csv' CSV;", "comment": "导出查询结果" },
-      { "cmd": "COPY users FROM STDIN;", "comment": "从标准输入导入" },
-      { "cmd": "\\copy users TO '/tmp/users.csv' CSV HEADER", "comment": "客户端本地导出" }
-    ],
-    "tags": ["postgres", "导入"] },
-  { "id": "pg-alter-table", "cmd": "ALTER TABLE", "cat": "postgres", "desc": "修改表结构",
-    "syntax": "ALTER TABLE <table> ADD COLUMN <col> <type>;",
-    "args": [ { "name": "ADD COLUMN", "desc": "加列" }, { "name": "ADD CONSTRAINT", "desc": "加约束" } ],
-    "examples": [
-      { "cmd": "ALTER TABLE users ADD COLUMN phone varchar(20);", "comment": "加 phone 列" },
-      { "cmd": "ALTER TABLE users DROP COLUMN phone;", "comment": "删列" },
-      { "cmd": "ALTER TABLE users ADD CONSTRAINT uq_email UNIQUE (email);", "comment": "加唯一约束" },
-      { "cmd": "ALTER TABLE orders ADD COLUMN created_at timestamptz DEFAULT now();", "comment": "加带默认值列" },
-      { "cmd": "ALTER TABLE users RENAME COLUMN name TO full_name;", "comment": "重命名列" },
-      { "cmd": "ALTER TABLE orders ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id);", "comment": "加外键约束" }
-    ],
-    "tags": ["postgres", "DDL"] },
-  { "id": "pg-grant", "cmd": "GRANT", "cat": "postgres", "desc": "授权用户权限",
-    "syntax": "GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA public TO <user>;",
-    "args": [],
-    "examples": [
-      { "cmd": "GRANT SELECT ON ALL TABLES IN SCHEMA public TO dev;", "comment": "给 dev 只读权限" },
-      { "cmd": "GRANT ALL ON ALL TABLES IN SCHEMA public TO app;", "comment": "全权限" },
-      { "cmd": "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO app;", "comment": "序列权限(自增必需)" },
-      { "cmd": "GRANT SELECT, INSERT, UPDATE ON users TO writer;", "comment": "单表写权限" },
-      { "cmd": "REVOKE DELETE ON users FROM writer;", "comment": "回收删除权限" },
-      { "cmd": "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO dev;", "comment": "默认权限(新表自动授权)" }
-    ],
-    "tags": ["postgres", "权限"] },
-  { "id": "psql-conninfo", "cmd": "psql \\conninfo", "cat": "postgres", "desc": "查看当前连接信息",
-    "syntax": "\\conninfo", "args": [],
-    "examples": [
-      { "cmd": "psql -c '\\conninfo'", "comment": "查看当前库/用户/端口" },
-      { "cmd": "\\conninfo", "comment": "会话内查看连接详情" },
-      { "cmd": "SELECT current_database(), current_user, inet_server_port();", "comment": "SQL 方式查连接信息" },
-      { "cmd": "\\encoding", "comment": "查看当前字符编码" }
-    ],
-    "tags": ["postgres", "psql"] },
-  { "id": "pg-vacuum", "cmd": "VACUUM", "cat": "postgres", "desc": "手动清理表空间",
-    "syntax": "VACUUM [FULL] [ANALYZE] <table>;", "args": [ { "name": "FULL", "desc": "完全回收(锁表)" }, { "name": "ANALYZE", "desc": "更新统计" } ],
-    "examples": [
-      { "cmd": "VACUUM ANALYZE orders;", "comment": "清理并更新统计" },
-      { "cmd": "VACUUM;", "comment": "清理当前库全部表" },
-      { "cmd": "VACUUM FULL orders;", "comment": "完全回收(锁表慎用)" },
-      { "cmd": "VACUUM VERBOSE orders;", "comment": "显示清理详情" },
-      { "cmd": "ANALYZE users;", "comment": "只更新统计信息" }
-    ],
-    "tags": ["postgres", "维护"] }
-]
+{
+  "cat": "postgres",
+  "label": "postgres 命令",
+  "order": 10,
+  "commands": [
+    {
+      "id": "psql-connect",
+      "cmd": "psql",
+      "cat": "postgres",
+      "desc": "连接 PostgreSQL 客户端",
+      "syntax": "psql -U <user> -h <host> -d <db>",
+      "args": [
+        {
+          "name": "-U",
+          "desc": "用户名"
+        },
+        {
+          "name": "-h",
+          "desc": "主机"
+        },
+        {
+          "name": "-d",
+          "desc": "数据库"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "psql -U postgres -d mydb",
+          "comment": "连接本地 mydb"
+        },
+        {
+          "cmd": "psql -U app -h 10.0.0.5 -p 5433 -d appdb",
+          "comment": "远程指定端口连接"
+        },
+        {
+          "cmd": "psql -U postgres",
+          "comment": "连接默认库 postgres"
+        },
+        {
+          "cmd": "psql postgresql://app:secret@10.0.0.5:5433/appdb",
+          "comment": "连接串方式连接"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -w",
+          "comment": "免密码连接(信任认证)"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "psql"
+      ]
+    },
+    {
+      "id": "psql-exec",
+      "cmd": "psql -c",
+      "cat": "postgres",
+      "desc": "直接执行 SQL 后退出",
+      "syntax": "psql -U <user> -d <db> -c \"<sql>\"",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "psql -U postgres -d mydb -c 'SELECT version();'",
+          "comment": "查版本不进入交互"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -c 'SELECT count(*) FROM users;'",
+          "comment": "统计行数"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -c 'CREATE INDEX idx_email ON users(email);'",
+          "comment": "一行建索引"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -c 'TRUNCATE logs;'",
+          "comment": "清空表数据"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -c 'UPDATE users SET status=1 WHERE id=100;'",
+          "comment": "单条更新"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -c '\\dt' -c '\\du'",
+          "comment": "一次执行多条元命令"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "psql"
+      ]
+    },
+    {
+      "id": "psql-list-db",
+      "cmd": "psql \\l",
+      "cat": "postgres",
+      "desc": "列出所有数据库",
+      "syntax": "psql -l",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "psql -U postgres -l",
+          "comment": "查看全部数据库"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -c '\\l'",
+          "comment": "会话内列出"
+        },
+        {
+          "cmd": "psql -U postgres -lq",
+          "comment": "安静模式快速列出"
+        },
+        {
+          "cmd": "SELECT datname FROM pg_database;",
+          "comment": "用 SQL 查数据库列表"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "psql"
+      ]
+    },
+    {
+      "id": "psql-list-tables",
+      "cmd": "psql \\dt",
+      "cat": "postgres",
+      "desc": "列出当前库的表",
+      "syntax": "\\dt",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "psql -d mydb -c '\\dt'",
+          "comment": "查看 mydb 的表"
+        },
+        {
+          "cmd": "\\dt",
+          "comment": "列出当前库全部表"
+        },
+        {
+          "cmd": "\\dt user*",
+          "comment": "按模式过滤表名"
+        },
+        {
+          "cmd": "\\dt+",
+          "comment": "含大小与描述信息"
+        },
+        {
+          "cmd": "\\dT",
+          "comment": "列出自定义类型"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "psql"
+      ]
+    },
+    {
+      "id": "psql-describe",
+      "cmd": "psql \\d table",
+      "cat": "postgres",
+      "desc": "查看表结构",
+      "syntax": "\\d <table>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "psql -d mydb -c '\\d users'",
+          "comment": "查看 users 表结构"
+        },
+        {
+          "cmd": "\\d+ users",
+          "comment": "含约束与索引详情"
+        },
+        {
+          "cmd": "\\d orders",
+          "comment": "查看列/类型/默认值"
+        },
+        {
+          "cmd": "\\di",
+          "comment": "只列索引"
+        },
+        {
+          "cmd": "\\dv",
+          "comment": "只列视图"
+        },
+        {
+          "cmd": "\\df",
+          "comment": "列出函数"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "psql"
+      ]
+    },
+    {
+      "id": "psql-users",
+      "cmd": "psql \\du",
+      "cat": "postgres",
+      "desc": "列出所有用户",
+      "syntax": "\\du",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "psql -U postgres -c '\\du'",
+          "comment": "查看角色列表"
+        },
+        {
+          "cmd": "\\du dev",
+          "comment": "查看指定用户"
+        },
+        {
+          "cmd": "SELECT rolname, rolsuper FROM pg_roles;",
+          "comment": "用 SQL 查角色"
+        },
+        {
+          "cmd": "\\dg",
+          "comment": "按组查看角色"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "psql"
+      ]
+    },
+    {
+      "id": "psql-expanded",
+      "cmd": "psql \\x",
+      "cat": "postgres",
+      "desc": "扩展显示模式",
+      "syntax": "\\x",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "psql -d mydb -c '\\x' -c 'SELECT * FROM users LIMIT 1;'",
+          "comment": "竖排显示宽表"
+        },
+        {
+          "cmd": "\\x",
+          "comment": "切换扩展显示开关"
+        },
+        {
+          "cmd": "\\x on",
+          "comment": "强制竖排显示"
+        },
+        {
+          "cmd": "\\x auto",
+          "comment": "宽表自动竖排"
+        },
+        {
+          "cmd": "psql -d mydb -x -c 'SELECT * FROM orders LIMIT 1;'",
+          "comment": "命令行参数直接启用"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "psql"
+      ]
+    },
+    {
+      "id": "psql-connect-db",
+      "cmd": "psql \\c",
+      "cat": "postgres",
+      "desc": "切换数据库",
+      "syntax": "\\c <db>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "psql -c '\\c otherdb'",
+          "comment": "会话内切库"
+        },
+        {
+          "cmd": "\\c appdb",
+          "comment": "切到 appdb"
+        },
+        {
+          "cmd": "\\c appdb app_user",
+          "comment": "切库并换用户"
+        },
+        {
+          "cmd": "\\c appdb app_user 10.0.0.5 5433",
+          "comment": "切到远程库"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "psql"
+      ]
+    },
+    {
+      "id": "psql-run-file",
+      "cmd": "psql \\i",
+      "cat": "postgres",
+      "desc": "执行 SQL 脚本文件",
+      "syntax": "\\i <file.sql>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "psql -U postgres -d mydb -f init.sql",
+          "comment": "执行初始化脚本"
+        },
+        {
+          "cmd": "\\i migrations/001_create_users.sql",
+          "comment": "会话内执行迁移文件"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -f backup.sql",
+          "comment": "导入 SQL 备份"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -f schema.sql --set ON_ERROR_STOP=1",
+          "comment": "出错即停"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -f data.sql -q",
+          "comment": "安静模式执行"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "psql"
+      ]
+    },
+    {
+      "id": "createdb",
+      "cmd": "createdb",
+      "cat": "postgres",
+      "desc": "创建数据库",
+      "syntax": "createdb -U <user> <db>",
+      "args": [
+        {
+          "name": "-O",
+          "desc": "指定属主"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "createdb -U postgres mydb",
+          "comment": "创建 mydb"
+        },
+        {
+          "cmd": "createdb -U postgres -O app appdb",
+          "comment": "指定属主创建"
+        },
+        {
+          "cmd": "createdb -U postgres -E UTF8 -T template0 mydb",
+          "comment": "指定编码创建"
+        },
+        {
+          "cmd": "createdb -U postgres --locale=zh_CN.UTF-8 mydb",
+          "comment": "指定区域创建"
+        },
+        {
+          "cmd": "createdb -U postgres -T template1 testdb",
+          "comment": "基于模板创建"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "管理"
+      ]
+    },
+    {
+      "id": "dropdb",
+      "cmd": "dropdb",
+      "cat": "postgres",
+      "desc": "删除数据库",
+      "syntax": "dropdb -U <user> <db>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "dropdb -U postgres olddb",
+          "comment": "删除旧库(慎用)"
+        },
+        {
+          "cmd": "dropdb -U postgres --if-exists tmpdb",
+          "comment": "存在才删"
+        },
+        {
+          "cmd": "dropdb -U postgres -f appdb",
+          "comment": "强制删除(断连接)"
+        },
+        {
+          "cmd": "DROP DATABASE appdb;",
+          "comment": "SQL 方式删除"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "管理"
+      ]
+    },
+    {
+      "id": "createuser",
+      "cmd": "createuser",
+      "cat": "postgres",
+      "desc": "创建用户",
+      "syntax": "createuser -U <user> [--superuser] <name>",
+      "args": [
+        {
+          "name": "-P",
+          "desc": "设置密码"
+        },
+        {
+          "name": "-s",
+          "desc": "超级用户"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "createuser -U postgres -P dev",
+          "comment": "创建带密码的 dev 用户"
+        },
+        {
+          "cmd": "createuser -U postgres -s admin",
+          "comment": "创建超级用户"
+        },
+        {
+          "cmd": "createuser -U postgres -P -e reader",
+          "comment": "创建并回显 SQL"
+        },
+        {
+          "cmd": "createuser -U postgres -P --createdb app",
+          "comment": "带建库权限"
+        },
+        {
+          "cmd": "CREATE USER dev WITH PASSWORD 'secret' CREATEDB;",
+          "comment": "SQL 方式创建"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "管理"
+      ]
+    },
+    {
+      "id": "dropuser",
+      "cmd": "dropuser",
+      "cat": "postgres",
+      "desc": "删除用户",
+      "syntax": "dropuser -U <user> <name>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "dropuser -U postgres dev",
+          "comment": "删除 dev 用户"
+        },
+        {
+          "cmd": "dropuser -U postgres --if-exists tmp_user",
+          "comment": "存在才删"
+        },
+        {
+          "cmd": "DROP USER dev;",
+          "comment": "SQL 方式删除"
+        },
+        {
+          "cmd": "REASSIGN OWNED BY dev TO postgres; DROP USER dev;",
+          "comment": "转移对象后删除"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "管理"
+      ]
+    },
+    {
+      "id": "pg-dump",
+      "cmd": "pg_dump",
+      "cat": "postgres",
+      "desc": "备份数据库",
+      "syntax": "pg_dump -U <user> -d <db> > backup.sql",
+      "args": [
+        {
+          "name": "-Fc",
+          "desc": "自定义压缩格式"
+        },
+        {
+          "name": "-t",
+          "desc": "只备份指定表"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "pg_dump -U postgres -d mydb -Fc -f mydb.dump",
+          "comment": "压缩格式备份"
+        },
+        {
+          "cmd": "pg_dump -U postgres -d mydb > backup.sql",
+          "comment": "纯 SQL 备份"
+        },
+        {
+          "cmd": "pg_dump -U postgres -d mydb -t users -t orders > part.sql",
+          "comment": "只备份指定表"
+        },
+        {
+          "cmd": "pg_dump -U postgres -d mydb --schema-only > schema.sql",
+          "comment": "只备份结构"
+        },
+        {
+          "cmd": "pg_dump -U postgres -d mydb --data-only > data.sql",
+          "comment": "只备份数据"
+        },
+        {
+          "cmd": "pg_dump -U postgres -d mydb -Fc | gzip > mydb.dump.gz",
+          "comment": "管道压缩备份"
+        },
+        {
+          "cmd": "pg_dump -U postgres -d mydb --exclude-table=logs > clean.sql",
+          "comment": "排除日志表备份"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "备份"
+      ]
+    },
+    {
+      "id": "pg-restore",
+      "cmd": "pg_restore",
+      "cat": "postgres",
+      "desc": "恢复数据库",
+      "syntax": "pg_restore -U <user> -d <db> <file.dump>",
+      "args": [
+        {
+          "name": "--clean",
+          "desc": "先删后建"
+        },
+        {
+          "name": "-j",
+          "desc": "并行度"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "pg_restore -U postgres -d mydb --clean mydb.dump",
+          "comment": "清空后恢复"
+        },
+        {
+          "cmd": "pg_restore -U postgres -d mydb -j 4 mydb.dump",
+          "comment": "4 并行加速恢复"
+        },
+        {
+          "cmd": "pg_restore -U postgres -d mydb -t users mydb.dump",
+          "comment": "只恢复单表"
+        },
+        {
+          "cmd": "pg_restore -U postgres -d mydb --list mydb.dump",
+          "comment": "预览恢复内容清单"
+        },
+        {
+          "cmd": "pg_restore -U postgres -d mydb -Fc --no-owner mydb.dump",
+          "comment": "不恢复属主"
+        },
+        {
+          "cmd": "psql -U postgres -d mydb -f backup.sql",
+          "comment": "恢复纯 SQL 备份"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "恢复"
+      ]
+    },
+    {
+      "id": "pg-ctl-status",
+      "cmd": "pg_ctl status",
+      "cat": "postgres",
+      "desc": "查看服务状态",
+      "syntax": "pg_ctl -D <data-dir> status",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "pg_ctl -D /usr/local/var/postgresql status",
+          "comment": "查看数据目录状态"
+        },
+        {
+          "cmd": "pg_ctl -D /usr/local/var/postgresql@14 status",
+          "comment": "查看 14 版本状态"
+        },
+        {
+          "cmd": "ps aux | grep postgres",
+          "comment": "从进程角度确认运行"
+        },
+        {
+          "cmd": "pg_isready -h localhost -p 5432",
+          "comment": "探测端口就绪状态"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "服务"
+      ]
+    },
+    {
+      "id": "pg-ctl-control",
+      "cmd": "pg_ctl start/stop/reload",
+      "cat": "postgres",
+      "desc": "启停/重载服务",
+      "syntax": "pg_ctl -D <data-dir> <start|stop|reload>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "pg_ctl -D /usr/local/var/postgresql reload",
+          "comment": "重载配置不停服"
+        },
+        {
+          "cmd": "pg_ctl -D /usr/local/var/postgresql start",
+          "comment": "启动服务"
+        },
+        {
+          "cmd": "pg_ctl -D /usr/local/var/postgresql stop -m fast",
+          "comment": "快速停止(回滚未完成事务)"
+        },
+        {
+          "cmd": "pg_ctl -D /usr/local/var/postgresql restart -m immediate",
+          "comment": "立即重启(紧急)"
+        },
+        {
+          "cmd": "pg_ctl -D /usr/local/var/postgresql stop -m smart",
+          "comment": "等待连接结束再停"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "服务"
+      ]
+    },
+    {
+      "id": "vacuumdb",
+      "cmd": "vacuumdb",
+      "cat": "postgres",
+      "desc": "清理并回收空间",
+      "syntax": "vacuumdb -U <user> [--analyze] <db>",
+      "args": [
+        {
+          "name": "--analyze",
+          "desc": "同时更新统计"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "vacuumdb -U postgres --analyze mydb",
+          "comment": "清理并更新统计信息"
+        },
+        {
+          "cmd": "vacuumdb -U postgres mydb",
+          "comment": "只清理不分析"
+        },
+        {
+          "cmd": "vacuumdb -U postgres --full -v mydb",
+          "comment": "完全回收并显示详情"
+        },
+        {
+          "cmd": "vacuumdb -U postgres -t users mydb",
+          "comment": "只清理单表"
+        },
+        {
+          "cmd": "vacuumdb -U postgres -a",
+          "comment": "清理所有数据库"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "维护"
+      ]
+    },
+    {
+      "id": "reindexdb",
+      "cmd": "reindexdb",
+      "cat": "postgres",
+      "desc": "重建索引",
+      "syntax": "reindexdb -U <user> <db>",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "reindexdb -U postgres mydb",
+          "comment": "重建全部索引"
+        },
+        {
+          "cmd": "reindexdb -U postgres -t users mydb",
+          "comment": "重建单表索引"
+        },
+        {
+          "cmd": "reindexdb -U postgres -i idx_users_email mydb",
+          "comment": "重建单个索引"
+        },
+        {
+          "cmd": "REINDEX TABLE users;",
+          "comment": "SQL 方式重建"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "维护"
+      ]
+    },
+    {
+      "id": "pg-explain-analyze",
+      "cmd": "EXPLAIN ANALYZE",
+      "cat": "postgres",
+      "desc": "查看真实执行计划",
+      "syntax": "EXPLAIN ANALYZE <sql>;",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id=1;",
+          "comment": "定位慢查询瓶颈"
+        },
+        {
+          "cmd": "EXPLAIN SELECT * FROM orders WHERE user_id=1;",
+          "comment": "只估算不执行"
+        },
+        {
+          "cmd": "EXPLAIN (ANALYZE, BUFFERS) SELECT count(*) FROM orders;",
+          "comment": "含缓存命中分析"
+        },
+        {
+          "cmd": "EXPLAIN (ANALYZE, FORMAT JSON) SELECT * FROM orders;",
+          "comment": "JSON 格式输出"
+        },
+        {
+          "cmd": "EXPLAIN ANALYZE UPDATE orders SET status=2 WHERE created_at < NOW() - INTERVAL '1 year';",
+          "comment": "分析大更新成本"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "优化"
+      ]
+    },
+    {
+      "id": "pg-copy",
+      "cmd": "COPY",
+      "cat": "postgres",
+      "desc": "批量导入导出",
+      "syntax": "COPY <table> FROM '<file.csv>' DELIMITER ',' CSV HEADER;",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "COPY users FROM '/tmp/users.csv' DELIMITER ',' CSV HEADER;",
+          "comment": "批量导入 CSV"
+        },
+        {
+          "cmd": "COPY users TO '/tmp/users_backup.csv' WITH CSV HEADER;",
+          "comment": "导出为 CSV"
+        },
+        {
+          "cmd": "COPY (SELECT * FROM orders WHERE status=1) TO '/tmp/active.csv' CSV;",
+          "comment": "导出查询结果"
+        },
+        {
+          "cmd": "COPY users FROM STDIN;",
+          "comment": "从标准输入导入"
+        },
+        {
+          "cmd": "\\copy users TO '/tmp/users.csv' CSV HEADER",
+          "comment": "客户端本地导出"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "导入"
+      ]
+    },
+    {
+      "id": "pg-alter-table",
+      "cmd": "ALTER TABLE",
+      "cat": "postgres",
+      "desc": "修改表结构",
+      "syntax": "ALTER TABLE <table> ADD COLUMN <col> <type>;",
+      "args": [
+        {
+          "name": "ADD COLUMN",
+          "desc": "加列"
+        },
+        {
+          "name": "ADD CONSTRAINT",
+          "desc": "加约束"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "ALTER TABLE users ADD COLUMN phone varchar(20);",
+          "comment": "加 phone 列"
+        },
+        {
+          "cmd": "ALTER TABLE users DROP COLUMN phone;",
+          "comment": "删列"
+        },
+        {
+          "cmd": "ALTER TABLE users ADD CONSTRAINT uq_email UNIQUE (email);",
+          "comment": "加唯一约束"
+        },
+        {
+          "cmd": "ALTER TABLE orders ADD COLUMN created_at timestamptz DEFAULT now();",
+          "comment": "加带默认值列"
+        },
+        {
+          "cmd": "ALTER TABLE users RENAME COLUMN name TO full_name;",
+          "comment": "重命名列"
+        },
+        {
+          "cmd": "ALTER TABLE orders ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id);",
+          "comment": "加外键约束"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "DDL"
+      ]
+    },
+    {
+      "id": "pg-grant",
+      "cmd": "GRANT",
+      "cat": "postgres",
+      "desc": "授权用户权限",
+      "syntax": "GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA public TO <user>;",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "GRANT SELECT ON ALL TABLES IN SCHEMA public TO dev;",
+          "comment": "给 dev 只读权限"
+        },
+        {
+          "cmd": "GRANT ALL ON ALL TABLES IN SCHEMA public TO app;",
+          "comment": "全权限"
+        },
+        {
+          "cmd": "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO app;",
+          "comment": "序列权限(自增必需)"
+        },
+        {
+          "cmd": "GRANT SELECT, INSERT, UPDATE ON users TO writer;",
+          "comment": "单表写权限"
+        },
+        {
+          "cmd": "REVOKE DELETE ON users FROM writer;",
+          "comment": "回收删除权限"
+        },
+        {
+          "cmd": "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO dev;",
+          "comment": "默认权限(新表自动授权)"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "权限"
+      ]
+    },
+    {
+      "id": "psql-conninfo",
+      "cmd": "psql \\conninfo",
+      "cat": "postgres",
+      "desc": "查看当前连接信息",
+      "syntax": "\\conninfo",
+      "args": [],
+      "examples": [
+        {
+          "cmd": "psql -c '\\conninfo'",
+          "comment": "查看当前库/用户/端口"
+        },
+        {
+          "cmd": "\\conninfo",
+          "comment": "会话内查看连接详情"
+        },
+        {
+          "cmd": "SELECT current_database(), current_user, inet_server_port();",
+          "comment": "SQL 方式查连接信息"
+        },
+        {
+          "cmd": "\\encoding",
+          "comment": "查看当前字符编码"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "psql"
+      ]
+    },
+    {
+      "id": "pg-vacuum",
+      "cmd": "VACUUM",
+      "cat": "postgres",
+      "desc": "手动清理表空间",
+      "syntax": "VACUUM [FULL] [ANALYZE] <table>;",
+      "args": [
+        {
+          "name": "FULL",
+          "desc": "完全回收(锁表)"
+        },
+        {
+          "name": "ANALYZE",
+          "desc": "更新统计"
+        }
+      ],
+      "examples": [
+        {
+          "cmd": "VACUUM ANALYZE orders;",
+          "comment": "清理并更新统计"
+        },
+        {
+          "cmd": "VACUUM;",
+          "comment": "清理当前库全部表"
+        },
+        {
+          "cmd": "VACUUM FULL orders;",
+          "comment": "完全回收(锁表慎用)"
+        },
+        {
+          "cmd": "VACUUM VERBOSE orders;",
+          "comment": "显示清理详情"
+        },
+        {
+          "cmd": "ANALYZE users;",
+          "comment": "只更新统计信息"
+        }
+      ],
+      "tags": [
+        "postgres",
+        "维护"
+      ]
+    }
+  ]
+}

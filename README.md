@@ -134,7 +134,7 @@ npm test
 | --- | --- |
 | `main.js` | Electron 主进程: 窗口状态机/全局快捷键/开机自启动/托盘/单实例/IPC |
 | `preload.js` | contextBridge 暴露 `window.cliGuide` API |
-| `lib/commands.js` | 命令数据层: 内置库加载/用户库合并/校验/CATS 分类定义 |
+| `lib/commands.js` | 命令数据层: 双格式解析(数组/带分类元数据对象)/内置库加载/用户库合并/校验/分类元数据合并 |
 | `lib/layout.js` | 窗口布局: 展开方向翻转/小屏钳制/缓动插值 |
 | `resources/commands/*.json` | 13 个分类内置命令库 (505 条命令 · 2129 示例) |
 | `renderer/index.html` | 页面骨架 (桌宠区 + 面板区) |
@@ -161,7 +161,40 @@ npm test
 
 ## 🛠 自定义命令
 
-编辑 `~/.cli-guide/commands/*.json`, 字段: `id`(唯一) / `cmd`(命令或快捷键) / `cat`(分类) / `desc` / `syntax` / `args` / `examples` / `tags`。`examples` 为 `{cmd, comment}` 对象数组, 内置库每条命令已按 `args` 参数覆盖 2-7 个示例(单参数/组合/管道/进阶用法)。同名 id 覆盖内置。修改后重启应用生效。
+编辑 `~/.cli-guide/commands/*.json`, 支持两种格式, 修改后重启应用生效:
+
+**格式一: 补充命令**(JSON 数组, 向已有分类追加或按 `id` 覆盖内置):
+
+```json
+[
+  {
+    "id": "my-ls", "cmd": "ls -lh", "cat": "linux", "desc": "人类可读大小列目录",
+    "syntax": "ls [-lh] [path]", "args": [{ "name": "-h", "desc": "容量单位" }],
+    "examples": [{ "cmd": "ls -lh", "comment": "查看当前目录" }], "tags": ["目录"]
+  }
+]
+```
+
+字段: `id`(全局唯一, 同名覆盖内置) / `cmd` / `cat`(所属分类 key) / `desc` / `syntax` / `args`(`{name, desc}` 数组) / `examples`(`{cmd, comment}` 数组) / `tags`(数组)。
+
+**格式二: 新增分类**(JSON 对象, 重启后自动出现新分类 chip):
+
+```json
+{
+  "cat": "git",
+  "label": "git 命令",
+  "order": 14,
+  "commands": [
+    {
+      "id": "git-status", "cmd": "git status", "cat": "git", "desc": "查看工作区状态",
+      "syntax": "git status [-s]", "args": [{ "name": "-s", "desc": "简短输出" }],
+      "examples": [{ "cmd": "git status", "comment": "查看状态" }], "tags": ["git"]
+    }
+  ]
+}
+```
+
+字段: `cat`(分类 key, 唯一) / `label`(chip 显示文案, 缺省显示 `cat` 值) / `order`(chip 排序序号, 缺省排在末尾按名称排序) / `commands`(格式同上, 条目 `cat` 需与本文件 `cat` 一致)。
 
 > ⚠️ **升级提示**: 内置库只在首次启动时复制到用户目录, 之后以用户目录为准。应用升级后如需获取内置库修正(如快捷键勘误), 删除 `~/.cli-guide/commands/` 下对应 JSON 文件, 重启后自动重新复制。
 

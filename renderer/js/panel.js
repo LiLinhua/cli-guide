@@ -1,14 +1,6 @@
 'use strict';
 /* 面板 UI: 搜索框/分类/列表/详情/复制 (渲染层, 无框架) */
 (function () {
-  const CAT_LABELS = {
-    linux: 'linux 命令', k8s: 'k8s 命令', helm: 'helm 命令',
-    vim: 'vim 命令', terminal: '终端快捷键', office: '办公常用',
-    docker: 'docker 命令', kafka: 'kafka 命令', mysql: 'mysql 命令',
-    postgres: 'postgres 命令', redis: 'redis 命令',
-    vscode: 'VSCode 快捷键', idea: 'IDEA 快捷键'
-  };
-
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g,
       c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -64,9 +56,9 @@
     for (const c of cats) {
       const chip = document.createElement('div');
       chip.className = 'cat-chip';
-      chip.dataset.cat = c;
-      chip.textContent = CAT_LABELS[c] || c;
-      chip.addEventListener('click', () => { if (self.h.onCategory) self.h.onCategory(c); });
+      chip.dataset.cat = c.key;
+      chip.textContent = c.label;
+      chip.addEventListener('click', () => { if (self.h.onCategory) self.h.onCategory(c.key); });
       this.catBar.appendChild(chip);
     }
   };

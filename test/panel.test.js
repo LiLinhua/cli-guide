@@ -82,16 +82,23 @@ check('复制回调触发', copied && copied.id === 'a');
 panel.renderList([], 'xyz');
 check('无结果提示', els['list-status']._text.includes('无结果'));
 
-/* 分类入口渲染(13 分类) */
-const CATS13 = ['linux', 'k8s', 'helm', 'vim', 'terminal', 'office', 'docker', 'kafka', 'mysql', 'postgres', 'redis', 'vscode', 'idea'];
+/* 分类入口渲染(对象数组 {key,label}, 来自数据管线) */
+const CATS13 = [
+  { key: 'linux', label: 'linux 命令' }, { key: 'k8s', label: 'k8s 命令' }, { key: 'helm', label: 'helm 命令' },
+  { key: 'vim', label: 'vim 命令' }, { key: 'terminal', label: '终端快捷键' }, { key: 'office', label: '办公常用' },
+  { key: 'docker', label: 'docker 命令' }, { key: 'kafka', label: 'kafka 命令' }, { key: 'mysql', label: 'mysql 命令' },
+  { key: 'postgres', label: 'postgres 命令' }, { key: 'redis', label: 'redis 命令' },
+  { key: 'vscode', label: 'VSCode 快捷键' }, { key: 'idea', label: 'IDEA 快捷键' }
+];
 let catClicks = [];
 const panel2 = new Panel('panel-root2', { onCategory: c => catClicks.push(c) });
 panel2.renderCats(CATS13);
 check('13 个分类 chip 渲染', els['cat-bar'].children.length === 13);
-check('chip 文案正确', els['cat-bar'].children[6].textContent === 'docker 命令' && els['cat-bar'].children[11].textContent === 'VSCode 快捷键');
+check('chip 文案取 label', els['cat-bar'].children[6].textContent === 'docker 命令' && els['cat-bar'].children[11].textContent === 'VSCode 快捷键');
+check('chip dataset.cat 取 key', els['cat-bar'].children[6].dataset.cat === 'docker' && els['cat-bar'].children[11].dataset.cat === 'vscode');
 check('chip 点击回调', (els['cat-bar'].children[2]._listeners['click'] || []).length > 0);
 els['cat-bar'].children[2].dispatch('click', {});
-check('分类点击触发 onCategory', catClicks.length === 1 && catClicks[0] === 'helm');
+check('分类点击触发 onCategory(key)', catClicks.length === 1 && catClicks[0] === 'helm');
 
 /* 空数组渲染 */
 panel.renderList([], '');
