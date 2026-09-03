@@ -177,6 +177,8 @@ body {
 .list-status { padding: 8px 14px; color: var(--text-dim); font-size: 10px; }
 
 .detail-col { flex: 1; overflow-y: auto; padding: 14px 18px; }
+/* 详情内容(语法/参数/示例)允许选中复制; 全局禁选保留, 桌宠与列表交互不受影响 */
+.detail-col, .detail-col * { -webkit-user-select: text; user-select: text; }
 .detail-empty { color: var(--text-dim); font-size: 11px; text-align: center; margin-top: 40px; letter-spacing: 1px; }
 .detail-title { color: var(--green); font-size: 16px; font-weight: bold; margin-bottom: 4px; }
 .detail-desc { color: var(--text); font-size: 11px; margin-bottom: 12px; }
