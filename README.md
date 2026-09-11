@@ -6,7 +6,7 @@
 [![Release](https://img.shields.io/github/v/release/LiLinhua/cli-guide?label=release)](https://github.com/LiLinhua/cli-guide/releases/tag/v0.1.0)
 
 <p align="center">
-  <img src="assets/imgs/icon.png" alt="CLI-GUIDE 桌宠" width="160" />
+  <img src="https://cdn.jsdelivr.net/gh/LiLinhua/cli-guide@master/assets/imgs/icon.png" alt="CLI-GUIDE 桌宠" width="160" />
 </p>
 
 > 常驻桌面的 3D 终端脸桌宠命令手册（**macOS / Windows**）。  
@@ -17,11 +17,11 @@
 ### 预览
 
 <p align="center">
-  <img src="assets/imgs/menus.png" alt="桌宠右键菜单" width="420" />
+  <img src="https://cdn.jsdelivr.net/gh/LiLinhua/cli-guide@master/assets/imgs/menus.png" alt="桌宠右键菜单" width="420" />
 </p>
 
 <p align="center">
-  <img src="assets/imgs/commands.png" alt="命令搜索面板" width="720" />
+  <img src="https://cdn.jsdelivr.net/gh/LiLinhua/cli-guide@master/assets/imgs/commands.png" alt="命令搜索面板" width="720" />
 </p>
 
 <p align="center">
