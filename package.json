@@ -2,11 +2,15 @@
   "name": "cli-guide",
   "version": "0.1.0",
   "description": "黑客风终端脸桌宠命令行手册",
+  "author": "LiLinhua",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "postinstall": "node scripts/ensure-electron.js",
     "build:web": "node scripts/build-web.js",
-    "dist": "electron-builder --mac",
+    "dist": "electron-builder --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
+    "dist:win": "electron-builder --win --publish never",
     "test": "node test/commands.test.js && node test/search.test.js && node test/layout.test.js && node test/panel.test.js && node test/smoke.test.js && node test/build-web.test.js && node test/style.test.js"
   },
   "build": {
@@ -34,6 +38,19 @@
         { "x": 130, "y": 220 },
         { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
       ]
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "resources/icon-1024.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   },
   "devDependencies": {

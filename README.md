@@ -1,6 +1,6 @@
 # 👾 CLI-GUIDE — 黑客风终端脸桌宠命令行手册
 
-> 一个常驻 macOS 桌面的 3D 终端脸桌宠: 点击唤起命令搜索面板,
+> 一个常驻桌面的 3D 终端脸桌宠（支持 **macOS / Windows**）: 点击唤起命令搜索面板,
 > 快速检索 **14 大分类 695 条命令 · 4622 个示例**常用命令/快捷键用法, 一键复制。
 
 ## ✨ 功能
@@ -16,7 +16,7 @@
   - 编辑器: `vim` / `VSCode 快捷键` / `IDEA 快捷键`
   - 其他: `终端快捷键` / `办公常用(git·macOS·tmux)`
 - **自定义命令库**: 内置库首次启动复制到 `~/.cli-guide/commands/`, 直接编辑 JSON 即可增删改
-- **全局快捷键**: `Cmd+Shift+C` 任意焦点唤起/收起
+- **全局快捷键**: `Cmd+Shift+C`（macOS）/ `Ctrl+Shift+C`（Windows）任意焦点唤起/收起
 - **开机自启动**: 托盘菜单一键开关(默认关闭)
 - **黑客神秘科技风**: 矩阵绿霓虹 / 深黑蓝底 / 扫描线 / 字符流动效
 
@@ -29,7 +29,8 @@ npm install
 npm start
 ```
 
-首次启动后命令数据会自动复制到 `~/.cli-guide/commands/`（14 个 JSON 文件）。
+- `npm install` 使用 `registry.npmmirror.com`，并通过 `postinstall`（`scripts/ensure-electron.js`）从国内镜像拉取 Electron 二进制，适合受限网络
+- 首次启动后命令数据会自动复制到 `~/.cli-guide/commands/`（14 个 JSON 文件；Windows 为 `%USERPROFILE%\.cli-guide\commands\`）
 
 ### Web 版 (浏览器, 零安装)
 
@@ -47,7 +48,7 @@ Web 版与客户端版的差异：
 | 能力 | 客户端版 | Web 版 |
 | --- | --- | --- |
 | 3D 桌宠 / 面板 / 搜索 / 复制 | ✅ | ✅ (面板常驻居中, 无桌宠) |
-| 全局快捷键 Cmd+Shift+C | ✅ (任意焦点) | ✅ (页面内焦点) |
+| 全局快捷键 Cmd/Ctrl+Shift+C | ✅ (任意焦点) | ✅ (页面内焦点) |
 | 开机自启动 / 托盘 | ✅ | ✅ 自启动 (Chrome 应用模式, 见下方) / ❌ 托盘 |
 | 窗口拖动 / 位置记忆 | ✅ (系统级) | ❌ (固定居中) |
 | 自定义命令库 | ✅ `~/.cli-guide/commands/` | ❌ (内置库, 与客户端一致) |
@@ -108,19 +109,45 @@ open -na "/Applications/Google Chrome.app" --args \
 
 **常驻模式交互**: 面板常驻屏幕居中, 无桌宠; `Esc` 不收起; `Cmd/Ctrl+Shift+C` 切换面板显示/隐藏。
 
-## 📦 打包 macOS 安装包
+## 📦 打包安装包
+
+`npm run dist` 会按**当前系统**打包（Windows 上打 Windows，macOS 上打 macOS）。也可显式指定平台：
 
 ```bash
+# 当前系统
 npm run dist
-# 产物: release/CLI-GUIDE-<版本>-arm64.dmg (推荐) + release/CLI-GUIDE-<版本>-arm64-mac.zip
+
+# 仅 Windows（需在 Windows 上执行）
+npm run dist:win
+# 产物:
+#   release/CLI-GUIDE Setup <版本>.exe   NSIS 安装包（可改安装目录）
+#   release/CLI-GUIDE <版本>.exe         绿色免安装版
+
+# 仅 macOS（需在 macOS 上执行）
+npm run dist:mac
+# 产物:
+#   release/CLI-GUIDE-<版本>-arm64.dmg
+#   release/CLI-GUIDE-<版本>-arm64-mac.zip
 ```
 
-- **dmg**: 双击挂载后把 CLI-GUIDE 拖入 Applications 即可（自动打开安装目录视图）
+**Windows**
+
+- **Setup exe**: 双击安装，可自选安装目录，并创建桌面/开始菜单快捷方式
+- **便携 exe**: 免安装，双击即用
+- 未做代码签名时，SmartScreen 可能提示未知应用：选「仍要运行」即可
+- 默认打 **x64**
+
+**macOS**
+
+- **dmg**: 双击挂载后把 CLI-GUIDE 拖入 Applications 即可
 - **zip**: 解压即得 CLI-GUIDE.app，同样拖入 Applications
-- 应用未做代码签名（个人开发者证书），首次打开若被 Gatekeeper 拦截：**右键 → 打开**，或终端执行 `xattr -cr /Applications/CLI-GUIDE.app` 解除隔离
-- 默认打 **arm64**（Apple Silicon M 系列）；Intel Mac 需指定 `npx electron-builder --mac --x64`
-- 构建配置在 `package.json` 的 `build` 字段；应用图标由 `scripts/gen-app-icon.js` 生成（终端脸风格，可自定义后重新生成 icns）
-- **受限网络友好**: 已配置 `electronDist` 复用本地 Electron 二进制，打包全程不下载网络依赖
+- 应用未做代码签名，首次打开若被 Gatekeeper 拦截：**右键 → 打开**，或执行 `xattr -cr /Applications/CLI-GUIDE.app`
+- 默认打 **arm64**（Apple Silicon）；Intel Mac 用 `npx electron-builder --mac --x64`
+
+**通用说明**
+
+- 构建配置在 `package.json` 的 `build` 字段；macOS 图标为 `build/icon.icns`，Windows 图标为 `resources/icon-1024.png`
+- **受限网络友好**: 已配置 `electronDist` 复用本地 Electron 二进制；`ensure-electron.js` 默认走 npmmirror
 
 ## 🧪 测试
 
@@ -148,13 +175,15 @@ npm test
 | `test/` | 六个无头测试 (纯 Node, 无框架) |
 | `web/cli-guide-web.js` | Web 版 cliGuide shim (替代 Electron IPC) |
 | `scripts/gen-tray-icon.js` | 生成托盘图标 (纯 Node, 无外部依赖) |
+| `scripts/ensure-electron.js` | postinstall: 从 npmmirror 下载 Electron 二进制 |
 | `scripts/build-web.js` | 构建单文件 Web 版 → `dist/cli-guide-web.html` |
+| `.npmrc` | npm 源：`registry.npmmirror.com` |
 
 ## ⌨️ 操作
 
 | 操作 | 效果 |
 | --- | --- |
-| 单击桌宠 / Cmd+Shift+C | 展开 / 收起面板 |
+| 单击桌宠 / Cmd+Shift+C（macOS）/ Ctrl+Shift+C（Windows） | 展开 / 收起面板 |
 | 右键桌宠 | 弹出右键菜单(展开/收起、隐身、开机自启动、数据目录、退出), 面板展开时同样可用 |
 | 拖拽桌宠 | 移动位置(自动记忆) |
 | Esc / 点击面板外 | 收起 |
@@ -205,5 +234,7 @@ npm test
 ## ❓ 常见问题
 
 - **桌宠没有 3D 效果?** 显卡不支持 WebGL 时自动降级为 CSS 终端脸, 功能不变。
-- **找不到托盘图标?** 状态栏(菜单栏)右上角, 绿色方块图标。
-- **开机自启动后没生效?** macOS 首次会询问辅助功能权限, 在 系统设置 → 隐私与安全性 中允许。
+- **找不到托盘图标?** macOS 在菜单栏右上角；Windows 在任务栏托盘（可能收纳在 `^` 中），绿色方块图标。
+- **开机自启动后没生效?** macOS 首次会询问辅助功能权限, 在 系统设置 → 隐私与安全性 中允许；Windows 可在托盘菜单开关，或到「设置 → 应用 → 启动」中确认。
+- **Windows 安装被拦截?** 未签名安装包触发 SmartScreen 时选「更多信息 → 仍要运行」。
+- **`npm install` 很慢?** 确认使用项目内 `.npmrc`（npmmirror）；Electron 由 `postinstall` 拉镜像，勿手动改回 GitHub 直连。
