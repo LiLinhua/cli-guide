@@ -49,7 +49,7 @@ check('null 元素不屏蔽后续不一致', validateFileMeta({ cat: 'x' }, [nul
 const builtin = loadBuiltinCommands(ROOT);
 const all = builtin.commands;
 check('命令总数 >= 500', all.length >= 500);
-check('内置 meta 覆盖 13 个分类文件', builtin.categories.length === 13);
+check('内置 meta 覆盖 14 个分类文件', builtin.categories.length === 14);
 const legalCats = new Set(builtin.categories.map(m => m.cat));
 const ids = new Set();
 let dup = 0;
@@ -58,7 +58,7 @@ check('id 全局唯一', dup === 0);
 const invalid = all.filter(c => validateCommand(c).length > 0);
 check('所有命令通过校验', invalid.length === 0);
 check('所有命令 cat 都有 meta 声明', all.every(c => legalCats.has(c.cat)));
-check('内置 13 类 order 为 1-13', builtin.categories.every(m => Number.isInteger(m.order) && m.order >= 1 && m.order <= 13));
+check('内置 14 类 order 为 1-14', builtin.categories.every(m => Number.isInteger(m.order) && m.order >= 1 && m.order <= 14));
 
 /* ---- mergeCategories: 排序 + 覆盖 + 兜底 ---- */
 const cats = mergeCategories(
@@ -102,7 +102,7 @@ check('合并后无重复 id', new Set(merged.map(x => x.id)).size === merged.le
 const mergedCats = mergeCategories(builtin.categories, user.categories, merged);
 check('用户新分类出现在芯片列表', mergedCats.some(c => c.key === 'git' && c.label === 'git 命令'));
 check('非法 meta 的 cat 走兜底', mergedCats.some(c => c.key === 'bmcat' && c.label === 'bmcat'));
-check('内置 13 类仍在', mergedCats.filter(c => legalCats.has(c.key)).length === 13);
+check('内置 14 类仍在', mergedCats.filter(c => legalCats.has(c.key)).length === 14);
 
 /* ---- 内置库 failFast: 坏 JSON 应抛错而非静默跳过 ---- */
 const tmp2 = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-guide-builtin-'));

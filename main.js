@@ -5,7 +5,7 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const { loadBuiltinCommands, loadUserCommands, mergeCommands, mergeCategories } = require('./lib/commands');
-const { defaultCompactBounds, computeExpandedBounds, computeStealthBounds, computeMenuBounds, interpolate, PET_W, PET_H, STEALTH_SIZE } = require('./lib/layout');
+const { defaultCompactBounds, computeExpandedBounds, computeStealthBounds, computeMenuBounds, computeZoomedBounds, interpolate, PET_W, PET_H, STEALTH_SIZE, ZOOM_MARGIN } = require('./lib/layout');
 
 const USER_DIR = path.join(os.homedir(), '.cli-guide');
 const CONFIG_FILE = path.join(USER_DIR, 'config.json');
@@ -20,6 +20,8 @@ let animTimer = null;
 let _compactBeforeStealth = null;
 let _stealthPreview = false;
 let _boundsBeforeMenu = null;
+let _zoomed = false;            // 命令窗口是否处于放大态
+let _boundsBeforeZoom = null;   // 放大前的常规展开尺寸, 用于还原与收起定位
 
 /* ---------- 配置 ---------- */
 function loadConfig() {
@@ -64,9 +66,12 @@ function createWindow() {
 }
 
 /* ---------- 窗口状态机 ---------- */
+function resetZoom() { _zoomed = false; _boundsBeforeZoom = null; }
+
 function expand() {
   if (!win || state === 'expanded') return;
   state = 'expanded';
+  resetZoom();
   const wa = screen.getDisplayMatching(win.getBounds()).workArea;
   const from = win.getBounds();
   const to = computeExpandedBounds(from, wa, { width: PANEL_W, height: PANEL_H });
@@ -78,8 +83,11 @@ function expand() {
 function collapse() {
   if (!win || state === 'compact') return;
   state = 'compact';
+  // 放大态收起时, 以放大前的常规展开尺寸推算桌宠落点, 否则会落到放大窗口的右下角
+  const base = (_zoomed && _boundsBeforeZoom) ? _boundsBeforeZoom : win.getBounds();
+  resetZoom();
   const from = win.getBounds();
-  const to = { x: from.x + from.width - PET_W, y: from.y + from.height - PET_H, width: PET_W, height: PET_H };
+  const to = { x: base.x + base.width - PET_W, y: base.y + base.height - PET_H, width: PET_W, height: PET_H };
   animateBounds(from, to, 200, () => {
     if (win) win.setBounds(to);
     if (_stealthPreview) {
@@ -101,6 +109,7 @@ function toggle() {
   if (state === 'invisible') {
     if (!win) return;
     _stealthPreview = true;
+    resetZoom();
     const compactBounds = _compactBeforeStealth || defaultCompactBounds(screen.getPrimaryDisplay().workArea);
     const wa = screen.getDisplayMatching(compactBounds).workArea;
     const to = computeExpandedBounds(compactBounds, wa, { width: PANEL_W, height: PANEL_H });
@@ -144,6 +153,23 @@ ipcMain.handle('config:save', (_e, partial) => saveConfig({ ...loadConfig(), ...
 ipcMain.handle('clipboard:copy', (_e, text) => clipboard.writeText(String(text)));
 ipcMain.handle('panel:toggle', () => toggle());
 ipcMain.handle('panel:hide', () => collapse());
+/* 绿点: 命令窗口放大 / 还原 (仅展开态有效) */
+ipcMain.handle('panel:zoom', () => {
+  if (!win || state !== 'expanded') return { zoomed: false };
+  const wa = screen.getDisplayMatching(win.getBounds()).workArea;
+  if (_zoomed && _boundsBeforeZoom) {
+    const to = _boundsBeforeZoom;
+    resetZoom();
+    animateBounds(win.getBounds(), to, 200, () => { if (win) win.setBounds(to); });
+    return { zoomed: false };
+  }
+  const from = win.getBounds();
+  const to = computeZoomedBounds(from, wa, ZOOM_MARGIN);
+  _boundsBeforeZoom = { x: from.x, y: from.y, width: from.width, height: from.height };
+  _zoomed = true;
+  animateBounds(from, to, 200, () => { if (win) win.setBounds(to); });
+  return { zoomed: true };
+});
 ipcMain.handle('window:drag-move', (_e, dx, dy) => {
   if (!win) return;
   if (animTimer) { clearInterval(animTimer); animTimer = null; } // 拖拽中断展开/收起动画, 避免位置被拉回
@@ -160,6 +186,11 @@ ipcMain.handle('window:drag-move', (_e, dx, dy) => {
       newX = b.x; // 垂直条: 仅垂直移动
       _compactBeforeStealth.y = Math.max(wa.y, Math.min(wa.y + wa.height - PET_H, newY));
     }
+  }
+  // 放大态拖动整个窗口时, 同步平移放大前的位置, 还原后不跳回旧坐标
+  if (_zoomed && _boundsBeforeZoom) {
+    _boundsBeforeZoom.x += newX - b.x;
+    _boundsBeforeZoom.y += newY - b.y;
   }
   win.setPosition(newX, newY);
 });

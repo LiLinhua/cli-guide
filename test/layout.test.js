@@ -1,5 +1,5 @@
 'use strict';
-const { defaultCompactBounds, computeExpandedBounds, computeMenuBounds, interpolate } = require('../lib/layout');
+const { defaultCompactBounds, computeExpandedBounds, computeMenuBounds, computeZoomedBounds, interpolate } = require('../lib/layout');
 
 let fail = 0;
 const check = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' | ' + name); if (!cond) fail++; };
@@ -41,6 +41,18 @@ check('桌宠贴底时窗口底边缘对齐', mb4.y + mb4.height === cbBottom.y 
 
 const mb3 = computeMenuBounds(cbFree, wa, 120); // 菜单比桌宠矮
 check('菜单低于150时高度保持150', mb3.height === 150 && mb3.y === cbFree.y);
+
+/* 放大命令窗口: 铺满工作区留边距, 尽量保持左上角, 越界回钳 */
+const z1 = computeZoomedBounds({ x: 100, y: 100, width: 760, height: 560 }, wa, 32);
+check('放大尺寸铺满工作区(留边距)', z1.width === 1440 - 64 && z1.height === 900 - 64);
+check('放大窗口不越界', z1.x >= 0 && z1.y >= 0 && z1.x + z1.width <= 1440 && z1.y + z1.height <= 900);
+check('放大位置钳制在边距内', z1.x === 64 && z1.y === 64);
+const z2 = computeZoomedBounds({ x: 0, y: 0, width: 760, height: 560 }, wa, 32);
+check('靠近左上时保持左上角', z2.x === 0 && z2.y === 0);
+const z3 = computeZoomedBounds({ x: 100, y: 100, width: 760, height: 560 }, { x: 0, y: 0, width: 300, height: 200 }, 32);
+check('小屏不小于桌宠尺寸', z3.width === 236 && z3.height === 150);
+const z4 = computeZoomedBounds({ x: 100, y: 100, width: 760, height: 560 }, wa); // 缺省边距
+check('缺省边距可用', z4.width === 1440 - 40 && z4.height === 900 - 40);
 
 /* 插值 */
 const v = interpolate(0, 100, 0.5);

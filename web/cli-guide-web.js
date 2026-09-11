@@ -17,6 +17,17 @@
     if (panel) panel.classList.toggle('hidden', !expanded);
   }
 
+  let zoomed = false;
+
+  /* 绿点: 放大部分(Web 版无系统窗口, 用 CSS class 撑大面板) */
+  function setZoom(v) {
+    zoomed = !!v;
+    const panel = panelEl();
+    if (panel) panel.classList.toggle('zoomed', zoomed);
+    return { zoomed };
+  }
+  function toggleZoom() { return setZoom(!zoomed); }
+
   function legacyCopy(text) {
     const ta = document.createElement('textarea');
     ta.value = text;
@@ -46,6 +57,7 @@
     },
     togglePanel: () => {
       expanded = !expanded;
+      if (!expanded) setZoom(false); // 收起时复位放大态, 与客户端版一致
       syncPanel();
       stateCbs.forEach(cb => cb(expanded ? 'expanded' : 'compact'));
       return Promise.resolve();
@@ -54,6 +66,7 @@
       // Web 版面板常驻: 禁用 Esc 收起 (仅 Cmd/Ctrl+Shift+Z 可切换)
       return Promise.resolve();
     },
+    zoomPanel: () => Promise.resolve(toggleZoom()), // 绿点放大/还原
     dragMove: () => Promise.resolve(), // 无桌宠, 无拖拽
     showMenu: () => Promise.resolve({ dy: 0 }), // 无扩窗
     hideMenu: () => Promise.resolve(), // 无扩窗

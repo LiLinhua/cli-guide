@@ -1,7 +1,7 @@
 # 👾 CLI-GUIDE — 黑客风终端脸桌宠命令行手册
 
 > 一个常驻 macOS 桌面的 3D 终端脸桌宠: 点击唤起命令搜索面板,
-> 快速检索 **13 大分类 505 条命令 · 2129 个示例**常用命令/快捷键用法, 一键复制。
+> 快速检索 **14 大分类 695 条命令 · 4622 个示例**常用命令/快捷键用法, 一键复制。
 
 ## ✨ 功能
 
@@ -9,9 +9,10 @@
 - **点击即查**: 单击桌宠弹出命令面板, 宽面板左右分栏, 左侧列表右侧详情
 - **实时搜索**: 命令名/描述/标签模糊匹配, 命中高亮, ↑↓ 选择, Enter 复制
 - **示例丰富**: 每条命令 2-7 个示例, 按命令参数逐项覆盖单用/组合/管道/进阶用法, 即查即用
-- **13 大分类**:
+- **14 大分类**:
   - 系统运维: `linux` / `docker` / `kafka` / `mysql` / `postgres` / `redis`
   - 云原生: `k8s` / `helm`
+  - 前端开发: `前端命令` (npm/pnpm/vite/next/nuxt/vue/tsc/eslint/tailwind/vitest/playwright...)
   - 编辑器: `vim` / `VSCode 快捷键` / `IDEA 快捷键`
   - 其他: `终端快捷键` / `办公常用(git·macOS·tmux)`
 - **自定义命令库**: 内置库首次启动复制到 `~/.cli-guide/commands/`, 直接编辑 JSON 即可增删改
@@ -28,7 +29,7 @@ npm install
 npm start
 ```
 
-首次启动后命令数据会自动复制到 `~/.cli-guide/commands/`（13 个 JSON 文件）。
+首次启动后命令数据会自动复制到 `~/.cli-guide/commands/`（14 个 JSON 文件）。
 
 ### Web 版 (浏览器, 零安装)
 
@@ -36,7 +37,7 @@ npm start
 
 ```bash
 npm run build:web
-# 生成 dist/cli-guide-web.html (927 KB, 505 条命令 · 2129 示例)
+# 生成 dist/cli-guide-web.html (1202 KB, 695 条命令 · 4622 示例)
 ```
 
 然后**双击 `dist/cli-guide-web.html`** 用 Chrome / Edge / Safari 打开即可。
@@ -136,7 +137,7 @@ npm test
 | `preload.js` | contextBridge 暴露 `window.cliGuide` API |
 | `lib/commands.js` | 命令数据层: 双格式解析(数组/带分类元数据对象)/内置库加载/用户库合并/校验/分类元数据合并 |
 | `lib/layout.js` | 窗口布局: 展开方向翻转/小屏钳制/缓动插值 |
-| `resources/commands/*.json` | 13 个分类内置命令库 (505 条命令 · 2129 示例) |
+| `resources/commands/*.json` | 14 个分类内置命令库 (695 条命令 · 4622 示例) |
 | `renderer/index.html` | 页面骨架 (桌宠区 + 面板区) |
 | `renderer/css/style.css` | 黑客风样式 |
 | `renderer/js/pet.js` | 3D 终端脸桌宠 (Three.js, 降级 CSS) |
@@ -154,8 +155,11 @@ npm test
 | 操作 | 效果 |
 | --- | --- |
 | 单击桌宠 / Cmd+Shift+C | 展开 / 收起面板 |
+| 右键桌宠 | 弹出右键菜单(展开/收起、隐身、开机自启动、数据目录、退出), 面板展开时同样可用 |
 | 拖拽桌宠 | 移动位置(自动记忆) |
 | Esc / 点击面板外 | 收起 |
+| 点击面板左上角红点 | 收起面板 |
+| 点击面板左上角绿点 | 放大 / 还原命令窗口 |
 | ↑↓ / Enter | 列表导航 / 复制命令 |
 | 点击分类 chip | 限定分类搜索(再点取消) |
 

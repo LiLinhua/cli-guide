@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('cliGuide', {
   copyText: (text) => ipcRenderer.invoke('clipboard:copy', text),
   togglePanel: () => ipcRenderer.invoke('panel:toggle'),
   hidePanel: () => ipcRenderer.invoke('panel:hide'),
+  zoomPanel: () => ipcRenderer.invoke('panel:zoom'),
   dragMove: (dx, dy) => ipcRenderer.invoke('window:drag-move', dx, dy),
   setLoginItem: (enabled) => ipcRenderer.invoke('login:set', enabled),
   openDataDir: () => ipcRenderer.invoke('data:open-dir'),

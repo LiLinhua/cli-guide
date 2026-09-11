@@ -19,6 +19,12 @@ html, body { background: #05070a; }
   transform: translate(-50%, -50%);
   width: min(880px, calc(100vw - 48px));
   height: min(640px, calc(100vh - 48px));
+  transition: width .2s ease, height .2s ease;
+}
+#panel-root.zoomed {                              /* 绿点: 放大面板 */
+  width: min(1400px, calc(100vw - 24px));
+  height: min(960px, calc(100vh - 24px));
+}
 `;
 
 /* 内联脚本内容防 HTML 闭合 */
@@ -33,10 +39,10 @@ function build(outFile) {
   // 1. 移除 CSP(内联脚本需要; 单文件本地运行无外部请求)
   html = html.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\s*/, '');
 
-  // 2. 内联样式表 + Web 覆盖样式
+  // 2. 内联样式表 + Web 覆盖样式 (用函数替换, 避免 CSS 中的 $ 被当作替换模式)
   html = html.replace(
     '<link rel="stylesheet" href="css/style.css">',
-    '<style>\n' + inline(path.join(ROOT, 'renderer', 'css', 'style.css')) + '\n</style>\n  <style>' + WEB_CSS + '\n  </style>'
+    () => '<style>\n' + inline(path.join(ROOT, 'renderer', 'css', 'style.css')) + '\n</style>\n  <style>' + WEB_CSS + '\n  </style>'
   );
 
   // 3. 内联外部脚本 (three.min.js / renderer/js/*.js)
@@ -54,7 +60,9 @@ function build(outFile) {
   const inject = '<script>\nwindow.__COMMANDS__ = ' + escJson(commands) +
     ';\nwindow.__CATEGORIES__ = ' + escJson(cats) +
     ';\n</script>\n  <script>\n' + shim + '\n</script>\n  ';
-  html = html.replace('<!-- three 的 UMD 构建先加载, pet.js 通过 window.THREE 使用 -->', inject + '<!-- three 的 UMD 构建先加载, pet.js 通过 window.THREE 使用 -->');
+  // 命令数据里可能出现 $' / $` / $& / $$ 等序列, 用函数替换使其按字面量插入,
+  // 否则会被 String.replace 当作替换模式, 导致产物膨胀/数据错乱
+  html = html.replace('<!-- three 的 UMD 构建先加载, pet.js 通过 window.THREE 使用 -->', () => inject + '<!-- three 的 UMD 构建先加载, pet.js 通过 window.THREE 使用 -->');
 
   // 5. 标题
   html = html.replace('<title>CLI-GUIDE</title>', '<title>CLI-GUIDE · Web 版</title>');

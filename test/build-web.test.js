@@ -9,6 +9,7 @@ let fail = 0;
 const check = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' | ' + name); if (!cond) fail++; };
 
 const { build } = require(path.join(ROOT, 'scripts/build-web.js'));
+const { loadBuiltinCommands } = require(path.join(ROOT, 'lib', 'commands'));
 const outFile = path.join(os.tmpdir(), 'cli-guide-web-' + Date.now() + '.html');
 const out = build(outFile);
 const html = fs.readFileSync(out, 'utf8');
@@ -31,7 +32,10 @@ if (m) {
 }
 check('命令总数 >= 500', cmds.length >= 500);
 check('命令 id 全局唯一', new Set(cmds.map(c => c.id)).size === cmds.length);
-check('十三分类齐全', new Set(cmds.map(c => c.cat)).size === 13);
+check('十四分类齐全', new Set(cmds.map(c => c.cat)).size === 14);
+/* 回归: 命令文本含 $' / $$ 等序列时, 内联不得被 String.replace 替换模式破坏 */
+check('内联命令条数与内置库一致', cmds.length === loadBuiltinCommands(ROOT).commands.length);
+check('含 $ 的命令原样内联', cmds.some(c => (c.args || []).some(a => a.name === "$$('sel')")));
 
 /* 4. 渲染层与 shim 齐全 */
 check('three UMD 已内联', html.includes('WebGLRenderer'));
@@ -45,16 +49,19 @@ const scripts = html.match(/<script>([\s\S]*?)<\/script>/g) || [];
 check('内联脚本块完整闭合(8 块: 数据/shim/three/渲染层 x5)', scripts.length === 8);
 check('无未转义闭合泄漏', !/<\/script><\/script>/.test(html));
 
-/* 6. 覆盖样式生效(面板常驻居中 + 移除桌宠) */
+/* 6. 覆盖样式生效(面板常驻居中 + 移除桌宠 + 绿点放大) */
 check('Web 覆盖样式已注入', html.includes('#pet-root { display: none') && html.includes('#panel-root {'));
+check('Web 绿点放大样式已注入', html.includes('#panel-root.zoomed'));
+check('Web shim 提供 zoomPanel', html.includes('zoomPanel'));
 
 /* 7. 分类元数据内联 */
 const mc = html.match(/window\.__CATEGORIES__ = (\[.*?\]);\n<\/script>/s);
 check('__CATEGORIES__ 已内联', !!mc);
 let cats = [];
 if (mc) { try { cats = JSON.parse(mc[1]); } catch (e) { check('__CATEGORIES__ JSON 可解析', false); } }
-check('13 个分类齐全且带 key/label', cats.length === 13 && cats.every(c => c.key && c.label));
+check('14 个分类齐全且带 key/label', cats.length === 14 && cats.every(c => c.key && c.label));
 check('分类顺序 linux 最前', cats[0] && cats[0].key === 'linux');
+check('前端分类排在最后', cats[13] && cats[13].key === 'frontend' && cats[13].label === '前端命令');
 
 fs.unlinkSync(out);
 console.log(fail === 0 ? '\n===== 全部通过 =====' : '\n===== 存在 ' + fail + ' 个失败 =====');

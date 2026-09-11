@@ -48,6 +48,12 @@ global.document = {
 };
 
 /* ---- 加载 panel ---- */
+global.window = global;
+let hideCalls = 0, zoomCalls = 0;
+global.cliGuide = {
+  hidePanel: () => { hideCalls++; },
+  zoomPanel: () => { zoomCalls++; return Promise.resolve({ zoomed: true }); }
+};
 const { Panel } = require(path.join(ROOT, 'renderer/js/panel.js'));
 
 const ITEMS = [
@@ -71,6 +77,12 @@ panel.showDetail(ITEMS[0]);
 const dc = els['detail-content'];
 check('详情渲染语法', dc.innerHTML.includes('kubectl get') && dc.innerHTML.includes('-A'));
 check('详情渲染示例', dc.innerHTML.includes('kubectl get pods'));
+check('示例注释显示在命令上方', (() => {
+  const html = dc.innerHTML;
+  const c = html.indexOf('# 看 pod');
+  const cmd = html.indexOf('$ kubectl get pods');
+  return c >= 0 && cmd >= 0 && c < cmd;
+})());
 check('详情区可见', !dc.classList.contains('hidden'));
 
 /* 点击复制按钮 */
@@ -81,6 +93,23 @@ check('复制回调触发', copied && copied.id === 'a');
 /* 空搜索提示 */
 panel.renderList([], 'xyz');
 check('无结果提示', els['list-status']._text.includes('无结果'));
+
+/* 左上角按钮: 红点=收起, 绿点=放大命令窗口, 其他区域不响应 */
+const head = els['panel-root'].querySelector('.panel-head');
+const dotR = document.createElement('span'); dotR.classList.add('dot', 'r');
+const dotG = document.createElement('span'); dotG.classList.add('dot', 'g');
+const title = document.createElement('span'); title.classList.add('panel-title');
+head.dispatch('click', { target: dotR });
+check('红点点击收起面板', hideCalls === 1);
+head.dispatch('click', { target: dotG });
+check('绿点点击放大命令窗口', zoomCalls === 1 && hideCalls === 1);
+head.dispatch('click', { target: title });
+check('非按钮区域不触发', hideCalls === 1 && zoomCalls === 1);
+
+/* 头部按钮静态结构: 黄点已删除, 红/绿点保留 */
+const html = require('fs').readFileSync(path.join(ROOT, 'renderer', 'index.html'), 'utf8');
+check('面板头部已删除黄色点', !/dot\s+y/.test(html));
+check('面板头部保留红点与绿点', /dot r/.test(html) && /dot g/.test(html));
 
 /* 分类入口渲染(对象数组 {key,label}, 来自数据管线) */
 const CATS13 = [

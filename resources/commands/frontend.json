@@ -1,0 +1,1412 @@
+{
+  "cat": "frontend",
+  "label": "前端命令",
+  "order": 14,
+  "commands": [
+    {
+      "id": "fe-npm-init",
+      "cmd": "npm init",
+      "cat": "frontend",
+      "desc": "初始化项目并生成 package.json",
+      "syntax": "npm init [-y] [--scope <@org>]",
+      "args": [
+        { "name": "-y", "desc": "全部使用默认值, 跳过交互" },
+        { "name": "--scope", "desc": "指定包作用域, 如 @myorg" },
+        { "name": "--init-license", "desc": "指定许可证, 如 MIT" }
+      ],
+      "examples": [
+        { "cmd": "npm init -y", "comment": "快速生成默认 package.json" },
+        { "cmd": "npm init", "comment": "交互式填写包名/版本/入口" },
+        { "cmd": "npm init -y --scope=@myorg", "comment": "生成带作用域的包名" },
+        { "cmd": "npm init -y --init-license=MIT", "comment": "指定开源许可证" }
+      ],
+      "tags": ["npm", "初始化", "package.json"]
+    },
+    {
+      "id": "fe-npm-install",
+      "cmd": "npm install",
+      "cat": "frontend",
+      "desc": "安装 package.json 中的全部依赖",
+      "syntax": "npm install [<pkg>] [-D] [-g]",
+      "args": [
+        { "name": "<pkg>", "desc": "包名, 可带 @版本" },
+        { "name": "-D / --save-dev", "desc": "写入 devDependencies" },
+        { "name": "-g", "desc": "全局安装" },
+        { "name": "--force", "desc": "忽略冲突强制重装" }
+      ],
+      "examples": [
+        { "cmd": "npm install", "comment": "安装全部依赖" },
+        { "cmd": "npm install react react-dom", "comment": "安装运行时依赖" },
+        { "cmd": "npm install -D typescript vite", "comment": "安装开发依赖" },
+        { "cmd": "npm install vite@5", "comment": "安装指定版本" },
+        { "cmd": "npm install -g pnpm", "comment": "全局安装包管理器" },
+        { "cmd": "npm install --force", "comment": "依赖冲突时强制重装" }
+      ],
+      "tags": ["npm", "依赖", "install"]
+    },
+    {
+      "id": "fe-npm-uninstall",
+      "cmd": "npm uninstall",
+      "cat": "frontend",
+      "desc": "卸载依赖并同步移除 package.json 记录",
+      "syntax": "npm uninstall <pkg> [-g]",
+      "args": [
+        { "name": "<pkg>", "desc": "要卸载的包名" },
+        { "name": "-g", "desc": "卸载全局包" },
+        { "name": "--no-save", "desc": "保留 package.json 记录" }
+      ],
+      "examples": [
+        { "cmd": "npm uninstall lodash", "comment": "卸载依赖" },
+        { "cmd": "npm uninstall -D eslint", "comment": "卸载开发依赖" },
+        { "cmd": "npm uninstall -g create-react-app", "comment": "卸载全局包" },
+        { "cmd": "npm uninstall lodash --no-save", "comment": "只删 node_modules 不改清单" }
+      ],
+      "tags": ["npm", "依赖", "卸载"]
+    },
+    {
+      "id": "fe-npm-run",
+      "cmd": "npm run",
+      "cat": "frontend",
+      "desc": "执行 package.json scripts 中的脚本",
+      "syntax": "npm run <script> [-- <args>]",
+      "args": [
+        { "name": "<script>", "desc": "脚本名, 如 dev/build/test" },
+        { "name": "--", "desc": "其后的参数透传给脚本" },
+        { "name": "-w", "desc": "在指定 workspace 中执行" }
+      ],
+      "examples": [
+        { "cmd": "npm run", "comment": "列出全部可用脚本" },
+        { "cmd": "npm run dev", "comment": "启动开发服务器" },
+        { "cmd": "npm run build", "comment": "构建生产产物" },
+        { "cmd": "npm run test -- --watch", "comment": "透传参数给测试脚本" },
+        { "cmd": "npm run build -w packages/ui", "comment": "只构建某个 workspace" }
+      ],
+      "tags": ["npm", "scripts", "脚本"]
+    },
+    {
+      "id": "fe-npm-ci",
+      "cmd": "npm ci",
+      "cat": "frontend",
+      "desc": "按 lockfile 干净安装, 适合 CI 环境",
+      "syntax": "npm ci [--omit=dev]",
+      "args": [
+        { "name": "--omit=dev", "desc": "跳过开发依赖" },
+        { "name": "--no-audit", "desc": "跳过安全审计加速" },
+        { "name": "--ignore-scripts", "desc": "不执行安装脚本" }
+      ],
+      "examples": [
+        { "cmd": "npm ci", "comment": "严格按 package-lock.json 安装" },
+        { "cmd": "npm ci --omit=dev", "comment": "只装生产依赖(镜像构建)" },
+        { "cmd": "npm ci --no-audit", "comment": "CI 中跳过审计提速" },
+        { "cmd": "npm ci --ignore-scripts", "comment": "不执行 postinstall 脚本" }
+      ],
+      "tags": ["npm", "ci", "lockfile"]
+    },
+    {
+      "id": "fe-npm-outdated",
+      "cmd": "npm outdated",
+      "cat": "frontend",
+      "desc": "列出可升级的依赖及当前/最新版本",
+      "syntax": "npm outdated [--long]",
+      "args": [
+        { "name": "--long", "desc": "显示依赖类型/主页等详情" },
+        { "name": "-g", "desc": "检查全局包" }
+      ],
+      "examples": [
+        { "cmd": "npm outdated", "comment": "查看可升级依赖" },
+        { "cmd": "npm outdated --long", "comment": "显示详细信息" },
+        { "cmd": "npm outdated -g", "comment": "检查全局包版本" }
+      ],
+      "tags": ["npm", "依赖", "升级"]
+    },
+    {
+      "id": "fe-npm-update",
+      "cmd": "npm update",
+      "cat": "frontend",
+      "desc": "在 semver 允许范围内升级依赖",
+      "syntax": "npm update [<pkg>] [-D]",
+      "args": [
+        { "name": "<pkg>", "desc": "只升级指定包" },
+        { "name": "-D", "desc": "升级开发依赖" },
+        { "name": "--save", "desc": "同步更新 package.json" }
+      ],
+      "examples": [
+        { "cmd": "npm update", "comment": "升级全部依赖到允许的新版本" },
+        { "cmd": "npm update react", "comment": "只升级 react" },
+        { "cmd": "npm update -D", "comment": "升级开发依赖" },
+        { "cmd": "npm update --save", "comment": "同时改写版本范围" }
+      ],
+      "tags": ["npm", "依赖", "升级"]
+    },
+    {
+      "id": "fe-npm-ls",
+      "cmd": "npm ls",
+      "cat": "frontend",
+      "desc": "查看依赖树与版本来源",
+      "syntax": "npm ls [<pkg>] [--depth=<n>]",
+      "args": [
+        { "name": "<pkg>", "desc": "只查看指定包" },
+        { "name": "--depth=0", "desc": "只看顶层依赖" },
+        { "name": "--all", "desc": "展开全部层级" }
+      ],
+      "examples": [
+        { "cmd": "npm ls --depth=0", "comment": "查看顶层依赖" },
+        { "cmd": "npm ls react", "comment": "谁依赖了 react" },
+        { "cmd": "npm ls --all", "comment": "查看完整依赖树" },
+        { "cmd": "npm ls --json > deps.json", "comment": "导出依赖树供分析" }
+      ],
+      "tags": ["npm", "依赖树", "排查"]
+    },
+    {
+      "id": "fe-npm-audit",
+      "cmd": "npm audit",
+      "cat": "frontend",
+      "desc": "依赖安全审计并按建议修复",
+      "syntax": "npm audit [fix] [--force]",
+      "args": [
+        { "name": "fix", "desc": "自动升级修复漏洞" },
+        { "name": "--force", "desc": "允许破坏性升级" },
+        { "name": "--json", "desc": "机器可读输出" }
+      ],
+      "examples": [
+        { "cmd": "npm audit", "comment": "查看漏洞报告" },
+        { "cmd": "npm audit fix", "comment": "自动修复可兼容漏洞" },
+        { "cmd": "npm audit fix --force", "comment": "强制升级含破坏性变更" },
+        { "cmd": "npm audit --json > audit.json", "comment": "导出报告给 CI" }
+      ],
+      "tags": ["npm", "安全", "audit"]
+    },
+    {
+      "id": "fe-npm-registry",
+      "cmd": "npm config",
+      "cat": "frontend",
+      "desc": "配置 npm 镜像源/代理/认证",
+      "syntax": "npm config set <key> <value>",
+      "args": [
+        { "name": "get", "desc": "读取配置" },
+        { "name": "set", "desc": "写入配置" },
+        { "name": "delete", "desc": "删除配置" },
+        { "name": "list", "desc": "列出全部配置" }
+      ],
+      "examples": [
+        { "cmd": "npm config get registry", "comment": "查看当前镜像源" },
+        { "cmd": "npm config set registry https://registry.npmmirror.com", "comment": "切换国内镜像源" },
+        { "cmd": "npm config delete registry", "comment": "恢复官方源" },
+        { "cmd": "npm config set proxy http://127.0.0.1:7890", "comment": "设置代理" },
+        { "cmd": "npm config list", "comment": "查看全部配置" }
+      ],
+      "tags": ["npm", "镜像源", "配置"]
+    },
+    {
+      "id": "fe-npm-workspaces",
+      "cmd": "npm -w",
+      "cat": "frontend",
+      "desc": "npm workspaces 多包仓库操作",
+      "syntax": "npm <cmd> -w <workspace>",
+      "args": [
+        { "name": "-w", "desc": "指定单个 workspace" },
+        { "name": "--workspaces", "desc": "对所有 workspace 执行" },
+        { "name": "--include-workspace-root", "desc": "同时包含根包" }
+      ],
+      "examples": [
+        { "cmd": "npm install -w packages/ui", "comment": "只给子包装依赖" },
+        { "cmd": "npm run build -w apps/web", "comment": "只构建某个子包" },
+        { "cmd": "npm run test --workspaces", "comment": "所有子包跑测试" },
+        { "cmd": "npm init -w packages/utils", "comment": "新建子包" }
+      ],
+      "tags": ["npm", "monorepo", "workspaces"]
+    },
+    {
+      "id": "fe-npx",
+      "cmd": "npx",
+      "cat": "frontend",
+      "desc": "免全局安装直接执行 npm 包命令",
+      "syntax": "npx <pkg>[@<version>] [args]",
+      "args": [
+        { "name": "--yes", "desc": "跳过安装确认" },
+        { "name": "-p", "desc": "临时安装指定包再执行" },
+        { "name": "--no-install", "desc": "只用本地已装版本" }
+      ],
+      "examples": [
+        { "cmd": "npx serve dist", "comment": "临时起静态服务器" },
+        { "cmd": "npx --yes create-vite my-app", "comment": "免确认执行脚手架" },
+        { "cmd": "npx -p node@18 node -v", "comment": "用指定版本 node 执行" },
+        { "cmd": "npx tsc --version", "comment": "执行本地依赖的 CLI" }
+      ],
+      "tags": ["npx", "脚手架", "cli"]
+    },
+    {
+      "id": "fe-pnpm-install",
+      "cmd": "pnpm install",
+      "cat": "frontend",
+      "desc": "安装依赖(内容寻址存储 + 硬链接, 省磁盘且快)",
+      "syntax": "pnpm install [--frozen-lockfile] [--prod]",
+      "args": [
+        { "name": "--frozen-lockfile", "desc": "CI 中锁文件不匹配即失败" },
+        { "name": "-P / --prod", "desc": "只装 dependencies" },
+        { "name": "-D / --dev", "desc": "只装 devDependencies" },
+        { "name": "--offline", "desc": "只用本地 store, 不联网" },
+        { "name": "--shamefully-hoist", "desc": "扁平化 node_modules 兼容旧工具" }
+      ],
+      "examples": [
+        { "cmd": "pnpm install", "comment": "安装全部依赖" },
+        { "cmd": "pnpm i --frozen-lockfile", "comment": "CI 严格按锁文件安装" },
+        { "cmd": "pnpm install --prod", "comment": "只装生产依赖(镜像构建)" },
+        { "cmd": "pnpm install --offline", "comment": "完全离线安装" },
+        { "cmd": "pnpm install --filter web", "comment": "只安装某个子包" },
+        { "cmd": "pnpm install --shamefully-hoist", "comment": "兼容不识别 pnpm 的工具链" }
+      ],
+      "tags": ["pnpm", "install", "依赖", "lockfile"]
+    },
+    {
+      "id": "fe-pnpm-add",
+      "cmd": "pnpm add",
+      "cat": "frontend",
+      "desc": "添加 / 移除依赖",
+      "syntax": "pnpm add <pkg> [-D] [-g] [--filter <pkg>]",
+      "args": [
+        { "name": "-D", "desc": "写入 devDependencies" },
+        { "name": "-g", "desc": "全局安装" },
+        { "name": "--filter", "desc": "给指定子包安装" },
+        { "name": "-w", "desc": "装到 workspace 根" },
+        { "name": "remove / rm", "desc": "移除依赖" }
+      ],
+      "examples": [
+        { "cmd": "pnpm add axios", "comment": "添加运行时依赖" },
+        { "cmd": "pnpm add -D vitest @vitest/ui", "comment": "添加开发依赖" },
+        { "cmd": "pnpm add -g pnpm@9", "comment": "全局安装指定版本 pnpm" },
+        { "cmd": "pnpm add --filter web lodash", "comment": "给指定子包装依赖" },
+        { "cmd": "pnpm add -w -D typescript", "comment": "装到 monorepo 根" },
+        { "cmd": "pnpm remove lodash", "comment": "移除依赖" }
+      ],
+      "tags": ["pnpm", "add", "依赖"]
+    },
+    {
+      "id": "fe-pnpm-run",
+      "cmd": "pnpm run",
+      "cat": "frontend",
+      "desc": "执行脚本 / 本地命令 / 临时包",
+      "syntax": "pnpm run <script> | pnpm exec <cmd> | pnpm dlx <pkg>",
+      "args": [
+        { "name": "run", "desc": "执行 package.json 脚本(可省略 run)" },
+        { "name": "exec", "desc": "用项目依赖里的可执行文件" },
+        { "name": "dlx", "desc": "临时下载并执行包, 不改动项目" },
+        { "name": "-r", "desc": "递归所有子包" },
+        { "name": "--parallel", "desc": "并行执行, 忽略依赖顺序" }
+      ],
+      "examples": [
+        { "cmd": "pnpm run", "comment": "列出全部可用脚本" },
+        { "cmd": "pnpm dev", "comment": "直接执行脚本(可省 run)" },
+        { "cmd": "pnpm run build --filter web", "comment": "只构建 web 子包" },
+        { "cmd": "pnpm exec tsc --noEmit", "comment": "用本地 tsc 做类型检查" },
+        { "cmd": "pnpm dlx create-vite my-app", "comment": "免安装执行脚手架" },
+        { "cmd": "pnpm -r --parallel test", "comment": "并行递归跑全部测试" }
+      ],
+      "tags": ["pnpm", "脚本", "exec", "dlx"]
+    },
+    {
+      "id": "fe-pnpm-filter",
+      "cmd": "pnpm --filter",
+      "cat": "frontend",
+      "desc": "monorepo 中按包名/路径/依赖关系筛选执行",
+      "syntax": "pnpm --filter <selector> <cmd>",
+      "args": [
+        { "name": "--filter <name>", "desc": "按包名筛选" },
+        { "name": "--filter './packages/**'", "desc": "按路径筛选" },
+        { "name": "--filter web...", "desc": "含该包的依赖(后缀 ...)" },
+        { "name": "--filter ...web", "desc": "含依赖该包的包(前缀 ...)" },
+        { "name": "-r", "desc": "所有子包递归" },
+        { "name": "--parallel", "desc": "并行、忽略拓扑顺序" }
+      ],
+      "examples": [
+        { "cmd": "pnpm --filter web dev", "comment": "只启动 web 子包" },
+        { "cmd": "pnpm --filter './packages/**' build", "comment": "按路径批量构建" },
+        { "cmd": "pnpm --filter web... build", "comment": "连同 web 的依赖一起构建" },
+        { "cmd": "pnpm --filter ...web test", "comment": "跑所有依赖 web 的包" },
+        { "cmd": "pnpm --filter '!web' build", "comment": "排除 web 后构建其余包" },
+        { "cmd": "pnpm -r --parallel lint", "comment": "并行跑所有子包 lint" }
+      ],
+      "tags": ["pnpm", "monorepo", "filter", "workspace"]
+    },
+    {
+      "id": "fe-pnpm-outdated",
+      "cmd": "pnpm outdated",
+      "cat": "frontend",
+      "desc": "检查并升级依赖版本",
+      "syntax": "pnpm outdated | pnpm update [--latest] [-i]",
+      "args": [
+        { "name": "update / up", "desc": "按 semver 升级" },
+        { "name": "--latest / -L", "desc": "跨大版本升级" },
+        { "name": "-i / --interactive", "desc": "交互式选择升级" },
+        { "name": "-r", "desc": "递归所有子包" }
+      ],
+      "examples": [
+        { "cmd": "pnpm outdated", "comment": "列出可升级依赖" },
+        { "cmd": "pnpm outdated -r", "comment": "递归检查所有子包" },
+        { "cmd": "pnpm update", "comment": "按 semver 升级" },
+        { "cmd": "pnpm up --latest react", "comment": "react 升到最新大版本" },
+        { "cmd": "pnpm up -i", "comment": "交互式挑选要升的包" },
+        { "cmd": "pnpm up --filter web", "comment": "只升级子包的依赖" }
+      ],
+      "tags": ["pnpm", "升级", "outdated"]
+    },
+    {
+      "id": "fe-pnpm-store",
+      "cmd": "pnpm store",
+      "cat": "frontend",
+      "desc": "管理全局内容寻址存储(省磁盘的关键)",
+      "syntax": "pnpm store <path|status|prune>",
+      "args": [
+        { "name": "path", "desc": "查看 store 位置" },
+        { "name": "status", "desc": "检查 store 与项目是否一致" },
+        { "name": "prune", "desc": "清理没有任何项目引用的包" },
+        { "name": "--silent", "desc": "只输出结果, 便于脚本取值" }
+      ],
+      "examples": [
+        { "cmd": "pnpm store path", "comment": "查看 store 路径" },
+        { "cmd": "pnpm store path --silent", "comment": "脚本里取路径" },
+        { "cmd": "pnpm store status", "comment": "校验存储状态" },
+        { "cmd": "pnpm store prune", "comment": "清理无用包回收磁盘" }
+      ],
+      "tags": ["pnpm", "store", "磁盘"]
+    },
+    {
+      "id": "fe-pnpm-patch",
+      "cmd": "pnpm patch",
+      "cat": "frontend",
+      "desc": "临时修改第三方依赖并固化成补丁",
+      "syntax": "pnpm patch <pkg>@<ver> | pnpm patch-commit <dir>",
+      "args": [
+        { "name": "patch <pkg>", "desc": "解包到临时目录供修改" },
+        { "name": "patch-commit <dir>", "desc": "把改动生成为 patch 并写入配置" },
+        { "name": "patch-remove <pkg>", "desc": "移除已打补丁(pnpm 10)" },
+        { "name": "patchedDependencies", "desc": "记录在 package.json 中" }
+      ],
+      "examples": [
+        { "cmd": "pnpm patch lodash@4.17.21", "comment": "解包依赖等待修改" },
+        { "cmd": "pnpm patch-commit /tmp/xxx", "comment": "生成补丁并登记配置" },
+        { "cmd": "pnpm patch-remove lodash", "comment": "移除补丁" },
+        { "cmd": "pnpm install", "comment": "重新安装以应用补丁" },
+        { "cmd": "pnpm patch-commit /tmp/xxx --patches-dir patches", "comment": "指定补丁目录" }
+      ],
+      "tags": ["pnpm", "patch", "补丁"]
+    },
+    {
+      "id": "fe-pnpm-maintain",
+      "cmd": "pnpm dedupe",
+      "cat": "frontend",
+      "desc": "依赖树维护: 去重/清理/重建/溯源",
+      "syntax": "pnpm <dedupe|prune|rebuild|why|list|licenses>",
+      "args": [
+        { "name": "dedupe", "desc": "合并重复依赖" },
+        { "name": "prune", "desc": "移除多余(extraneous)依赖" },
+        { "name": "rebuild", "desc": "重建原生模块" },
+        { "name": "why", "desc": "解释某依赖从哪来" },
+        { "name": "licenses list", "desc": "列出依赖许可证" }
+      ],
+      "examples": [
+        { "cmd": "pnpm dedupe", "comment": "合并重复依赖" },
+        { "cmd": "pnpm prune", "comment": "清理多余依赖" },
+        { "cmd": "pnpm rebuild esbuild", "comment": "重建原生模块" },
+        { "cmd": "pnpm why react", "comment": "查看 react 被谁引入" },
+        { "cmd": "pnpm list --depth 0", "comment": "只看顶层依赖" },
+        { "cmd": "pnpm licenses list", "comment": "列出全部依赖许可证" }
+      ],
+      "tags": ["pnpm", "维护", "依赖树"]
+    },
+    {
+      "id": "fe-pnpm-config",
+      "cmd": "pnpm config",
+      "cat": "frontend",
+      "desc": "配置 pnpm(镜像源/代理)与发布",
+      "syntax": "pnpm config set <key> <value> | pnpm publish",
+      "args": [
+        { "name": "config set registry", "desc": "设置镜像源" },
+        { "name": "--global", "desc": "写入全局配置" },
+        { "name": "--access public", "desc": "发布公开包" },
+        { "name": "-r", "desc": "递归所有子包" },
+        { "name": "--no-git-checks", "desc": "发布时跳过 git 检查" }
+      ],
+      "examples": [
+        { "cmd": "pnpm config get registry", "comment": "查看当前镜像源" },
+        { "cmd": "pnpm config set registry https://registry.npmmirror.com", "comment": "切换国内镜像源" },
+        { "cmd": "pnpm config set store-dir ~/.pnpm-store --global", "comment": "自定义 store 目录" },
+        { "cmd": "pnpm pack", "comment": "打包成 tgz 预览内容" },
+        { "cmd": "pnpm publish --access public", "comment": "发布到 npm" },
+        { "cmd": "pnpm -r publish --no-git-checks", "comment": "递归发布所有子包" }
+      ],
+      "tags": ["pnpm", "config", "发布", "镜像源"]
+    },
+    {
+      "id": "fe-yarn-install",
+      "cmd": "yarn install",
+      "cat": "frontend",
+      "desc": "安装依赖(Yarn 1 经典版 / Berry 通用)",
+      "syntax": "yarn install [--frozen-lockfile|--immutable]",
+      "args": [
+        { "name": "--frozen-lockfile", "desc": "锁文件不匹配即失败(Yarn 1)" },
+        { "name": "--immutable", "desc": "锁文件不匹配即失败(Berry)" },
+        { "name": "--production", "desc": "只装生产依赖" },
+        { "name": "--offline", "desc": "离线安装" },
+        { "name": "--ignore-scripts", "desc": "不执行安装脚本" }
+      ],
+      "examples": [
+        { "cmd": "yarn", "comment": "安装全部依赖" },
+        { "cmd": "yarn install --frozen-lockfile", "comment": "CI 严格安装(Yarn 1)" },
+        { "cmd": "yarn install --immutable", "comment": "CI 严格安装(Berry)" },
+        { "cmd": "yarn install --production", "comment": "只装生产依赖" },
+        { "cmd": "yarn install --offline", "comment": "离线安装" },
+        { "cmd": "yarn install --ignore-scripts", "comment": "跳过 postinstall 脚本" }
+      ],
+      "tags": ["yarn", "install", "依赖", "lockfile"]
+    },
+    {
+      "id": "fe-yarn-add",
+      "cmd": "yarn add",
+      "cat": "frontend",
+      "desc": "添加 / 移除依赖",
+      "syntax": "yarn add <pkg> [-D] [-P] [-E]",
+      "args": [
+        { "name": "-D / --dev", "desc": "devDependencies" },
+        { "name": "-P / --peer", "desc": "peerDependencies (Berry)" },
+        { "name": "-E / --exact", "desc": "精确版本, 不加 ^" },
+        { "name": "-W", "desc": "装到 workspace 根" },
+        { "name": "remove", "desc": "移除依赖" }
+      ],
+      "examples": [
+        { "cmd": "yarn add axios", "comment": "添加运行时依赖" },
+        { "cmd": "yarn add -D eslint prettier", "comment": "添加开发依赖" },
+        { "cmd": "yarn add react@18.3.1", "comment": "安装指定版本" },
+        { "cmd": "yarn add -E lodash", "comment": "精确版本, 不加 ^" },
+        { "cmd": "yarn add -W -D typescript", "comment": "装到 monorepo 根" },
+        { "cmd": "yarn remove lodash", "comment": "移除依赖" }
+      ],
+      "tags": ["yarn", "add", "依赖"]
+    },
+    {
+      "id": "fe-yarn-run",
+      "cmd": "yarn run",
+      "cat": "frontend",
+      "desc": "执行脚本 / 本地命令 / 临时包",
+      "syntax": "yarn run <script> | yarn exec <cmd> | yarn dlx <pkg>",
+      "args": [
+        { "name": "run", "desc": "执行脚本(可省略 run)" },
+        { "name": "exec", "desc": "用项目依赖的可执行文件(Berry)" },
+        { "name": "dlx", "desc": "临时执行包(Berry)" },
+        { "name": "node", "desc": "用项目指定的 node 执行(Berry)" },
+        { "name": "bin", "desc": "打印可执行文件目录" }
+      ],
+      "examples": [
+        { "cmd": "yarn run", "comment": "列出全部可用脚本" },
+        { "cmd": "yarn dev", "comment": "直接执行脚本(可省 run)" },
+        { "cmd": "yarn run build", "comment": "显式 run 执行构建" },
+        { "cmd": "yarn exec tsc --noEmit", "comment": "用本地 tsc 做类型检查" },
+        { "cmd": "yarn dlx create-vite my-app", "comment": "免安装执行脚手架" },
+        { "cmd": "yarn node -v", "comment": "用项目指定版本 node" }
+      ],
+      "tags": ["yarn", "脚本", "exec", "dlx"]
+    },
+    {
+      "id": "fe-yarn-upgrade",
+      "cmd": "yarn up",
+      "cat": "frontend",
+      "desc": "升级依赖(Yarn 1 用 upgrade)",
+      "syntax": "yarn up <pkg> | yarn upgrade [<pkg>] [-i]",
+      "args": [
+        { "name": "up (Berry) / upgrade (v1)", "desc": "升级依赖" },
+        { "name": "--latest / -L", "desc": "跨大版本升级" },
+        { "name": "-i / --interactive", "desc": "交互式逐个选择" },
+        { "name": "-R / --recursive", "desc": "递归升级所有 workspace" }
+      ],
+      "examples": [
+        { "cmd": "yarn up react", "comment": "升级 react(Berry)" },
+        { "cmd": "yarn up react@latest", "comment": "升到最新版本" },
+        { "cmd": "yarn up -i", "comment": "交互式挑选要升的包" },
+        { "cmd": "yarn upgrade-interactive --latest", "comment": "Yarn 1 交互式升级" },
+        { "cmd": "yarn up -R lodash", "comment": "递归升级所有 workspace" },
+        { "cmd": "yarn outdated", "comment": "查看可升级列表" }
+      ],
+      "tags": ["yarn", "升级", "up"]
+    },
+    {
+      "id": "fe-yarn-workspaces",
+      "cmd": "yarn workspaces",
+      "cat": "frontend",
+      "desc": "Yarn workspaces 多包仓库操作",
+      "syntax": "yarn workspace <name> <cmd> | yarn workspaces foreach",
+      "args": [
+        { "name": "workspace <name>", "desc": "在指定子包内执行" },
+        { "name": "-W", "desc": "在根包执行" },
+        { "name": "workspaces info", "desc": "查看 workspace 拓扑(Yarn 1)" },
+        { "name": "workspaces foreach -A", "desc": "遍历全部子包(Berry)" },
+        { "name": "-t", "desc": "按依赖拓扑顺序执行(Berry)" }
+      ],
+      "examples": [
+        { "cmd": "yarn workspace web dev", "comment": "在 web 子包执行脚本" },
+        { "cmd": "yarn workspace web add lodash", "comment": "给子包装依赖" },
+        { "cmd": "yarn workspaces info", "comment": "查看 workspace 结构(Yarn 1)" },
+        { "cmd": "yarn workspaces foreach -A run build", "comment": "全部子包依次构建(Berry)" },
+        { "cmd": "yarn workspaces foreach -pt run test", "comment": "并行+拓扑顺序跑测试" },
+        { "cmd": "yarn add -W -D typescript", "comment": "依赖装到根包" }
+      ],
+      "tags": ["yarn", "workspaces", "monorepo"]
+    },
+    {
+      "id": "fe-yarn-why",
+      "cmd": "yarn why",
+      "cat": "frontend",
+      "desc": "排查依赖来源、版本与安全",
+      "syntax": "yarn why <pkg> | yarn list | yarn info <pkg>",
+      "args": [
+        { "name": "why", "desc": "解释该包被谁依赖" },
+        { "name": "list --pattern", "desc": "按模式列出依赖" },
+        { "name": "info", "desc": "查看包元数据/可用版本" },
+        { "name": "audit", "desc": "安全审计" },
+        { "name": "dedupe", "desc": "合并重复依赖(Berry)" }
+      ],
+      "examples": [
+        { "cmd": "yarn why react", "comment": "查看 react 被谁引入" },
+        { "cmd": "yarn list --pattern lodash", "comment": "按模式匹配依赖" },
+        { "cmd": "yarn info react versions --json", "comment": "查看可用版本列表" },
+        { "cmd": "yarn audit", "comment": "依赖安全审计" },
+        { "cmd": "yarn dedupe", "comment": "合并重复依赖(Berry)" },
+        { "cmd": "yarn npm info react", "comment": "Berry 下查询 npm 元数据" }
+      ],
+      "tags": ["yarn", "依赖排查", "why", "audit"]
+    },
+    {
+      "id": "fe-yarn-config",
+      "cmd": "yarn config",
+      "cat": "frontend",
+      "desc": "配置 Yarn: 镜像源 / 版本 / 插件 / 缓存",
+      "syntax": "yarn config set <key> <value> | yarn set version <ver>",
+      "args": [
+        { "name": "config get/set", "desc": "读写配置" },
+        { "name": "set version", "desc": "切换 Yarn 版本(Berry)" },
+        { "name": "plugin import", "desc": "安装官方插件(Berry)" },
+        { "name": "cache clean/dir", "desc": "缓存清理与查看" },
+        { "name": "policies set-version", "desc": "老版本切换 Yarn 版本" }
+      ],
+      "examples": [
+        { "cmd": "yarn config get registry", "comment": "查看镜像源(Yarn 1)" },
+        { "cmd": "yarn config set registry https://registry.npmmirror.com", "comment": "切换国内镜像源" },
+        { "cmd": "yarn config set npmRegistryServer https://registry.npmmirror.com", "comment": "Berry 设置镜像源" },
+        { "cmd": "yarn set version berry", "comment": "升级到 Yarn Berry" },
+        { "cmd": "yarn plugin import workspace-tools", "comment": "安装 workspace 插件" },
+        { "cmd": "yarn cache clean", "comment": "清理本地缓存" }
+      ],
+      "tags": ["yarn", "config", "版本", "缓存"]
+    },
+    {
+      "id": "fe-yarn-publish",
+      "cmd": "yarn publish",
+      "cat": "frontend",
+      "desc": "打包、升版本与发布包",
+      "syntax": "yarn pack | yarn publish [--access public]",
+      "args": [
+        { "name": "pack", "desc": "打包成 tgz 预览内容" },
+        { "name": "version", "desc": "升版本号" },
+        { "name": "publish", "desc": "发布到 registry" },
+        { "name": "--tag", "desc": "指定 dist-tag, 如 beta" },
+        { "name": "npm login", "desc": "登录 npm(Berry)" }
+      ],
+      "examples": [
+        { "cmd": "yarn pack", "comment": "打包预览将发布的内容" },
+        { "cmd": "yarn version --patch", "comment": "patch 版本号 +1" },
+        { "cmd": "yarn version --new-version 1.2.0", "comment": "指定新版本号" },
+        { "cmd": "yarn publish --access public", "comment": "发布公开包" },
+        { "cmd": "yarn publish --tag beta", "comment": "发布到 beta 标签" },
+        { "cmd": "yarn npm login", "comment": "登录 npm 账号(Berry)" }
+      ],
+      "tags": ["yarn", "发布", "pack", "version"]
+    },
+    {
+      "id": "fe-bun",
+      "cmd": "bun",
+      "cat": "frontend",
+      "desc": "Bun 极速包管理、运行时与打包",
+      "syntax": "bun install | bun run <script> | bun add <pkg>",
+      "args": [
+        { "name": "install", "desc": "安装依赖" },
+        { "name": "add", "desc": "添加依赖, -d 为开发依赖" },
+        { "name": "run", "desc": "执行脚本" },
+        { "name": "build", "desc": "打包" }
+      ],
+      "examples": [
+        { "cmd": "bun install", "comment": "安装依赖" },
+        { "cmd": "bun add -d typescript", "comment": "添加开发依赖" },
+        { "cmd": "bun run dev", "comment": "执行脚本" },
+        { "cmd": "bunx vite", "comment": "临时执行包" },
+        { "cmd": "bun build ./src/index.ts --outdir ./dist", "comment": "直接打包" }
+      ],
+      "tags": ["bun", "运行时", "包管理"]
+    },
+    {
+      "id": "fe-corepack",
+      "cmd": "corepack",
+      "cat": "frontend",
+      "desc": "锁定并启用项目声明的包管理器版本",
+      "syntax": "corepack <enable|prepare|use> [pkg@ver]",
+      "args": [
+        { "name": "enable", "desc": "启用 shim 接管 npm/yarn/pnpm" },
+        { "name": "prepare", "desc": "预下载指定包管理器" },
+        { "name": "use", "desc": "写入 packageManager 字段" }
+      ],
+      "examples": [
+        { "cmd": "corepack enable", "comment": "开启包管理器版本代理" },
+        { "cmd": "corepack prepare pnpm@9.0.0 --activate", "comment": "激活指定版本" },
+        { "cmd": "corepack use pnpm@9", "comment": "写入 packageManager 字段" },
+        { "cmd": "corepack disable", "comment": "关闭 shim" }
+      ],
+      "tags": ["corepack", "包管理器", "版本"]
+    },
+    {
+      "id": "fe-create-vite",
+      "cmd": "npm create vite",
+      "cat": "frontend",
+      "desc": "用 Vite 官方脚手架创建项目",
+      "syntax": "npm create vite@latest <name> -- --template <tpl>",
+      "args": [
+        { "name": "--template", "desc": "模板, 如 react-ts/vue-ts/vanilla-ts" },
+        { "name": ".", "desc": "在当前目录创建" },
+        { "name": "--overwrite", "desc": "覆盖已存在文件" }
+      ],
+      "examples": [
+        { "cmd": "npm create vite@latest my-app", "comment": "交互式选择框架" },
+        { "cmd": "npm create vite@latest my-app -- --template react-ts", "comment": "React + TS 模板" },
+        { "cmd": "npm create vite@latest . -- --template vue-ts", "comment": "在当前目录创建" },
+        { "cmd": "pnpm create vite my-app --template vanilla-ts", "comment": "pnpm 方式创建" }
+      ],
+      "tags": ["vite", "脚手架", "react", "vue"]
+    },
+    {
+      "id": "fe-vite-dev",
+      "cmd": "vite",
+      "cat": "frontend",
+      "desc": "启动 Vite 开发服务器(秒级热更新)",
+      "syntax": "vite [--host] [--port <n>] [--open]",
+      "args": [
+        { "name": "--host", "desc": "监听 0.0.0.0 供局域网访问" },
+        { "name": "--port", "desc": "指定端口" },
+        { "name": "--open", "desc": "启动后自动打开浏览器" },
+        { "name": "--mode", "desc": "指定环境模式" }
+      ],
+      "examples": [
+        { "cmd": "vite", "comment": "启动开发服务器" },
+        { "cmd": "vite --host", "comment": "局域网/手机真机调试" },
+        { "cmd": "vite --port 5174 --open", "comment": "指定端口并自动打开" },
+        { "cmd": "vite --mode staging", "comment": "使用 .env.staging 配置" },
+        { "cmd": "vite --force", "comment": "忽略预构建缓存重新构建" }
+      ],
+      "tags": ["vite", "开发服务器", "热更新"]
+    },
+    {
+      "id": "fe-vite-build",
+      "cmd": "vite build",
+      "cat": "frontend",
+      "desc": "构建生产产物到 dist 目录",
+      "syntax": "vite build [--mode <m>] [--sourcemap]",
+      "args": [
+        { "name": "--mode", "desc": "指定生产环境模式" },
+        { "name": "--sourcemap", "desc": "生成 sourcemap" },
+        { "name": "--base", "desc": "资源公共路径前缀" },
+        { "name": "--outDir", "desc": "自定义输出目录" }
+      ],
+      "examples": [
+        { "cmd": "vite build", "comment": "构建生产包" },
+        { "cmd": "vite build --mode staging", "comment": "按 staging 环境构建" },
+        { "cmd": "vite build --sourcemap", "comment": "保留 sourcemap 便于排错" },
+        { "cmd": "vite build --base=/app/", "comment": "部署到子路径" },
+        { "cmd": "vite build --outDir build", "comment": "输出到 build 目录" }
+      ],
+      "tags": ["vite", "构建", "生产"]
+    },
+    {
+      "id": "fe-vite-preview",
+      "cmd": "vite preview",
+      "cat": "frontend",
+      "desc": "本地预览生产构建产物",
+      "syntax": "vite preview [--port <n>] [--host]",
+      "args": [
+        { "name": "--port", "desc": "预览端口" },
+        { "name": "--host", "desc": "允许外部访问" },
+        { "name": "--outDir", "desc": "指定预览目录" }
+      ],
+      "examples": [
+        { "cmd": "vite preview", "comment": "预览 dist 产物" },
+        { "cmd": "vite preview --port 4173", "comment": "指定端口预览" },
+        { "cmd": "vite preview --host", "comment": "供局域网验收" }
+      ],
+      "tags": ["vite", "预览", "产物"]
+    },
+    {
+      "id": "fe-webpack",
+      "cmd": "webpack",
+      "cat": "frontend",
+      "desc": "Webpack 按配置打包",
+      "syntax": "webpack [--config <file>] [--mode <m>]",
+      "args": [
+        { "name": "--config", "desc": "指定配置文件" },
+        { "name": "--mode", "desc": "development/production" },
+        { "name": "--watch", "desc": "监听文件变化重建" },
+        { "name": "--env", "desc": "向配置传环境变量" }
+      ],
+      "examples": [
+        { "cmd": "webpack --mode production", "comment": "生产模式打包" },
+        { "cmd": "webpack --config webpack.prod.js", "comment": "指定配置文件" },
+        { "cmd": "webpack --watch", "comment": "监听重建" },
+        { "cmd": "webpack --env goal=local --mode development", "comment": "传入环境变量" },
+        { "cmd": "webpack serve --open", "comment": "启动 dev-server" }
+      ],
+      "tags": ["webpack", "打包", "构建"]
+    },
+    {
+      "id": "fe-rollup",
+      "cmd": "rollup",
+      "cat": "frontend",
+      "desc": "Rollup 打包 ESM 库",
+      "syntax": "rollup -c [--watch]",
+      "args": [
+        { "name": "-c", "desc": "读取 rollup.config.js" },
+        { "name": "--watch", "desc": "监听重建" },
+        { "name": "--format", "desc": "输出格式 esm/cjs/umd" },
+        { "name": "--file", "desc": "输出文件路径" }
+      ],
+      "examples": [
+        { "cmd": "rollup -c", "comment": "按配置打包" },
+        { "cmd": "rollup -c --watch", "comment": "开发监听模式" },
+        { "cmd": "rollup src/index.js --format es --file dist/index.mjs", "comment": "命令行直接打包" },
+        { "cmd": "rollup -c -o dist/bundle.js", "comment": "临时覆盖输出文件" }
+      ],
+      "tags": ["rollup", "打包", "库"]
+    },
+    {
+      "id": "fe-esbuild",
+      "cmd": "esbuild",
+      "cat": "frontend",
+      "desc": "极快的 JS/TS 打包与压缩工具",
+      "syntax": "esbuild <entry> --bundle --outfile=<out>",
+      "args": [
+        { "name": "--bundle", "desc": "打包依赖" },
+        { "name": "--minify", "desc": "压缩代码" },
+        { "name": "--sourcemap", "desc": "生成 sourcemap" },
+        { "name": "--target", "desc": "目标环境, 如 es2020" },
+        { "name": "--watch", "desc": "监听重建" }
+      ],
+      "examples": [
+        { "cmd": "esbuild src/index.ts --bundle --outfile=dist/bundle.js", "comment": "打包为单文件" },
+        { "cmd": "esbuild src/index.ts --bundle --minify --sourcemap", "comment": "压缩并保留映射" },
+        { "cmd": "esbuild src/index.ts --bundle --format=esm --outfile=dist/index.mjs", "comment": "输出 ESM" },
+        { "cmd": "esbuild src/index.ts --bundle --target=es2020", "comment": "指定语法目标" },
+        { "cmd": "esbuild src/index.ts --bundle --watch", "comment": "监听重建" }
+      ],
+      "tags": ["esbuild", "打包", "极速"]
+    },
+    {
+      "id": "fe-turbo",
+      "cmd": "turbo",
+      "cat": "frontend",
+      "desc": "Turborepo 多包任务编排与缓存",
+      "syntax": "turbo run <task> [--filter <pkg>]",
+      "args": [
+        { "name": "--filter", "desc": "筛选子包" },
+        { "name": "--parallel", "desc": "并行执行忽略依赖" },
+        { "name": "--dry", "desc": "只打印将要执行的任务" },
+        { "name": "--force", "desc": "忽略缓存强制重跑" }
+      ],
+      "examples": [
+        { "cmd": "turbo run build", "comment": "按依赖拓扑构建全部子包" },
+        { "cmd": "turbo run test lint --filter=web", "comment": "只对 web 跑测试和 lint" },
+        { "cmd": "turbo run dev --parallel", "comment": "并行启动所有 dev" },
+        { "cmd": "turbo run build --dry=json", "comment": "查看任务图" },
+        { "cmd": "turbo run build --force", "comment": "跳过缓存重跑" }
+      ],
+      "tags": ["turborepo", "monorepo", "缓存"]
+    },
+    {
+      "id": "fe-storybook",
+      "cmd": "storybook",
+      "cat": "frontend",
+      "desc": "启动/构建 Storybook 组件工作台",
+      "syntax": "storybook <dev|build> [-p <port>]",
+      "args": [
+        { "name": "dev", "desc": "开发模式启动" },
+        { "name": "build", "desc": "构建静态站点" },
+        { "name": "-p", "desc": "指定端口" },
+        { "name": "-o", "desc": "静态输出目录" }
+      ],
+      "examples": [
+        { "cmd": "npx storybook@latest init", "comment": "在项目中初始化" },
+        { "cmd": "npm run storybook", "comment": "启动组件工作台" },
+        { "cmd": "storybook dev -p 6006", "comment": "指定端口启动" },
+        { "cmd": "storybook build -o storybook-static", "comment": "构建静态站点供部署" }
+      ],
+      "tags": ["storybook", "组件", "文档"]
+    },
+    {
+      "id": "fe-next-dev",
+      "cmd": "next dev",
+      "cat": "frontend",
+      "desc": "启动 Next.js 开发服务器",
+      "syntax": "next dev [-p <port>] [-H <host>]",
+      "args": [
+        { "name": "-p", "desc": "端口, 默认 3000" },
+        { "name": "-H", "desc": "监听主机" },
+        { "name": "--turbo", "desc": "启用 Turbopack" }
+      ],
+      "examples": [
+        { "cmd": "next dev", "comment": "启动开发服务器" },
+        { "cmd": "next dev -p 3001", "comment": "换端口启动" },
+        { "cmd": "next dev --turbo", "comment": "用 Turbopack 加速" },
+        { "cmd": "next dev -H 0.0.0.0", "comment": "供局域网访问" }
+      ],
+      "tags": ["next", "react", "ssr"]
+    },
+    {
+      "id": "fe-next-build",
+      "cmd": "next build",
+      "cat": "frontend",
+      "desc": "构建 Next.js 生产产物",
+      "syntax": "next build [--debug]",
+      "args": [
+        { "name": "--debug", "desc": "输出调试信息" },
+        { "name": "--profile", "desc": "生成 React 性能分析" },
+        { "name": "--no-lint", "desc": "构建时跳过 ESLint" }
+      ],
+      "examples": [
+        { "cmd": "next build", "comment": "构建生产包" },
+        { "cmd": "next build --debug", "comment": "排查构建问题" },
+        { "cmd": "next build --no-lint", "comment": "跳过 lint 加速构建" },
+        { "cmd": "ANALYZE=true next build", "comment": "配合体积分析插件" }
+      ],
+      "tags": ["next", "构建", "生产"]
+    },
+    {
+      "id": "fe-next-start",
+      "cmd": "next start",
+      "cat": "frontend",
+      "desc": "以生产模式启动 Next.js 服务",
+      "syntax": "next start [-p <port>]",
+      "args": [
+        { "name": "-p", "desc": "端口" },
+        { "name": "-H", "desc": "监听主机" },
+        { "name": "--keepAliveTimeout", "desc": "长连接超时(毫秒)" }
+      ],
+      "examples": [
+        { "cmd": "next start", "comment": "启动生产服务器" },
+        { "cmd": "next start -p 8080", "comment": "指定端口启动" },
+        { "cmd": "next start -H 0.0.0.0 -p 3000", "comment": "容器内对外服务" }
+      ],
+      "tags": ["next", "生产", "服务"]
+    },
+    {
+      "id": "fe-nuxt",
+      "cmd": "nuxt",
+      "cat": "frontend",
+      "desc": "Nuxt 开发/构建/静态生成/预览",
+      "syntax": "nuxt <dev|build|generate|preview>",
+      "args": [
+        { "name": "dev", "desc": "开发服务器" },
+        { "name": "build", "desc": "构建产物" },
+        { "name": "generate", "desc": "静态站点生成" },
+        { "name": "preview", "desc": "预览构建结果" }
+      ],
+      "examples": [
+        { "cmd": "nuxt dev", "comment": "启动开发服务器" },
+        { "cmd": "nuxt dev --port 3001", "comment": "指定端口" },
+        { "cmd": "nuxt build", "comment": "构建生产产物" },
+        { "cmd": "nuxt generate", "comment": "生成静态站点" },
+        { "cmd": "nuxt preview", "comment": "预览构建结果" }
+      ],
+      "tags": ["nuxt", "vue", "ssr"]
+    },
+    {
+      "id": "fe-vue-cli",
+      "cmd": "vue",
+      "cat": "frontend",
+      "desc": "Vue CLI 创建/扩展/预览项目",
+      "syntax": "vue <create|ui|add|serve> [name]",
+      "args": [
+        { "name": "create", "desc": "创建新项目" },
+        { "name": "ui", "desc": "打开图形化管理界面" },
+        { "name": "add", "desc": "添加官方插件" },
+        { "name": "serve", "desc": "快速预览单个 .vue" }
+      ],
+      "examples": [
+        { "cmd": "vue create my-app", "comment": "创建 Vue 2/3 项目" },
+        { "cmd": "vue ui", "comment": "打开图形化管理界面" },
+        { "cmd": "vue add router", "comment": "添加路由插件" },
+        { "cmd": "vue serve App.vue", "comment": "零配置预览组件" }
+      ],
+      "tags": ["vue", "脚手架", "cli"]
+    },
+    {
+      "id": "fe-angular",
+      "cmd": "ng",
+      "cat": "frontend",
+      "desc": "Angular CLI 创建/服务/构建/生成",
+      "syntax": "ng <new|serve|build|generate|test> [...]",
+      "args": [
+        { "name": "new", "desc": "创建项目" },
+        { "name": "serve", "desc": "启动开发服务器" },
+        { "name": "build", "desc": "构建产物" },
+        { "name": "generate", "desc": "生成组件/服务等" },
+        { "name": "add", "desc": "安装并配置第三方库" }
+      ],
+      "examples": [
+        { "cmd": "ng new my-app", "comment": "创建 Angular 项目" },
+        { "cmd": "ng serve --open", "comment": "启动并打开浏览器" },
+        { "cmd": "ng build --configuration production", "comment": "生产构建" },
+        { "cmd": "ng g c components/card", "comment": "生成组件" },
+        { "cmd": "ng add @angular/material", "comment": "集成 Material" }
+      ],
+      "tags": ["angular", "cli", "构建"]
+    },
+    {
+      "id": "fe-astro",
+      "cmd": "astro",
+      "cat": "frontend",
+      "desc": "Astro 内容站点开发与构建",
+      "syntax": "astro <dev|build|preview|add>",
+      "args": [
+        { "name": "dev", "desc": "开发服务器" },
+        { "name": "build", "desc": "构建静态产物" },
+        { "name": "preview", "desc": "预览产物" },
+        { "name": "add", "desc": "添加集成, 如 react/tailwind" }
+      ],
+      "examples": [
+        { "cmd": "npm create astro@latest", "comment": "创建 Astro 项目" },
+        { "cmd": "astro dev", "comment": "启动开发服务器" },
+        { "cmd": "astro build", "comment": "构建静态站点" },
+        { "cmd": "astro preview", "comment": "本地预览产物" },
+        { "cmd": "astro add tailwind", "comment": "添加 Tailwind 集成" }
+      ],
+      "tags": ["astro", "静态站点", "ssg"]
+    },
+    {
+      "id": "fe-tsc",
+      "cmd": "tsc",
+      "cat": "frontend",
+      "desc": "TypeScript 编译并输出 JS 与类型声明",
+      "syntax": "tsc [-p <tsconfig>] [--outDir <dir>]",
+      "args": [
+        { "name": "-p", "desc": "指定 tsconfig 文件" },
+        { "name": "--outDir", "desc": "输出目录" },
+        { "name": "--declaration", "desc": "同时生成 .d.ts" },
+        { "name": "--watch", "desc": "监听编译" }
+      ],
+      "examples": [
+        { "cmd": "tsc", "comment": "按 tsconfig.json 编译" },
+        { "cmd": "tsc -p tsconfig.build.json", "comment": "用指定配置编译" },
+        { "cmd": "tsc --watch", "comment": "监听文件变化编译" },
+        { "cmd": "tsc src/index.ts --outDir dist --declaration", "comment": "编译并出声明文件" }
+      ],
+      "tags": ["typescript", "tsc", "编译"]
+    },
+    {
+      "id": "fe-tsc-init",
+      "cmd": "tsc --init",
+      "cat": "frontend",
+      "desc": "生成默认 tsconfig.json 配置",
+      "syntax": "tsc --init [--strict]",
+      "args": [
+        { "name": "--strict", "desc": "启用严格模式" },
+        { "name": "--target", "desc": "编译目标, 如 es2020" },
+        { "name": "--module", "desc": "模块系统, 如 esnext" }
+      ],
+      "examples": [
+        { "cmd": "tsc --init", "comment": "生成带注释的默认配置" },
+        { "cmd": "npx tsc --init", "comment": "用本地版本初始化" },
+        { "cmd": "tsc --init --strict", "comment": "直接开启严格模式" },
+        { "cmd": "tsc --init --target es2020 --module esnext", "comment": "指定目标与模块" }
+      ],
+      "tags": ["typescript", "tsconfig", "初始化"]
+    },
+    {
+      "id": "fe-tsc-check",
+      "cmd": "tsc --noEmit",
+      "cat": "frontend",
+      "desc": "只做类型检查, 不产出文件(CI 常用)",
+      "syntax": "tsc --noEmit [-p <tsconfig>]",
+      "args": [
+        { "name": "--noEmit", "desc": "不生成输出文件" },
+        { "name": "--watch", "desc": "监听持续检查" },
+        { "name": "--pretty", "desc": "彩色输出" }
+      ],
+      "examples": [
+        { "cmd": "tsc --noEmit", "comment": "全量类型检查" },
+        { "cmd": "tsc --noEmit -p tsconfig.app.json", "comment": "按指定配置检查" },
+        { "cmd": "tsc --noEmit --watch", "comment": "开发时持续检查" },
+        { "cmd": "vue-tsc --noEmit", "comment": "Vue SFC 类型检查" }
+      ],
+      "tags": ["typescript", "类型检查", "ci"]
+    },
+    {
+      "id": "fe-eslint",
+      "cmd": "eslint",
+      "cat": "frontend",
+      "desc": "JS/TS 代码规范检查与自动修复",
+      "syntax": "npx eslint <paths> [--fix]",
+      "args": [
+        { "name": "--fix", "desc": "自动修复可修复问题" },
+        { "name": "--ext", "desc": "指定检查的扩展名" },
+        { "name": "--max-warnings", "desc": "警告数上限, 超出报错" },
+        { "name": "--cache", "desc": "缓存结果加速二次检查" }
+      ],
+      "examples": [
+        { "cmd": "npx eslint .", "comment": "检查当前项目" },
+        { "cmd": "npx eslint src --ext .js,.jsx,.ts,.tsx", "comment": "限定目录与扩展名" },
+        { "cmd": "npx eslint . --fix", "comment": "自动修复问题" },
+        { "cmd": "npx eslint . --max-warnings=0", "comment": "CI 中零警告" },
+        { "cmd": "npx eslint . --cache", "comment": "启用缓存提速" }
+      ],
+      "tags": ["eslint", "lint", "规范"]
+    },
+    {
+      "id": "fe-prettier",
+      "cmd": "prettier",
+      "cat": "frontend",
+      "desc": "代码格式化(JS/TS/CSS/JSON/MD)",
+      "syntax": "npx prettier --write <paths>",
+      "args": [
+        { "name": "--write", "desc": "就地写入格式化结果" },
+        { "name": "--check", "desc": "只检查是否已格式化" },
+        { "name": "--single-quote", "desc": "使用单引号" },
+        { "name": "--print-width", "desc": "每行最大宽度" }
+      ],
+      "examples": [
+        { "cmd": "npx prettier --write .", "comment": "格式化整个项目" },
+        { "cmd": "npx prettier --check .", "comment": "CI 检查格式" },
+        { "cmd": "npx prettier --write 'src/**/*.{ts,tsx,css}'", "comment": "按 glob 格式化" },
+        { "cmd": "npx prettier --write . --single-quote", "comment": "改用单引号" },
+        { "cmd": "npx prettier --write . --print-width 100", "comment": "调整行宽" }
+      ],
+      "tags": ["prettier", "格式化", "规范"]
+    },
+    {
+      "id": "fe-stylelint",
+      "cmd": "stylelint",
+      "cat": "frontend",
+      "desc": "CSS/SCSS/Less 规范检查与修复",
+      "syntax": "npx stylelint '<glob>' [--fix]",
+      "args": [
+        { "name": "--fix", "desc": "自动修复可修复问题" },
+        { "name": "--formatter", "desc": "指定输出格式" },
+        { "name": "--config", "desc": "指定配置文件" }
+      ],
+      "examples": [
+        { "cmd": "npx stylelint '**/*.css'", "comment": "检查全部 CSS" },
+        { "cmd": "npx stylelint 'src/**/*.{css,scss}' --fix", "comment": "检查并自动修复" },
+        { "cmd": "npx stylelint '**/*.css' --formatter verbose", "comment": "输出详细信息" }
+      ],
+      "tags": ["stylelint", "css", "lint"]
+    },
+    {
+      "id": "fe-husky",
+      "cmd": "husky",
+      "cat": "frontend",
+      "desc": "配置 Git 提交钩子, 提交前自动检查",
+      "syntax": "npx husky <init|add> [hook] [cmd]",
+      "args": [
+        { "name": "init", "desc": "初始化 .husky 目录" },
+        { "name": "add", "desc": "新增钩子脚本" },
+        { "name": "pre-commit", "desc": "提交前钩子" },
+        { "name": "commit-msg", "desc": "校验提交信息钩子" }
+      ],
+      "examples": [
+        { "cmd": "npx husky init", "comment": "初始化 husky" },
+        { "cmd": "npx husky add .husky/pre-commit 'npx lint-staged'", "comment": "提交前跑暂存检查" },
+        { "cmd": "npx husky add .husky/commit-msg 'npx commitlint --edit \"$1\"'", "comment": "校验提交信息" },
+        { "cmd": "echo 'npm test' > .husky/pre-push", "comment": "推送前跑测试" }
+      ],
+      "tags": ["husky", "git", "hooks"]
+    },
+    {
+      "id": "fe-lint-staged",
+      "cmd": "lint-staged",
+      "cat": "frontend",
+      "desc": "只对 git 暂存文件执行 lint/格式化",
+      "syntax": "npx lint-staged [--config <file>]",
+      "args": [
+        { "name": "--config", "desc": "指定配置文件" },
+        { "name": "--diff", "desc": "指定比较范围" },
+        { "name": "--allow-empty", "desc": "无暂存文件也返回成功" },
+        { "name": "--concurrent", "desc": "并发数或 false" }
+      ],
+      "examples": [
+        { "cmd": "npx lint-staged", "comment": "对暂存文件跑检查" },
+        { "cmd": "npx lint-staged --diff='HEAD~1'", "comment": "检查最近一次提交改动" },
+        { "cmd": "npx lint-staged --allow-empty", "comment": "CI 中空暂存不报错" },
+        { "cmd": "npx lint-staged --concurrent false", "comment": "串行执行避免冲突" }
+      ],
+      "tags": ["lint-staged", "git", "暂存"]
+    },
+    {
+      "id": "fe-commitlint",
+      "cmd": "commitlint",
+      "cat": "frontend",
+      "desc": "校验提交信息是否符合 Conventional Commits",
+      "syntax": "npx commitlint --from <ref> [--to <ref>]",
+      "args": [
+        { "name": "--from", "desc": "起始提交" },
+        { "name": "--to", "desc": "结束提交" },
+        { "name": "--edit", "desc": "校验提交信息文件" },
+        { "name": "--strict", "desc": "严格模式" }
+      ],
+      "examples": [
+        { "cmd": "npx commitlint --from HEAD~1 --to HEAD", "comment": "校验最近一次提交" },
+        { "cmd": "npx commitlint --edit \"$1\"", "comment": "在 commit-msg 钩子中校验" },
+        { "cmd": "echo 'feat: 新增登录页' | npx commitlint", "comment": "管道校验一条信息" },
+        { "cmd": "npx commitlint --from origin/main", "comment": "校验分支全部提交" }
+      ],
+      "tags": ["commitlint", "提交规范", "git"]
+    },
+    {
+      "id": "fe-tailwind-init",
+      "cmd": "tailwindcss init",
+      "cat": "frontend",
+      "desc": "生成 Tailwind CSS 配置文件",
+      "syntax": "npx tailwindcss init [-p] [--ts]",
+      "args": [
+        { "name": "-p", "desc": "同时生成 postcss.config.js" },
+        { "name": "--ts", "desc": "生成 TypeScript 配置" },
+        { "name": "--full", "desc": "生成包含全部默认值的配置" }
+      ],
+      "examples": [
+        { "cmd": "npx tailwindcss init", "comment": "生成 tailwind.config.js" },
+        { "cmd": "npx tailwindcss init -p", "comment": "同时生成 PostCSS 配置" },
+        { "cmd": "npx tailwindcss init --ts", "comment": "生成 TS 配置文件" },
+        { "cmd": "npx tailwindcss init -p --ts", "comment": "TS + PostCSS 一起生成" }
+      ],
+      "tags": ["tailwind", "css", "初始化"]
+    },
+    {
+      "id": "fe-tailwind-build",
+      "cmd": "tailwindcss",
+      "cat": "frontend",
+      "desc": "生成或监听 Tailwind 样式文件",
+      "syntax": "npx tailwindcss -i <in.css> -o <out.css> [--watch]",
+      "args": [
+        { "name": "-i", "desc": "输入 CSS(含 @tailwind 指令)" },
+        { "name": "-o", "desc": "输出 CSS 文件" },
+        { "name": "--watch", "desc": "监听并增量重建" },
+        { "name": "--minify", "desc": "压缩输出" },
+        { "name": "--content", "desc": "指定扫描的模板路径" }
+      ],
+      "examples": [
+        { "cmd": "npx tailwindcss -i ./src/input.css -o ./dist/output.css", "comment": "生成一次样式" },
+        { "cmd": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch", "comment": "开发时监听重建" },
+        { "cmd": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --minify", "comment": "生产压缩输出" },
+        { "cmd": "npx tailwindcss --content './src/**/*.tsx' -o out.css", "comment": "临时指定扫描路径" }
+      ],
+      "tags": ["tailwind", "css", "构建"]
+    },
+    {
+      "id": "fe-vitest",
+      "cmd": "vitest",
+      "cat": "frontend",
+      "desc": "Vite 生态单元测试(默认监听模式)",
+      "syntax": "npx vitest [run] [--ui] [-t <name>]",
+      "args": [
+        { "name": "run", "desc": "单次执行不监听" },
+        { "name": "--ui", "desc": "打开图形化测试界面" },
+        { "name": "--coverage", "desc": "生成覆盖率报告" },
+        { "name": "-t", "desc": "按用例名过滤" }
+      ],
+      "examples": [
+        { "cmd": "npx vitest", "comment": "监听模式跑测试" },
+        { "cmd": "npx vitest run", "comment": "CI 单次执行" },
+        { "cmd": "npx vitest --ui", "comment": "图形界面调试测试" },
+        { "cmd": "npx vitest run --coverage", "comment": "输出覆盖率" },
+        { "cmd": "npx vitest -t 'login'", "comment": "只跑匹配用例" }
+      ],
+      "tags": ["vitest", "测试", "vite"]
+    },
+    {
+      "id": "fe-jest",
+      "cmd": "jest",
+      "cat": "frontend",
+      "desc": "Jest 单元测试与快照测试",
+      "syntax": "npx jest [pattern] [--watch]",
+      "args": [
+        { "name": "--watch", "desc": "监听文件变化重跑" },
+        { "name": "--coverage", "desc": "生成覆盖率" },
+        { "name": "-u", "desc": "更新快照" },
+        { "name": "--runInBand", "desc": "串行执行便于排查" }
+      ],
+      "examples": [
+        { "cmd": "npx jest", "comment": "跑全部测试" },
+        { "cmd": "npx jest --watch", "comment": "监听模式" },
+        { "cmd": "npx jest --coverage", "comment": "输出覆盖率" },
+        { "cmd": "npx jest -u", "comment": "更新过期快照" },
+        { "cmd": "npx jest src/utils.test.ts", "comment": "只跑单个文件" }
+      ],
+      "tags": ["jest", "测试", "快照"]
+    },
+    {
+      "id": "fe-playwright",
+      "cmd": "playwright",
+      "cat": "frontend",
+      "desc": "Playwright 端到端测试与录制",
+      "syntax": "npx playwright <test|codegen|show-report>",
+      "args": [
+        { "name": "--ui", "desc": "交互式测试界面" },
+        { "name": "--headed", "desc": "显示浏览器窗口" },
+        { "name": "--debug", "desc": "断点调试" },
+        { "name": "--project", "desc": "指定浏览器项目" },
+        { "name": "--grep", "desc": "按用例名过滤" }
+      ],
+      "examples": [
+        { "cmd": "npx playwright test", "comment": "无头跑全部 E2E" },
+        { "cmd": "npx playwright test --ui", "comment": "交互界面调试" },
+        { "cmd": "npx playwright test --headed --project=chromium", "comment": "有头跑 Chrome" },
+        { "cmd": "npx playwright codegen https://example.com", "comment": "录制生成测试脚本" },
+        { "cmd": "npx playwright show-report", "comment": "查看测试报告" }
+      ],
+      "tags": ["playwright", "e2e", "测试"]
+    },
+    {
+      "id": "fe-cypress",
+      "cmd": "cypress",
+      "cat": "frontend",
+      "desc": "Cypress 端到端与组件测试",
+      "syntax": "npx cypress <open|run> [--spec <file>]",
+      "args": [
+        { "name": "open", "desc": "打开交互式测试运行器" },
+        { "name": "run", "desc": "无头模式执行" },
+        { "name": "--spec", "desc": "指定用例文件" },
+        { "name": "--browser", "desc": "指定浏览器" }
+      ],
+      "examples": [
+        { "cmd": "npx cypress open", "comment": "打开交互式运行器" },
+        { "cmd": "npx cypress run", "comment": "无头执行全部用例" },
+        { "cmd": "npx cypress run --spec 'cypress/e2e/login.cy.ts'", "comment": "只跑指定用例" },
+        { "cmd": "npx cypress run --browser chrome", "comment": "指定浏览器执行" },
+        { "cmd": "npx cypress run --record", "comment": "上传结果到 Dashboard" }
+      ],
+      "tags": ["cypress", "e2e", "测试"]
+    },
+    {
+      "id": "fe-serve",
+      "cmd": "npx serve",
+      "cat": "frontend",
+      "desc": "本地静态服务器预览构建产物",
+      "syntax": "npx serve <dir> [-l <port>] [-s]",
+      "args": [
+        { "name": "-l", "desc": "指定端口" },
+        { "name": "-s", "desc": "SPA 模式, 全部回退 index.html" },
+        { "name": "-c", "desc": "指定配置文件" }
+      ],
+      "examples": [
+        { "cmd": "npx serve dist", "comment": "预览 dist 产物" },
+        { "cmd": "npx serve -l 3000 dist", "comment": "指定端口" },
+        { "cmd": "npx serve -s dist", "comment": "SPA 路由回退" },
+        { "cmd": "npx http-server dist -p 8080", "comment": "用 http-server 起服务" }
+      ],
+      "tags": ["serve", "静态服务器", "预览"]
+    },
+    {
+      "id": "fe-lighthouse",
+      "cmd": "lighthouse",
+      "cat": "frontend",
+      "desc": "页面性能/可访问性/SEO 审计",
+      "syntax": "npx lighthouse <url> [--view]",
+      "args": [
+        { "name": "--view", "desc": "生成后自动打开报告" },
+        { "name": "--output", "desc": "报告格式 html/json" },
+        { "name": "--preset", "desc": "desktop 或 perf" },
+        { "name": "--only-categories", "desc": "只审计指定类别" }
+      ],
+      "examples": [
+        { "cmd": "npx lighthouse https://example.com --view", "comment": "审计线上页面" },
+        { "cmd": "npx lighthouse http://localhost:5173 --view", "comment": "审计本地开发页" },
+        { "cmd": "npx lighthouse https://example.com --preset=desktop", "comment": "按桌面端打分" },
+        { "cmd": "npx lighthouse https://example.com --output html --output-path report.html", "comment": "导出 HTML 报告" },
+        { "cmd": "npx lighthouse https://example.com --only-categories=performance,accessibility", "comment": "只看性能与可访问性" }
+      ],
+      "tags": ["lighthouse", "性能", "审计"]
+    },
+    {
+      "id": "fe-bundle-analyzer",
+      "cmd": "npx vite-bundle-visualizer",
+      "cat": "frontend",
+      "desc": "可视化分析打包体积构成",
+      "syntax": "npx vite-bundle-visualizer [-c <config>]",
+      "args": [
+        { "name": "-c", "desc": "指定 vite 配置" },
+        { "name": "-o", "desc": "输出文件" },
+        { "name": "-t", "desc": "模板, 如 treemap/sunburst" }
+      ],
+      "examples": [
+        { "cmd": "npx vite-bundle-visualizer", "comment": "生成体积分析图" },
+        { "cmd": "npx vite-bundle-visualizer -c vite.config.ts", "comment": "指定配置文件" },
+        { "cmd": "npx webpack-bundle-analyzer dist/stats.json", "comment": "分析 webpack 产物" },
+        { "cmd": "npx source-map-explorer 'dist/assets/*.js'", "comment": "按模块拆解包体积" }
+      ],
+      "tags": ["体积分析", "打包", "优化"]
+    },
+    {
+      "id": "fe-browserslist",
+      "cmd": "npx browserslist",
+      "cat": "frontend",
+      "desc": "查看 Browserslist 命中的目标浏览器",
+      "syntax": "npx browserslist ['<query>']",
+      "args": [
+        { "name": "--coverage", "desc": "显示覆盖率数据" },
+        { "name": "--json", "desc": "JSON 输出" }
+      ],
+      "examples": [
+        { "cmd": "npx browserslist", "comment": "按项目配置列出浏览器" },
+        { "cmd": "npx browserslist 'last 2 versions'", "comment": "查指定查询结果" },
+        { "cmd": "npx browserslist --coverage", "comment": "查看全球覆盖率" },
+        { "cmd": "npx browserslist '> 0.5%, not dead'", "comment": "常用精简查询" }
+      ],
+      "tags": ["browserslist", "兼容性", "构建"]
+    },
+    {
+      "id": "fe-devtools",
+      "cmd": "Chrome DevTools 快捷键",
+      "cat": "frontend",
+      "desc": "浏览器开发者工具常用快捷键",
+      "syntax": "Cmd+Opt+I=开关  Cmd+Shift+C=选元素  Cmd+Shift+M=设备模拟",
+      "args": [
+        { "name": "Cmd+Opt+I", "desc": "打开/关闭 DevTools" },
+        { "name": "Cmd+Shift+C", "desc": "元素审查模式" },
+        { "name": "Cmd+Shift+M", "desc": "切换设备模拟" },
+        { "name": "Cmd+Shift+P", "desc": "DevTools 命令面板" },
+        { "name": "Cmd+[ / ]", "desc": "左右切换面板" }
+      ],
+      "examples": [
+        { "cmd": "Cmd+Opt+I", "comment": "打开开发者工具" },
+        { "cmd": "Cmd+Shift+C", "comment": "点选页面元素定位 DOM" },
+        { "cmd": "Cmd+Shift+M", "comment": "切换移动端设备模拟" },
+        { "cmd": "Cmd+Shift+P", "comment": "打开命令面板执行任意功能" },
+        { "cmd": "Cmd+Shift+F", "comment": "在源码中全局搜索" },
+        { "cmd": "Cmd+Opt+C", "comment": "切换元素审查模式" }
+      ],
+      "tags": ["devtools", "chrome", "调试"]
+    },
+    {
+      "id": "fe-console",
+      "cmd": "DevTools Console 技巧",
+      "cat": "frontend",
+      "desc": "浏览器控制台调试常用手法",
+      "syntax": "$0 / copy() / monitorEvents() / console.table()",
+      "args": [
+        { "name": "$0", "desc": "当前 Elements 选中的节点" },
+        { "name": "copy(obj)", "desc": "复制对象到剪贴板" },
+        { "name": "monitorEvents(el)", "desc": "监听元素事件流" },
+        { "name": "console.table(arr)", "desc": "表格化输出数组" },
+        { "name": "$$('sel')", "desc": "querySelectorAll 简写" }
+      ],
+      "examples": [
+        { "cmd": "$0.style.outline = '1px solid red'", "comment": "高亮当前选中元素" },
+        { "cmd": "copy($0.outerHTML)", "comment": "复制元素 HTML" },
+        { "cmd": "monitorEvents($0, 'click')", "comment": "打印元素点击事件" },
+        { "cmd": "console.table($$('.item'))", "comment": "表格查看节点列表" },
+        { "cmd": "console.time('x')", "comment": "与 console.timeEnd('x') 配对计时" }
+      ],
+      "tags": ["devtools", "console", "调试"]
+    }
+  ]
+}

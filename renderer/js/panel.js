@@ -35,15 +35,22 @@
         if (self.h.onEnter) self.h.onEnter();
       }
     });
-    // 点击左上角红点关闭面板
+    // 左上角按钮: 红点=收起面板, 绿点=放大/还原命令窗口
     const head = this.root.querySelector('.panel-head');
     if (head) {
       head.addEventListener('click', (e) => {
-        if (e.target.classList.contains('dot')) {
-          if (typeof window.cliGuide !== 'undefined' && window.cliGuide.hidePanel) {
-            window.cliGuide.hidePanel();
+        const t = e.target;
+        if (!t || !t.classList || !t.classList.contains('dot')) return;
+        const guide = (typeof window !== 'undefined' && window.cliGuide) ? window.cliGuide : null;
+        if (t.classList.contains('g')) {
+          if (guide && guide.zoomPanel) {
+            Promise.resolve(guide.zoomPanel()).then((r) => {
+              t.classList.toggle('active', !!(r && r.zoomed));
+            }).catch(() => {});
           }
+          return;
         }
+        if (guide && guide.hidePanel) guide.hidePanel();
       });
     }
   };
@@ -113,8 +120,8 @@
     }
     const exHtml = '<div class="detail-section">// 示例</div><div class="ex-box">' +
       item.examples.map(e =>
-        '<div class="ex-cmd">$ ' + esc(e.cmd) + '</div>' +
-        (e.comment ? '<div class="ex-comment">  # ' + esc(e.comment) + '</div>' : '')
+        (e.comment ? '<div class="ex-comment"># ' + esc(e.comment) + '</div>' : '') +
+        '<div class="ex-cmd">$ ' + esc(e.cmd) + '</div>'
       ).join('') + '</div>';
     const self = this;
     this.detailContent.innerHTML =

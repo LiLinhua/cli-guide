@@ -22,6 +22,7 @@ class FakeEl {
   addEventListener(t, fn) { (this._listeners[t] = this._listeners[t] || []).push(fn); }
   dispatch(t, ev) { (this._listeners[t] || []).forEach(fn => fn(ev)); }
   focus() {} select() {}
+  getBoundingClientRect() { return { top: 0, left: 0, width: 170, height: 110 }; }
   getContext() { return new Proxy({}, { get: () => () => {} }); }
   get classList() {
     return {
@@ -60,6 +61,7 @@ global.cliGuide = {
     return { commands, categories: mergeCategories(categories, [], commands) };
   },
   copyText: async (t) => { copiedText = t; },
+  getConfig: async () => ({ loginItem: false }),
   togglePanel: async () => {}, hidePanel: async () => {}, dragMove: async () => {},
   showMenu: async () => ({ dy: 0 }), hideMenu: async () => {},
   onWindowState: (cb) => { global.__stateCb = cb; }
@@ -79,7 +81,7 @@ const { Main } = require(path.join(ROOT, 'renderer/js/main.js'));
 
   check('命令库加载(>=500 条)', Main.allCommands.length >= 500);
   check('CommandStore 数据入口可用', window.CommandStore.getAll().length >= 500);
-  check('十三个分类入口渲染', els['cat-bar'].children.length === 13);
+  check('十四个分类入口渲染', els['cat-bar'].children.length === 14);
   check('初始列表非空', Main.results.length === Main.allCommands.length);
   check('默认选中第一条', Main.activeIndex === 0 && Main.results[0] !== undefined);
 
@@ -103,6 +105,15 @@ const { Main } = require(path.join(ROOT, 'renderer/js/main.js'));
   /* 窗口状态广播 */
   global.__stateCb('expanded');
   check('展开时面板可见', !els['panel-root'].classList.contains('hidden'));
+
+  /* 命令面板展开时右键桌宠也弹菜单(回归: 曾被 expanded 守卫吞掉) */
+  await Main._showContextMenu();
+  check('展开状态右键弹出菜单', !Main._ctxMenu.classList.contains('hidden'));
+  check('展开状态菜单遮罩显示', !Main._ctxBackdrop.classList.contains('hidden'));
+  Main._hideContextMenu();
+  check('关闭后菜单隐藏', Main._ctxMenu.classList.contains('hidden'));
+  check('关闭后遮罩隐藏', Main._ctxBackdrop.classList.contains('hidden'));
+
   global.__stateCb('compact');
   check('收起时面板隐藏', els['panel-root'].classList.contains('hidden'));
 

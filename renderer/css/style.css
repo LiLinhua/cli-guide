@@ -114,10 +114,11 @@ body {
   padding: 8px 12px;
   border-bottom: 1px solid rgba(0, 255, 136, .25);
 }
-.dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot { width: 8px; height: 8px; border-radius: 50%; cursor: pointer; transition: box-shadow .15s, transform .15s; }
+.dot:hover { transform: scale(1.25); }
 .dot.r { background: #ff5f56; box-shadow: 0 0 6px #ff5f56; }
-.dot.y { background: #ffbd2e; box-shadow: 0 0 6px #ffbd2e; }
 .dot.g { background: #27c93f; box-shadow: 0 0 6px #27c93f; }
+.dot.g.active { box-shadow: 0 0 10px #27c93f, 0 0 0 2px rgba(39, 201, 63, .35); }
 .panel-title { color: var(--green); letter-spacing: 2px; font-size: 12px; font-weight: bold; }
 .panel-hint { margin-left: auto; color: var(--text-dim); font-size: 9px; letter-spacing: 1px; }
 

@@ -95,6 +95,9 @@
       this.expanded = st === 'expanded';
       this._stealthed = st === 'invisible';
       document.getElementById('panel-root').classList.toggle('hidden', !this.expanded);
+      // 主进程在每次状态切换时会重置放大态, 同步清除绿点高亮
+      const zoomDot = document.querySelector('.panel-head .dot.g');
+      if (zoomDot) zoomDot.classList.remove('active');
       // 桌宠内容与隐身条切换
       const petRoot = document.getElementById('pet-root');
       if (petRoot) petRoot.classList.toggle('hidden', this._stealthed);
@@ -213,9 +216,10 @@
       this._ctxMenu.classList.remove('hidden');
       this._ctxMenu.style.visibility = 'hidden';
       const menuH = Math.ceil(this._ctxMenu.getBoundingClientRect().height);
-      const r = await window.cliGuide.showMenu(menuH); // 扩窗容纳菜单(含高度)
-      // 等待扩窗期间状态可能已切换(快捷键展开面板等), 此时不显示菜单
-      if (this.expanded || this._stealthed) {
+      const r = await window.cliGuide.showMenu(menuH); // 扩窗容纳菜单(含高度); 面板已展开时主进程不扩窗
+      // 等待扩窗期间可能转入隐身(自动隐身/快捷键), 此时不显示菜单
+      // 注意: 命令面板展开中同样允许弹菜单, 菜单叠在面板左侧桌宠旁
+      if (this._stealthed) {
         this._ctxMenu.classList.add('hidden');
         this._ctxMenu.style.visibility = '';
         window.cliGuide.hideMenu();
