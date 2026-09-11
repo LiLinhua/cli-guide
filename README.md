@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-blue.svg)](https://github.com/LiLinhua/cli-guide)
 [![Electron](https://img.shields.io/badge/Electron-43-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
+[![Release](https://img.shields.io/github/v/release/LiLinhua/cli-guide?label=release)](https://github.com/LiLinhua/cli-guide/releases/tag/v0.1.0)
 
 <p align="center">
   <img src="assets/imgs/icon.png" alt="CLI-GUIDE 桌宠" width="160" />
@@ -31,7 +32,29 @@
 
 ## 📥 安装
 
-### 方式一：从源码运行（当前推荐）
+### 方式一：下载安装包（推荐）
+
+到 [Releases v0.1.0](https://github.com/LiLinhua/cli-guide/releases/tag/v0.1.0) 下载：
+
+| 平台 | 文件 | 说明 |
+| --- | --- | --- |
+| **Windows** | [CLI-GUIDE.Setup.0.1.0.exe](https://github.com/LiLinhua/cli-guide/releases/download/v0.1.0/CLI-GUIDE.Setup.0.1.0.exe) | NSIS 安装包（可改安装目录） |
+| **Windows** | [CLI-GUIDE.0.1.0.exe](https://github.com/LiLinhua/cli-guide/releases/download/v0.1.0/CLI-GUIDE.0.1.0.exe) | 绿色免安装，双击即用 |
+| **macOS** | — | 暂未提供预编译包，请用下方源码运行，或本机 `npm run dist:mac` |
+
+> Windows 未签名时 SmartScreen 可能拦截：选「更多信息 → 仍要运行」。  
+> macOS Gatekeeper 拦截时：**右键 → 打开**，或执行 `xattr -cr /Applications/CLI-GUIDE.app`。
+
+本地自行打包：
+
+```bash
+npm install
+npm run dist:win    # → release/CLI-GUIDE Setup 0.1.0.exe + CLI-GUIDE 0.1.0.exe
+npm run dist:mac    # 仅能在 macOS 上执行 → dmg + zip
+npm run dist        # 按当前系统打包
+```
+
+### 方式二：从源码运行
 
 需 **Node.js 22+**（Electron 43 要求）：
 
@@ -41,26 +64,6 @@ npm start
 ```
 
 也可用 Web 版零安装体验，见下方 [从源码运行](#-从源码运行)。
-
-### 方式二：安装包（GitHub Releases）
-
-预编译包发布在 [Releases](https://github.com/LiLinhua/cli-guide/releases)。若尚无 Release，请先用方式一，或本地打包：
-
-```bash
-npm install
-npm run dist:win    # Windows → release/CLI-GUIDE Setup <版本>.exe + 便携版
-npm run dist:mac    # macOS（仅能在 Mac 上打）→ dmg + zip
-npm run dist        # 按当前系统打包
-```
-
-| 平台 | 产物 | 说明 |
-| --- | --- | --- |
-| **Windows** | `CLI-GUIDE Setup <版本>.exe` | NSIS 安装包（可改安装目录） |
-| **Windows** | `CLI-GUIDE <版本>.exe` | 绿色免安装 |
-| **macOS** | `CLI-GUIDE-<版本>-arm64.dmg` / `-mac.zip` | 需在 macOS 上执行 `dist:mac` 后自行分发 |
-
-> Windows 未签名时 SmartScreen 可能拦截：选「更多信息 → 仍要运行」。  
-> macOS Gatekeeper 拦截时：**右键 → 打开**，或执行 `xattr -cr /Applications/CLI-GUIDE.app`。
 
 ---
 
