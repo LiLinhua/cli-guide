@@ -24,12 +24,10 @@
       "renderer/**/*",
       "resources/**/*",
       "node_modules/three/**/*",
-      "node_modules/koffi/**/*",
-      "node_modules/@koromix/koffi-win32-x64/**/*"
+      "node_modules/koffi/**"
     ],
     "asarUnpack": [
-      "node_modules/koffi/**/*",
-      "node_modules/@koromix/koffi-win32-x64/**/*"
+      "node_modules/koffi/**"
     ],
     "directories": {
       "output": "release"
