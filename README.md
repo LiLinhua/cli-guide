@@ -40,7 +40,8 @@
 | --- | --- | --- |
 | **Windows** | [CLI-GUIDE.Setup.0.1.0.exe](https://github.com/LiLinhua/cli-guide/releases/download/v0.1.0/CLI-GUIDE.Setup.0.1.0.exe) | NSIS 安装包（可改安装目录） |
 | **Windows** | [CLI-GUIDE.0.1.0.exe](https://github.com/LiLinhua/cli-guide/releases/download/v0.1.0/CLI-GUIDE.0.1.0.exe) | 绿色免安装，双击即用 |
-| **macOS** | — | 暂未提供预编译包，请用下方源码运行，或本机 `npm run dist:mac` |
+| **macOS** | [CLI-GUIDE-0.1.0-arm64.dmg](https://github.com/LiLinhua/cli-guide/releases/download/v0.1.0/CLI-GUIDE-0.1.0-arm64.dmg) | 拖入 Applications（Apple Silicon） |
+| **macOS** | [CLI-GUIDE-0.1.0-arm64-mac.zip](https://github.com/LiLinhua/cli-guide/releases/download/v0.1.0/CLI-GUIDE-0.1.0-arm64-mac.zip) | 解压即得 `.app` |
 
 > Windows 未签名时 SmartScreen 可能拦截：选「更多信息 → 仍要运行」。  
 > macOS Gatekeeper 拦截时：**右键 → 打开**，或执行 `xattr -cr /Applications/CLI-GUIDE.app`。
