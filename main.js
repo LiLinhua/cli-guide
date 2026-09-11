@@ -5,7 +5,8 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const { loadBuiltinCommands, loadUserCommands, mergeCommands, mergeCategories } = require('./lib/commands');
-const { defaultCompactBounds, computeExpandedBounds, computeStealthBounds, computeMenuBounds, computeZoomedBounds, interpolate, PET_W, PET_H, STEALTH_SIZE, ZOOM_MARGIN } = require('./lib/layout');
+const { defaultCompactBounds, computeExpandedBounds, computeStealthBounds, computeMenuBounds, computeZoomedBounds, interpolate, PET_W, PET_H, ZOOM_MARGIN } = require('./lib/layout');
+const { applyCapsuleRegion, clearWindowRegion } = require('./lib/win-region');
 
 const USER_DIR = path.join(os.homedir(), '.cli-guide');
 const CONFIG_FILE = path.join(USER_DIR, 'config.json');
@@ -18,6 +19,7 @@ let tray = null;
 let state = 'compact';
 let animTimer = null;
 let _compactBeforeStealth = null;
+let _stealthSize = null;          // 隐身目标尺寸, 拖拽时强制锁定(防 Windows setPosition 膨胀)
 let _stealthPreview = false;
 let _boundsBeforeMenu = null;
 let _zoomed = false;            // 命令窗口是否处于放大态
@@ -31,6 +33,16 @@ function loadConfig() {
 function saveConfig(cfg) {
   fs.mkdirSync(USER_DIR, { recursive: true });
   fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2));
+}
+
+/* Windows: 隐身时把 HWND 裁成胶囊; 退出隐身时恢复矩形 */
+function syncStealthRegion() {
+  if (!win || state !== 'invisible' || !_stealthSize) return;
+  const scale = screen.getDisplayMatching(win.getBounds()).scaleFactor;
+  applyCapsuleRegion(win, _stealthSize.width, _stealthSize.height, scale);
+}
+function resetWindowRegion() {
+  if (win) clearWindowRegion(win);
 }
 
 /* ---------- 用户数据目录初始化(首次复制内置库与说明文档) ---------- */
@@ -53,10 +65,12 @@ function createWindow() {
 
   win = new BrowserWindow({
     ...bounds,
-    frame: false, transparent: true, resizable: false, movable: true,
+    frame: false, transparent: true, backgroundColor: '#00000000',
+    resizable: false, movable: true,
     alwaysOnTop: true, skipTaskbar: true, hasShadow: false,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false }
   });
+  win.setMinimumSize(1, 1); // 允许缩到隐身条尺寸(Windows 仍有 OS 下限, 由 layout 用更大胶囊规避)
   win.setAlwaysOnTop(true, 'screen-saver');
   win.setVisibleOnAllWorkspaces(true);
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
@@ -96,9 +110,11 @@ function collapse() {
       _compactBeforeStealth = { x: to.x, y: to.y, width: PET_W, height: PET_H };
       const wa = screen.getDisplayMatching(to).workArea;
       const stealthBounds = computeStealthBounds(to, wa);
+      _stealthSize = { width: stealthBounds.width, height: stealthBounds.height };
       state = 'invisible';
       broadcast();
       win.setBounds(stealthBounds);
+      syncStealthRegion();
     } else {
       saveConfig({ ...loadConfig(), x: to.x, y: to.y });
       broadcast();
@@ -109,6 +125,8 @@ function toggle() {
   if (state === 'invisible') {
     if (!win) return;
     _stealthPreview = true;
+    _stealthSize = null;
+    resetWindowRegion();
     resetZoom();
     const compactBounds = _compactBeforeStealth || defaultCompactBounds(screen.getPrimaryDisplay().workArea);
     const wa = screen.getDisplayMatching(compactBounds).workArea;
@@ -176,23 +194,34 @@ ipcMain.handle('window:drag-move', (_e, dx, dy) => {
   const b = win.getBounds();
   let newX = Math.round(b.x + dx);
   let newY = Math.round(b.y + dy);
+  let lockW = b.width;
+  let lockH = b.height;
   if (state === 'invisible' && _compactBeforeStealth) {
-    // 隐身拖拽: 仅沿贴边方向移动, 并同步更新恢复位置
+    // 隐身拖拽: 仅沿贴边方向移动, 并同步更新恢复位置; 尺寸锁定为进入隐身时的目标胶囊
     const wa = screen.getDisplayMatching(b).workArea;
-    if (b.height === STEALTH_SIZE) {
+    const sw = (_stealthSize && _stealthSize.width) || b.width;
+    const sh = (_stealthSize && _stealthSize.height) || b.height;
+    lockW = sw;
+    lockH = sh;
+    if (sw >= sh) {
       newY = b.y; // 水平条: 仅水平移动
       _compactBeforeStealth.x = Math.max(wa.x, Math.min(wa.x + wa.width - PET_W, newX));
-    } else if (b.width === STEALTH_SIZE) {
+    } else {
       newX = b.x; // 垂直条: 仅垂直移动
       _compactBeforeStealth.y = Math.max(wa.y, Math.min(wa.y + wa.height - PET_H, newY));
     }
+  } else if (state === 'compact') {
+    lockW = PET_W;
+    lockH = PET_H;
   }
   // 放大态拖动整个窗口时, 同步平移放大前的位置, 还原后不跳回旧坐标
   if (_zoomed && _boundsBeforeZoom) {
     _boundsBeforeZoom.x += newX - b.x;
     _boundsBeforeZoom.y += newY - b.y;
   }
-  win.setPosition(newX, newY);
+  // Windows 透明置顶窗调用 setPosition 会沿拖拽轴逐像素膨胀, 必须用 setBounds 锁死宽高
+  win.setBounds({ x: newX, y: newY, width: lockW, height: lockH });
+  if (state === 'invisible') syncStealthRegion(); // setBounds 可能冲掉 HRGN, 拖拽后重裁
 });
 ipcMain.handle('login:set', (_e, enabled) => setLoginItem(enabled));
 ipcMain.handle('data:open-dir', () => { ensureUserData(); shell.openPath(USER_CMDS_DIR); });
@@ -203,19 +232,25 @@ ipcMain.handle('pet:stealth', () => {
   saveConfig({ ...loadConfig(), x: _compactBeforeStealth.x, y: _compactBeforeStealth.y });
   const wa = screen.getDisplayMatching(_compactBeforeStealth).workArea;
   const to = computeStealthBounds(_compactBeforeStealth, wa);
+  _stealthSize = { width: to.width, height: to.height };
   state = 'invisible';
   broadcast(); // 动画开始前同步状态, 防止竞态
   animateBounds(_compactBeforeStealth, to, 200, () => {
-    if (win) win.setBounds(to);
+    if (win) {
+      win.setBounds(to);
+      syncStealthRegion();
+    }
   });
 });
 ipcMain.handle('pet:show', () => {
   if (!win || state !== 'invisible') return;
   _stealthPreview = true;
+  resetWindowRegion();
   const to = _compactBeforeStealth || defaultCompactBounds(screen.getPrimaryDisplay().workArea);
   animateBounds(win.getBounds(), to, 200, () => {
     if (win) win.setBounds(to);
     state = 'compact';
+    _stealthSize = null;
     broadcast();
   });
 });
@@ -223,10 +258,12 @@ ipcMain.handle('pet:unstealth', () => {
   return new Promise((resolve) => {
     if (!win || state !== 'invisible') { resolve(); return; }
     _stealthPreview = false;
+    resetWindowRegion();
     const to = _compactBeforeStealth || defaultCompactBounds(screen.getPrimaryDisplay().workArea);
     win.setBounds(to); // 即时恢复 compact 位置, 无需动画
     state = 'compact';
     _compactBeforeStealth = null;
+    _stealthSize = null;
     broadcast();
     resolve();
   });
@@ -294,7 +331,7 @@ if (!gotLock) {
 } else {
   app.on('second-instance', () => { if (win) { toggle(); win.focus(); } });
   app.whenReady().then(() => {
-    app.dock.hide(); // 常驻工具类应用, 不占 Dock
+    if (process.platform === 'darwin' && app.dock) app.dock.hide(); // macOS 不占 Dock; Windows 无 app.dock
     ensureUserData();
     createWindow();
     setupHotkey();

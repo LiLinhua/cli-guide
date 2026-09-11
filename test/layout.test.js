@@ -1,5 +1,5 @@
 'use strict';
-const { defaultCompactBounds, computeExpandedBounds, computeMenuBounds, computeZoomedBounds, interpolate } = require('../lib/layout');
+const { defaultCompactBounds, computeExpandedBounds, computeMenuBounds, computeZoomedBounds, computeStealthBounds, interpolate, STEALTH_SIZE, STEALTH_BAR_LONG } = require('../lib/layout');
 
 let fail = 0;
 const check = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' | ' + name); if (!cond) fail++; };
@@ -53,6 +53,18 @@ const z3 = computeZoomedBounds({ x: 100, y: 100, width: 760, height: 560 }, { x:
 check('小屏不小于桌宠尺寸', z3.width === 236 && z3.height === 150);
 const z4 = computeZoomedBounds({ x: 100, y: 100, width: 760, height: 560 }, wa); // 缺省边距
 check('缺省边距可用', z4.width === 1440 - 40 && z4.height === 900 - 40);
+
+/* 隐身贴边: 右下角桌宠应贴最近边(底或右), 尺寸为平台胶囊 */
+const sb = computeStealthBounds(cb, wa);
+check('隐身尺寸为平台胶囊',
+  (sb.width === STEALTH_BAR_LONG && sb.height === STEALTH_SIZE) ||
+  (sb.width === STEALTH_SIZE && sb.height === STEALTH_BAR_LONG));
+check('隐身贴工作区边缘',
+  sb.y + sb.height === wa.y + wa.height || sb.x + sb.width === wa.x + wa.width ||
+  sb.y === wa.y || sb.x === wa.x);
+if (process.platform === 'win32') {
+  check('Windows 隐身不小于 OS 下限', Math.min(sb.width, sb.height) >= 32 && Math.max(sb.width, sb.height) >= 38);
+}
 
 /* 插值 */
 const v = interpolate(0, 100, 0.5);

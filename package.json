@@ -11,7 +11,7 @@
     "dist": "electron-builder --publish never",
     "dist:mac": "electron-builder --mac --publish never",
     "dist:win": "electron-builder --win --publish never",
-    "test": "node test/commands.test.js && node test/search.test.js && node test/layout.test.js && node test/panel.test.js && node test/smoke.test.js && node test/build-web.test.js && node test/style.test.js"
+    "test": "node test/commands.test.js && node test/search.test.js && node test/layout.test.js && node test/panel.test.js && node test/smoke.test.js && node test/build-web.test.js && node test/style.test.js && node test/win-region.test.js"
   },
   "build": {
     "appId": "com.cliguide.app",
@@ -23,26 +23,55 @@
       "lib/**/*",
       "renderer/**/*",
       "resources/**/*",
-      "node_modules/three/**/*"
+      "node_modules/three/**/*",
+      "node_modules/koffi/**/*",
+      "node_modules/@koromix/koffi-win32-x64/**/*"
     ],
-    "directories": { "output": "release" },
+    "asarUnpack": [
+      "node_modules/koffi/**/*",
+      "node_modules/@koromix/koffi-win32-x64/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
     "electronDist": "node_modules/electron/dist",
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "category": "public.app-category.developer-tools",
       "identity": null,
       "icon": "build/icon.icns"
     },
     "dmg": {
       "contents": [
-        { "x": 130, "y": 220 },
-        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
       ]
     },
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "resources/icon-1024.png"
     },
@@ -58,6 +87,7 @@
     "electron-builder": "^26.0.12"
   },
   "dependencies": {
+    "koffi": "^3.2.1",
     "three": "^0.160.0"
   }
 }

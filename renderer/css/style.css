@@ -18,7 +18,7 @@ body {
   -webkit-user-select: none;
   user-select: none;
 }
-#app { position: relative; width: 100%; height: 100%; }
+#app { position: relative; width: 100%; height: 100%; background: transparent; }
 .hidden { display: none !important; }
 
 /* ---- 桌宠区 ---- */
@@ -271,20 +271,27 @@ body {
   z-index: 199;
 }
 
-/* ---- 隐身贴边条 ---- */
+/* ---- 隐身贴边条(胶囊; 外发光用 drop-shadow 贴合圆角, 避免 box-shadow 矩形光晕) ---- */
 #stealth-bar {
   position: absolute; left: 0; top: 0;
   width: 100%; height: 100%;
-  background: rgba(6, 12, 20, 0.80);
+  background: rgba(6, 12, 20, 0.72);
+  border: 1px solid rgba(0, 255, 136, 0.55);
+  border-radius: 999px;
+  box-shadow: inset 0 0 10px rgba(0, 255, 136, 0.10);
+  filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.55));
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 200;
   cursor: grab;
+  /* 裁切子层, 减少 Windows 透明窗四角发黑 */
+  overflow: hidden;
+  background-clip: padding-box;
 }
 #stealth-bar.dragging { cursor: grabbing; }
 #stealth-bar .stealth-dot {
-  width: 5px; height: 5px;
+  width: 7px; height: 7px;
   border-radius: 50%;
   background: var(--green);
   box-shadow: 0 0 8px var(--green), 0 0 16px var(--green);
